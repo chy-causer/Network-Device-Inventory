@@ -1,0 +1,121 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-09 09:55:25 +0000 (Thu, 09 Feb 2012) $
+# $Revision: 3533 $
+# $Id: inventory_suppliers.tt 3533 2012-02-09 09:55:25Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% ELSE %]
+<p>This page records hardware suppliers for the equipment we maintain. The information used here is used by the list of models</p>
+[% END %]
+
+[% IF edit %]
+
+<form action="suppliers" method="post">
+ <fieldset><legend>Edit an Existing Supplier</legend>
+  [% FOR supplier IN suppliers %]
+      [% IF edit == supplier.id %]
+       <table>
+       <tr><th>Name</th><td><input type="text" name="supplier_name" maxlength="135" value="[% supplier.name | html_entity %]" /></td></tr>
+       <tr><th>Website</th><td><input type="text" name="supplier_website" maxlength="135" value="[% supplier.website | html_entity %]" /></td></tr>
+       <tr><th>Generic technical support phone number</th><td><input type="text" name="supplier_techphone" maxlength="55" value="[% supplier.techphone | html_entity %]" /></td></tr>
+       <tr><th>Generic sales phone number</th><td><input type="text" name="supplier_salesphone" maxlength="55" value="[% supplier.salesphone | html_entity %]" /></td></tr>
+       <tr><th>Address</th><td><input type="text" name="supplier_address" maxlength="255" value="[% supplier.address | html_entity %]" /></td></tr>
+       <td><td colspan="2">
+       <input type="hidden" name="supplier_id" value="[% supplier.id | html_entity %]" />
+       <input type="hidden" name="action" value="edit" />
+       <input type="submit" value="Submit Changes" /></td></tr>
+       </table>
+      [% END %]
+  [% END %]
+  </fieldset>
+</form>
+
+[% ELSIF delete %]
+
+  [% FOR supplier IN suppliers %]
+      [% IF delete == supplier.id %]
+<form action="suppliers" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry called &quot;[% supplier.name | html_entity %]&quot; ?
+ <br />
+ <input type="hidden" name="supplier_id" value="[% supplier.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="suppliers">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
+[% END %]
+
+<form action="suppliers" method="post">
+  <fieldset><legend>create a new supplier</legend>
+    <table>
+      <tr><th>Name</th><td><input type="text" maxlength="135" name="supplier_name" /></td></tr>
+      <tr><th>Website</th><td><input type="text" maxlength="135" name="supplier_website" /> (can be blank)</td></tr>
+      <tr><th>Generic technical support phone number</th><td><input type="text" maxlength="35" name="supplier_techphone" /> (can be blank)</td></tr>
+      <tr><th>Generic sales phone number</th><td><input type="text" maxlength="35" name="supplier_salesphone" /> (can be blank)</td></tr>
+      <tr><th>Address</th><td><input type="text" name="supplier_address" maxlength="255" />(can be blank)</td></tr>
+      <tr><td colspan="2"><input type="submit" value="Create Entry" /></td></tr>
+    </table>
+  </fieldset>
+</form>
+
+<h3>Current Suppliers</h3>
+[% IF suppliers.size > 0 %]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<form action="suppliers" method="get">
+<fieldset><legend>Recorded Suppliers</legend>
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+<table id="allresults">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Name</th>
+    <th>Website</th>
+    <th>Generic Support Phone</th>
+    <th>Generic Sales Phone</th>
+    <th>Address</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+  <tr><td colspan="6">[% suppliers.size %] results were obtained</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR supplier IN suppliers %]
+    <tr [% IF supplier.name == 'OUCS' %] class="status-inactive" [% END %]>
+      <td><input type="radio" name="supplier_id" value="[% supplier.id  | html_entity %]" /></td>
+      <td>[% supplier.name       | html_entity %]</td>
+      <td>[% IF supplier.website.length > 1 %] <a href="[% supplier.website | html_entity %]" target="_blank">[% supplier.website | html_entity %]</a>[% END %]</td>
+      <td>[% supplier.techphone  | html_entity %]</td>
+      <td>[% supplier.salesphone | html_entity %]</td>
+      <td>[% supplier.address    | html_entity %]</td>
+    </tr>
+  
+  [% END %]
+  </tbody>
+</fieldset>
+</table>
+
+[% ELSE %]
+ <p class="block-warning">No suppliers are known to the web application.</p>
+[% END %]
+
+</div>

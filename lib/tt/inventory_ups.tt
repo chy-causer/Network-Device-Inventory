@@ -1,0 +1,133 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:38:44 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3530 $
+# $Id: inventory_ups.tt 3530 2012-02-07 12:38:44Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+<p>Note: The database will prevent you adding a host to a ups that is already associated with it.</p>
+
+[% IF edit %]
+<form action="" method="post">
+  <fieldset><legend>Edit an existing entry</legend>
+  
+  [% FOR link IN links %]
+      [% IF edit == link.link_id -%]
+      <p>
+       Host:
+        <select name="host_id">
+          [% FOR host IN hosts %]
+          <option value="[% host.id | html_entity %]"
+           [% IF link.host_id == host.id %]
+           selected="selected"
+           [% END %]
+           >[% host.name | html_entity %]</option>
+          [% END %]
+        </select>
+      Is protected by UPS:
+        <select name="ups_id">
+          [% FOR device IN ups.sort('name') %]
+          <option value="[% device.ups_id | html_entity %]"
+          
+           [% IF device.ups_id == link.ups_id %]
+           selected="selected"
+           [% END %]
+
+          >[% device.ups_name | html_entity %]</option>
+          [% END -%]
+        </select>
+        <input type="hidden" name="link_id" value="[% link.link_id | html_entity %]" />
+        <input type="submit" value="Submit Changes" />
+        </p>
+      [% END -%]
+  [% END -%]
+  </fieldset>
+</form>
+[% END -%]
+
+<h3>Enter a new record</h3>
+[% IF hosts.size < 1 %]
+    <p class="input-warning">It's not possible to add new ups link records until you've created some hosts (e.g. via the <a href="quickadd"> or <a href="hosts">hosts page</a>).</p>
+    
+[% ELSIF ups.size < 1  %]
+    <p class="input-warning">It's not possible to add new ups link records until you've created UPSs</p>
+
+[% ELSE %]
+<form action="" method="post">
+  <fieldset>
+  <p>Link this host
+        <select name="host_id">
+          [% FOR host IN hosts.sort('name') %]
+          <option value="[% host.id | html_entity %]" [% IF host.id == host_id %] selected="selected" [% END %]>[% host.name | html_entity %]</option>
+          [% END %]
+        </select>
+  
+  to this ups
+        <select name="ups_id">
+          [% FOR link IN ups.sort('name') %]
+          <option value="[% link.ups_id | html_entity %]">[% link.ups_name | html_entity %]</option>
+          [% END %]
+        </select>
+        
+  <input type="submit" value="Create Entry" /></p>
+  </fieldset>
+</form>
+[% END %]
+
+<h3>Current UPS relationships</h3>
+
+[% SET counter=0 %]
+
+[% IF links.size > 0 %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults" summary="Table of existing UPS to Host relationships">
+   <thead>
+    <tr>
+      <th>Ups</th>
+      <th>Host</th>
+      <th>Options</th>
+    </tr>
+   </thead>
+
+   <tfoot>
+    <tr><td colspan="3">[% links.size | html_entity %] hosts ups protected</td></tr>
+   </tfoot>
+
+   <tbody>
+   [% FOR link IN links %]
+
+    [% IF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+
+        <td>[% link.ups_name | html_entity %]</td><td>[% link.host_name | html_entity %]</td><td><a href="ups?link_id=[% link.link_id | html_entity %]">edit this entry</a></td>
+      </tr>
+    [% counter = counter + 1 %]
+   [% END %]
+   </tbody>
+
+  </table>
+
+[% ELSE %]
+ <p class="input-warning">No hosts are known to be connected to any ups devices.</p>
+[% END %]
+
+</div>

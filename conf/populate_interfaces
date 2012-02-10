@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+#
+# Name: populate_interfaces.pl
+# Creator: Guy Edwards
+# Created: 2008-09-19
+# Description: Nuke and rebuild frodo interfaces in inventory
+#
+# $Id: populate_interfaces 2526 2009-06-15 15:40:46Z networks $
+# $LastChangedBy: networks $
+# $LastChangedDate: 2009-06-15 16:40:46 +0100 (Mon, 15 Jun 2009) $
+# $LastChangedRevision: 2526 $
+# $uid: yS0snrg0fRUYfPKspj6FasDLL_pzSlss4QAqFuxYrtTeY $
+#
+#
+#
+use warnings FATAL => 'all';
+use strict;
+
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Socket;    # in order to lookup a host by dns name
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = '/srv/www/overlord/lib/inventory.ini';
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost      = $CONFIG->{'database'}->{db_host};
+my $dbname      = $CONFIG->{'database'}->{db_name};
+my $dbuser      = $CONFIG->{'database'}->{db_user};
+my $dbpass      = $CONFIG->{'database'}->{db_pass};
+my $dbh         = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users = $CONFIG->{'general'}->{allowed_users};
+
+############################################################################
+#                                main program                              #
+############################################################################
+
+# for each entry in list of hosts
+my $sth = $dbh->prepare(
+    'SELECT hosts.name,hosts.id FROM hosts ORDER BY hosts.id');
+if ( !$sth->execute() ) {
+    print
+        'DANGER! DANGER! Database connection in foobar state - replace perl progrmamer.';
+    exit 0;
+}
+
+my @data;
+while ( my $reference = $sth->fetchrow_hashref ) {
+    my %data = %{$reference};
+    push @data, $reference;
+}
+
+foreach my $hashref (@data) {
+    my %entry = %{$hashref};
+
+    # catch the impossible when it suddenly turns out to be possible
+    next if !exists $entry{'name'};
+    next if !exists $entry{'id'};
+
+    my $possible_fqdn = "$entry{'name'}.frodo.ox.ac.uk";
+
+    # maybe it's a hostname
+    my $packed_ip2 = gethostbyname $possible_fqdn;
+    if ( defined $packed_ip2 ) {
+        my $address  = inet_ntoa($packed_ip2);
+        my $hostname = $possible_fqdn;
+
+        my $sth = $dbh->prepare( '
+           INSERT INTO interfaces(host_id,address,lastresolvedfqdn,lastresolveddate) VALUES (?,?,?,NOW())
+           ' );
+
+        # if (!$sth->execute($entry{'id'},$address,$hostname,$date)){
+        if ( !$sth->execute( $entry{'id'}, $address, $hostname ) ) {
+            print "Error: The interface creation was unsuccessful\n";
+            exit 0;
+        }
+
+    }
+    else {
+
+        # it didn't resolve
+        next;
+
+        # it does this anyway but I'm just making it obvious
+    }
+}
+
+
+
+__END__
+
+=head1 NAME
+populate_interfaces.pl
+
+=head1 VERSION
+
+This documentation refers to  version 
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+script to repopulate frodo interfaces into the
+database table when the relationship between hosts
+and interfaces is all foobar'd and yet the list of
+hosts is intact
+
+....know the full meaning of foobar before running, this script will 
+rebuild the interfaces but you'll loose associatetions with interfaces
+
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Configuration files used?
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
+
+=head1 AUTHOR
+
+
+Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+
+
+(c) Guy Edwards

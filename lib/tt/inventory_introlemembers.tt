@@ -1,0 +1,214 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_introlemembers.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message_store.size > 0 %]
+  [% FOR message IN message_store %]
+    [% FOR notification IN message.keys %] 
+      [% IF notification == "ERROR" %]
+        <p class="input-error">ERROR: [% message.$notification  | html_entity %]</p>
+      [% ELSIF notification == "SUCCESS" %]
+        <p class="input-success">SUCCESS: [% message.$notification  | html_entity %]</p>
+      [% ELSIF notification != "FATAL" %]
+        <p class="debug">Programming Error: Weird output from script that I wan't expecting to be output: Key: [% notification  | html_entity %] Value: [% message.$notification  | html_entity %]</p>
+      [% END %]
+    [% END %]
+  [% END %]
+[% END %]
+
+<p>Note: Interfaces can have multiple roles, and the database will prevent the list from containing duplicates.</p>
+
+[% IF edit %]
+   <h3>Edit or delete an existing entry</h3>
+<form action="" method="post">
+  <table>
+  [% found=0 %]
+  [% FOR member IN memberships %]
+      [% IF edit == member.membership_id %]
+      [% found=1 %]
+      <tr>
+       <td>Role</td>
+       <td>
+        <select name="hostgroup_id">
+          [% FOR hostgroup IN hostgroups %]
+          <option value="[% hostgroup.id | html_entity %]"
+           [% IF member.hostgroup_id == hostgroup.id %]
+           selected="selected"
+           [% END %]
+           >[% hostgroup.name | html_entity %]</option>
+          [% END %]
+        </select>
+       </td>
+      </tr>
+      <tr>
+      <td>Interface</td>
+      <td>
+        <select name="host_id">
+          [% FOR host IN hosts %]
+          <option value="[% host.id | html_entity %]"
+           [% IF member.host_id == host.id %]
+           selected="selected"
+           [% END %]
+          >[% host.lastresolvedfqdn | html_entity %]</option>
+          [% END %]
+        </select>
+      </td>
+      </tr>
+      <tr>
+        <td><input type="hidden" name="membership_id" value="[% member.membership_id | html_entity %]" /></td>
+        <td><input type="submit" name="submit" value="Submit Changes" /></td>
+        <td><input type="submit" name="submit" value="Delete Entry" /></td>
+        <td></td>
+      </tr>
+      [% END %]
+  [% END %]
+  [% IF found==0 %]
+     <tr><td class="input-error">This entry (membership_id [% edit | html_entity %] ) appears to no longer exist</td></tr>
+  [% END %]
+  </table>
+</form>
+[% END %]
+
+<h3>Enter a new record</h3>
+[% IF hostgroups.size < 1 %]
+    <p class="input-warning">It's not possible to add new Interface Role membership records until you've created some Interface Roles on the <a href="introles">Interface Roles page</a>.</p>
+    
+
+[% ELSIF hosts.size < 1  %]
+    <p class="input-warning">It's not possible to add new Interface Role membership records until you've created some Interfaces on the <a href="interfaces">Interfaces page</a>.</p>
+
+[% ELSE %]
+<form action="" method="post">
+  <fieldset>
+  <p>Assign this role
+        <select name="hostgroup_id">
+          [% FOR hostgroup IN hostgroups.sort('name') %]
+          <option value="[% hostgroup.id | html_entity %]">[% hostgroup.name | html_entity %]</option>
+          [% END %]
+        </select>
+  
+  to this interface
+        <select name="host_id">
+          [% FOR host IN hosts.sort('name') %]
+          <option value="[% host.id | html_entity %]">[% host.lastresolvedfqdn | html_entity %]</option>
+          [% END %]
+        </select>
+        
+  <input type="submit" value="Create Entry" /></p>
+  </fieldset>
+</form>
+[% END %]
+
+<h3>Current Interface Role Memberships</h3>
+[% IF memberships.size > 0 %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+function RemoveContent(d) {
+document.getElementById(d).style.display = "none";
+}
+function InsertContent(d) {
+document.getElementById(d).style.display = "";
+}
+</script>
+
+<table id="allresults">
+ <thead>
+  <tr>
+    <th>Role Name</th>
+    <th>Total <br />Excl decommissioned</th>
+    <th>Breakdown by interface's host state<br />Active / Inactive / In stock / Decommissioned</th>
+    <th>Options</th>
+  </tr>
+ </thead>
+ <tfoot>
+  <tr><td colspan="7">Use the show/hide options in this table to alter content in the table below</td></tr>
+ </tfoot>
+ <tbody>
+  [% FOREACH group IN group_summary.keys.sort %]
+
+   <tr>
+    <td>[% group | html_entity %]</td>
+    <td>
+        [% truesum = ( group_summary.$group.active.int || 0 ) + ( group_summary.$group.inactive.int || 0 ) + ( group_summary.$group.instock.int || 0) %]
+        [% truesum | html_entity %] 
+    </td>
+    <td>
+        <span class="status-active">[% 0 + ( group_summary.$group.active || 0)  | html_entity %]</span>
+        / <span class="status-inactive">[% 0 + ( group_summary.$group.inactive || 0) | html_entity %]</span> 
+        / <span class="status-instock">[% 0 + ( group_summary.$group.instock || 0) | html_entity %]</span>
+        / <span class="status-decommissioned">[% 0 + ( group_summary.$group.decommissioned || 0) | html_entity %]</span> 
+    </td>
+    <td>
+      <a href="javascript:InsertContent('group[% group_summary.$group.hostgroup_id | html_entity %]')">Show members</a> / 
+      <a href="javascript:RemoveContent('group[% group_summary.$group.hostgroup_id | html_entity %]')">hide members</a> /
+      <a href="introles?hostgroup_id=[% group_summary.$group.hostgroup_id | html_entity %]">edit role</a>
+    </td>
+   </tr>
+  
+  [% END %]
+ </tbody>
+</table>
+
+<table>
+  <thead>
+  <tr>
+    <th>Role Name</th>
+    <th>Interface Name</th>
+    <th>Options</th>
+  </tr>
+ </thead>
+
+ <tfoot>
+  <tr><td colspan="3">Faded out interfaces belong to decommissioned or inactive hosts</td></tr>
+ </tfoot>
+ 
+ [% previous_groups_name="" %]
+  [% counter=0 %]
+  [% FOR member IN memberships %]
+    
+    [% IF member.hostgroup_id != previous_groups_name %]
+        [% IF previous_groups_name !="" %]
+          </tbody>
+        [% END %]
+        <tbody id="group[% member.hostgroup_id | html_entity %]" style="display:none;">
+    [% END %]
+    
+    [% class="" %]
+    [% IF member.state.match('(?i:inactive)') %]
+       [% class="block-status-inactive" %]
+    [% ELSIF member.state.match('(?i:decommissioned)') %]
+       [% class="block-status-decommissioned" %]
+    [% ELSIF counter % 2 > 0 %]
+      [% class="stripe" %]
+    [% END %]
+    
+    <tr class="[% class | html_entity %]">
+
+    [% counter = counter +1 %]
+      <td>[% member.hostgroup_name | html_entity %]</td>
+      <td>[% member.host_name | html_entity %]</td>
+      
+      <td>
+        <a href="introlemembers?membership_id=[% member.membership_id | html_entity %]">edit or delete this entry</a> 
+        / <a href="interfaces?interface_id=[% member.host_id | html_entity %]">edit interface</a>
+        <!-- / <a href="viewhost?host_id=[% member.host_id | html_entity %]">view full interface details</a> -->
+      </td>
+  </tr>
+  [% previous_groups_name=member.hostgroup_id %]
+  [% END %]
+
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No interface role memberships are known to the web application.</p>
+[% END %]
+
+</div>

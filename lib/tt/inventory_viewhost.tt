@@ -1,0 +1,275 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
+# $Revision: 3535 $
+# $Id: inventory_viewhost.tt 3535 2012-02-10 12:47:01Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification  | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+<form id="selectbox" method="get" action="">
+   <fieldset>
+  <p>Search for <input type="text" name="searchterm" /> <input type="submit" value="submit" /><br /> (DNS name, a shortname, an IP address, serial number or asset tag)</p>
+   </fieldset>
+</form>
+
+<script type="text/javascript">
+onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ipaddress[% ELSE -%][% quickview | html_entity -%][% END -%].focus();
+</script>
+
+[% IF lookup && lookup.length > 0 -%]
+
+ [% IF hosts.keys.size > 1 %]
+ <p class="input-warning">There were [% hosts.size | html_entity %] hosts returned by the database</p>
+ [% ELSIF hosts.size == 0 -%]
+ <p class="input-error">There were [% hosts.size | html_entity %] hosts returned by the database</p>
+ [% ELSE -%]
+ <p class="input-success">Your search matched one host:</p>
+ [% END -%]
+
+[%- IF hosts.keys.size > 0 -%]
+ <h3>Details for [% lookup | html_entity %]</h3>
+
+  [% counter=0 -%]
+  [% FOR host IN hosts.keys -%]
+
+[% IF hosts.$host.photos.size > 0 -%]
+   <a href="[% hosts.$host.photos.0.url | html_entity %]"><img style="float:right;" src="[% hosts.$host.photos.0.url | html_entity %]" width="220" alt="photo of this host" /></a>
+[% END -%]
+
+<table>
+  <tr>
+    <th>Name</th>
+      <td>
+        [% hosts.$host.name | html_entity -%]
+        (<a href="edithost?shortname=[% hosts.$host.name | uri %]" style="color:red">Quick Edit</a>)
+      </td>   
+  </tr>
+  
+  [% FOREACH hostgroup IN hosts.$host.hostgroups %]
+      [% IF hostgroup.name == 'device-frodo' %]
+  
+  <tr>
+    <th>Frodo Alias</th>
+    [% IF hosts.$host.cnames.size > 0 %]
+      [% FOREACH cname IN hosts.$host.cnames %]
+        [% IF cname.host_id == hosts.$host.id %]
+        <td>[% cname.shortname | html_entity %] points to [% cname.dnsname | html_entity %]</td>
+        [% END %]
+      [% END %]
+    [% ELSE %]
+      <td class="input-warning">There is no DNS alias set for this host</td>
+    [% END %]
+  </tr>
+  
+      [% END %]
+  [% END %]
+
+  <tr>
+    <th>Description</th>
+    
+    [% IF hosts.$host.description.length > 0 %]
+    <td>[% hosts.$host.description | html_entity %]</td>
+    [% ELSE %]
+    <td class="input-warning">There is no description recorded for this host</td>
+    [% END %]
+  </tr>
+
+  <tr>
+    <th>Status</th>
+      <td>[% hosts.$host.status_state | html_entity %]</td>
+  </tr>
+  
+  <tr>
+    <th>Model</th>
+      <td>[% hosts.$host.manufacturer_name | html_entity %] <a href="models?model_id=[% hosts.$host.model_id | html_entity %]">[% hosts.$host.model_name | html_entity %]</a></td>
+  </tr>
+  
+  <tr>
+    <th>Manufacturer's Serial</th>
+    [% IF hosts.$host.serial && hosts.$host.serial.length > 0 %]
+      <td>[% hosts.$host.serial | html_entity %]</td>
+    [% ELSE %]
+      <td class="input-warning">There is no Manufacturer's serial number recorded for this host</td>
+    [% END %]
+  </tr>
+   
+  <tr>
+    <th>Location</th>
+      <td><a href="locations?location_id=[% hosts.$host.location_id | html_entity %]">[% hosts.$host.location_name | html_entity %]</a></td>
+  </tr>
+
+  <tr>
+    <th>UPS Protected</th>
+      [% IF hosts.$host.ups.0.size < 1 %]
+      <td class="input-warning">
+          No
+      [% ELSE %]
+      <td>
+          [% FOR device IN hosts.$host.ups %]
+          Yes: via <a href="?host_id=[% device.ups_id | html_entity %]">[% device.ups_name | html_entity %]</a><br />
+         [% END %]
+      [% END %]
+      </td>
+  </tr>
+ 
+<!--  no longer used
+  <tr>
+    <th>University Asset Tag</th>
+    [% IF hosts.$host.asset.length > 0 %]
+      <td>[% hosts.$host.asset | html_entity %]</td>
+    [% ELSE %]
+    <td class="input-warning">There is no OUCS asset tag recorded for this host</td>
+    [% END %]
+  </tr>
+-->
+
+  <tr>
+    <th>SSH Keys</th>
+       [% ssh_count=0 %] 
+       [% FOREACH sshkey IN hosts.$host.sshkeys %]
+            [% ssh_count=ssh_count+1 %] 
+       [% END %]
+
+       [% IF ssh_count == 0 %]
+          <td class="input-warning">There are no SSH fingerprints known for this host (<a href="sshkeys">create one?</a>)</td>
+       [% ELSE %]
+     <td>
+      <ul>
+       [% FOREACH sshkey IN hosts.$host.sshkeys %]
+           <li>[% sshkey.fingerprint | html_entity %] (<a href="sshkeys?sshkey_id=[% sshkey.id | html_entity %]">Change this</a>)</li>
+       [% END %]  
+      </ul>
+     </td>
+     [% END %]
+  </tr>
+
+  <tr>
+     <th>Invoice</th>
+     [% IF hosts.$host.invoice_id %]
+         <td><a href="finance?invoice_id=[% hosts.$host.invoice_id %]">[% hosts.$host.invoice_description %] ([% hosts.$host.invoice_date %])</a></td>
+     [% ELSE %]
+         <td class="input-warning">There are no invoices associated with this hardware (<a href="invoices">create one?</a>)</td>
+     [% END %]
+  </tr>
+
+  <tr>
+    <th>Interfaces</th>
+  
+  [% primaryexists=0 %]
+  [% FOREACH interface IN hosts.$host.interfaces %]
+    [% IF interface.isprimary == '1' %]
+       [% primaryexists=1 %]
+       [% LAST %]
+    [% END %]
+  [% END %]
+
+  [% IF hosts.$host.interfaces.size > 0 %]
+    <td>
+      [% IF primaryexists==0 %]
+         <p class="input-warning">There are no primary interfaces designated for this host</p>
+      [% END %]
+
+  <ul>
+  [% FOREACH interface IN hosts.$host.interfaces %]
+    [% IF interface.lastresolvedfqdn=='UNRESOLVED' %]
+        <li class="input-warning">[% interface.address | html_entity %] / UNRESOLVED (<a href="interfaces?interface_id=[% interface.id | html_entity %]">update now?</a>)
+    [% ELSE %]
+        [% IF interface.isprimary=='1' %]
+          <li><span class="primary-interface">
+        [% ELSE %]
+          <li><span class="secondary-interface">
+        [% END %]
+        [% interface.address | html_entity %] / [% interface.lastresolvedfqdn | html_entity %] (cached resolve from [% interface.lastresolveddate | html_entity %])
+        </span>
+    [% END %]
+
+    [% IF interface.isprimary=='1' %]
+       - designated primary
+    [% ELSE %]
+       - secondary 
+    [% END %]
+     <ul>
+      [% IF interface.hostgroups.size < 1 %]
+        <li class="input-warning">This interface is a member of no hostgroups</li>
+      [% ELSE %]
+        [% FOREACH thisrole IN interface.hostgroups %]
+            <li> Has role: [% thisrole.name %] ([% thisrole.description %])</li>
+        [% END %]  
+      [% END %]
+       <li><a href="[% netdisco_url | html_entity %][% interface.address | html_entity %]">Lookup this interface on Netdisco</a></li>
+       <li><a href="[% nagios_url | html_entity %][% interface.lastresolvedfqdn | html_entity %]">Lookup this dns name in Opsview</a></li>
+     </ul>
+
+    </li>
+  [% END %]  
+  </ul>
+  </td>
+    
+  [% ELSIF hosts.$host.interfaces.size < 1 %]
+    <td class="input-warning">There are no interfaces defined for this host</td>
+  [% END %]
+  </tr>
+
+  <tr>
+    <th>Photos</th>
+  
+[% IF hosts.$host.photos.size > 0 %]
+    <td>
+  <table>
+  [% photocounter=1 %]
+  <tr>
+
+  [% FOREACH photo IN hosts.$host.photos %]
+    
+    [% IF photocounter > 3 %]
+      </tr>
+      <tr>
+      [% photocounter = 1 %]
+    [% END %]
+    
+    <td><a href="[% photo.url | html_entity %]"><img src="[% photo.url | html_entity %]" width="150" alt="a photo of this host" /></a></td>
+    [% photocounter = photocounter + 1 %]
+  [% END %]
+
+  </tr>
+  </table>
+    </td>
+
+[% ELSE %]
+ <td class="input-warning">No Photos have been uploaded for this host</td>
+[% END %]
+
+  </tr>
+
+  <tr>
+   <th>Details last confirmed on:</th>
+   <td>
+      [% IF hosts.$host.lastchecked && hosts.$host.lastchecked.length > 0 %]
+          [% hosts.$host.lastchecked | html_entity %]
+      [% ELSE %]
+          <p class="input-warning">Never</p>
+      [% END %]
+      <form method="post" action="">
+        <input type="hidden" name="host_id" value="[% hosts.$host.id | html_entity %]" />
+        <input type="submit" value="Confirm" />
+      </form>
+      </td>
+  </tr>
+
+</table>
+   [% counter = counter +1 %]
+
+ [% END %]
+[% END %]
+
+[% END %]
+</div>

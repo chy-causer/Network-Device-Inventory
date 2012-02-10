@@ -1,0 +1,36 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_bashrc.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+
+<pre>
+# .bashrc compatible output for hostgroups
+# that have been given a bash name
+
+# This is the copy and paste version
+# You dont want to wget this page
+# as it'll have pre tags in it
+</pre>
+
+[% IF fqdns_bybashgroups.keys.size > 0 -%]
+
+ [% FOR bashname IN fqdns_bybashgroups.keys.sort -%]
+    [% NEXT IF fqdns_bybashgroups.$bashname.size < 1 -%]
+    [% counter = fqdns_bybashgroups.$bashname.size -%] 
+<pre>
+    [% bashname | html_entity -%]="[% FOR fqdn IN fqdns_bybashgroups.$bashname %][% counter = counter - 1 -%][% IF fqdn != 'UNRESOLVED' -%][% fqdn | html_entity -%] [% END -%][% END -%]"
+</pre>
+
+[% END %]
+
+[% ELSE %]
+<pre>
+# Sorry, I couldn't find any valid hostgroups
+# where the hosts had an interface up
+#
+# Either the database needs populating or
+# there's a programming error
+</pre>
+[% END %]

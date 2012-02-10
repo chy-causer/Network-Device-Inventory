@@ -1,0 +1,152 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_introles.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+   <h3>Edit an existing entry</h3>
+<form action="" method="post">
+ <fieldset>
+  <table summary="input options for editing a entry">
+  [% FOR hashref IN hostgroups %]
+      [% IF edit == hashref.id %]
+      <tr>
+       <td>Name</td>
+       <td class="essential"><input type="text" name="hostgroup_name" maxlength="24" value="[% hashref.name  | html_entity %]" /></td>
+       <td>Must be alphanumeric and unique</td>
+      </tr>
+      <tr>
+       <td>BASH ref</td>
+       <td><input type="text" name="hostgroup_bash" maxlength="24" value="[% hashref.bash  | html_entity %]" /></td>
+       <td>Will be converted to upper case alphanumeric only</td>
+      </tr>
+      <tr>
+       <td>Opsview ref</td>
+       <td><input type="text" name="hostgroup_nagios" maxlength="24" value="[% hashref.nagios  | html_entity %]" /></td>
+       <td>Will be set to the value of Name, if left blank</td>
+      </tr>
+      <tr>
+       <td>Description</td>
+       <td><input type="text" name="hostgroup_description" maxlength="150" value="[% hashref.description  | html_entity %]" /></td>
+       <td></td>
+      </tr>
+      <tr>
+        <td><input type="hidden" name="hostgroup_id" value="[% hashref.id  | html_entity %]" /></td>
+        <td><input type="submit" value="Submit Changes" /></td>
+        <td></td>
+      </tr>
+      [% END %]
+  [% END %]
+  </table>
+ </fieldset>
+</form>
+[% END %]
+
+<h3>Enter a new record</h3>
+<form action="" method="post">
+ <fieldset>
+  <table summary="input options for creating a entry">
+    <tr>
+      <td>Name</td>
+      <td class="essential"><input type="text" maxlength="24" name="hostgroup_name" /></td>
+      <td>Must be alphanumeric and unique</td>
+    </tr>
+    <tr>
+      <td>BASH ref</td>
+      <td><input type="text" name="hostgroup_bash" maxlength="24" /></td>
+      <td>Will be converted to upper case alphanumeric only</td>
+    </tr>
+    <tr>
+      <td>Opsview ref</td>
+      <td><input type="text" name="hostgroup_nagios" maxlength="24" /></td>
+      <td>Will be set to the value of Name, if left blank</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td><input type="text" name="hostgroup_description" maxlength="150" /></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="submit" value="Create Entry" /></td>
+      <td></td>
+    </tr>
+  </table>
+ </fieldset>
+</form>
+
+<h3>Current Roles</h3>
+[% IF hostgroups.size > 0 %]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults" summary="Currently known interface roles">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>BASH ref</th>
+    <th>Opsview ref</th>
+    <th>Description</th>
+    <th>Total Interfaces</th>
+    <th>Breakdown by interface's host state<br />
+        Active / Inactive / In stock / Decommissioned</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+    <tr><td colspan="6">Further information on interface to role mapping can be found on the <a href="introlemembers">Role Memberships</a> page.</td></tr>
+  </tfoot>
+  
+  <tbody>
+  [% counter=0 %]
+  [% FOREACH hostgroup IN hostgroups %]
+      [% counter = counter +1 %]
+      [% name = hostgroup.name %]
+      [% count_sum = group_summary.$name.active + group_summary.$name.inactive + group_summary.$name.instock %]
+    
+    [% IF 1 > count_sum %]
+      <tr class="block-status-inactive">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td><a href="introles?hostgroup_id=[% hostgroup.id | html_entity %]">[% hostgroup.name  | html_entity %]</a></td>
+      <td>[% hostgroup.bash | html_entity %]</td>
+      <td>[% hostgroup.nagios | html_entity %]</td>
+      <td>[% hostgroup.description | html_entity %]</td>
+      <td>[% count_sum | html_entity %]</td>
+      <td>
+        <span class="status-active">[% 0 + group_summary.$name.active | html_entity %]</span>
+        / <span class="status-inactive">[% 0 + group_summary.$name.inactive | html_entity %]</span> 
+        / <span class="status-instock">[% 0 + group_summary.$name.instock | html_entity %]</span>
+        / <span class="status-decommissioned">[% 0 + group_summary.$name.decommissioned | html_entity %]</span> 
+      </td>
+  </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No interface roles are known to the web application.</p>
+[% END %]
+
+</div>

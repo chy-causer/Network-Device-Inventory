@@ -1,0 +1,44 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
+# $Revision: 3538 $
+# $Id: inventory_admin.tt 3538 2012-02-10 15:39:37Z guy $
+-%]
+
+<h4>Frodos DNS</h4>
+<ul>
+  <li><a href="cnames">Frodo Cnames</a></li>
+</ul>
+
+<h4>Opsview specific</h4>
+<ul>
+  <li><a href="introles">Interface Roles</a></li>
+  <li><a href="introlemembers">Role Memberships</a></li>
+</ul>
+
+<h4>Inventory Tables</h4>
+<ul>
+  <li><a href="manufacturers">Hardware Manufacturers</a></li>
+  <li><a href="models">Hardware Models</a></li>
+  <li><a href="hosts">Hosts</a></li>
+  <li><a href="interfaces">Interfaces</a></li>
+  <li><a href="photos">Photos of hosts</a></li>
+  <li><a href="locations">Locations</a></li>
+  <li><a href="sshkeys">SSH keys</a></li>
+  <li><a href="status">Status</a></li>
+  <li><a href="ups">UPS Protection</a></li>
+</ul>
+
+<ul>
+  <li><a href="finance">Financal overview (work in progress)</a></li>
+  <li><a href="contacts">Contacts</a></li>
+  <li><a href="suppliers">Suppliers</a></li>
+  <li><a href="contracts">Contracts (warranties, support contracts)</a></li>
+  <li><a href="invoices">Invoices</a></li>
+</ul>
+
+<h4>Trouble shooting and sanity checking</h4>
+<ul>
+  <li><a href="problems_interfaces">Interface Problems</a></li>
+  <li><a href="about">History, License, file version information</a></li>
+</ul>

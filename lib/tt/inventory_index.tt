@@ -1,0 +1,26 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-10 16:17:11 +0000 (Fri, 10 Feb 2012) $
+# $Revision: 3540 $
+# $Id: inventory_index.tt 3540 2012-02-10 16:17:11Z guy $
+-%]
+<h3>What is this</h3>
+
+<p>This is a network hardware inventory, it's main use if for keeping track of what devices and servers we have and for feeding information to the various monitoring systems.</p>
+
+<h3>Features Incoming</h3>
+
+<ul>
+  <li>Javascript input validation for the quickfrodo page</li>
+  <li>Add a service level to support contracts</li>
+  <li>Show all devices under a support contract / not under a support contracti (inc cost and duration of contract, start and end date plus service level)</li>
+  <li>Introduce edit restrictions on the groups (frodos/ups and status) where names mustn't change</li>
+</ul>
+
+<h3>Current known Defects</h3>
+<ul class="bugs">
+  <li>The frodo cnames page is a last minute addon, this system was originally designed to depend on the dns, not write scripts to manage it. The last minute addition therefore gives poor usability.</li>
+  <li>Hostgroups: the names of a small number of groups (e.g. frodos, frodo ups) are used in some of the programming logic of the web pages, and yet there isn't an edit restriction on the name of the group in the database. The eventual replacement may be a view comprised of an editable and non editable table.</li>
+  <li>Statuses: Some checks depend upon the names of the statuses not changing, this is a similar issue to above</li>
+</ul>
+

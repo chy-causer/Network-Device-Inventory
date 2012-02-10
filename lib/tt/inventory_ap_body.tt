@@ -1,0 +1,205 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Id: inventory_ap_body.tt 3529 2012-02-07 12:33:58Z guy $
+# $Revision: 3529 $
+-%]
+
+[% IF message_store.size > 0 %]
+  [% FOR message IN message_store %]
+    [% FOR notification IN message.keys %] 
+      [% IF notification.match('ERROR') %]
+        <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+      [% ELSIF notification.match('SUCCESS') %]
+        <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+      [% ELSIF notification != "FATAL" %]
+        <p class="debug">Weird output from script that I wan't expecting to be output: Key: [% notification | html_entity %] Value: [% message.$notification | html_entity %]</p>
+      [% END %]
+    [% END %]
+  [% END %]
+[% END # end the messages 
+%]
+
+<script type="text/javascript">
+$(document).ready(function() 
+    { 
+         $(".stripethis tr:even").addClass("stripe");
+         $(".stripethis tr").mouseover(function() {$(this).addClass("over");}).mouseout(function() {$(this).removeClass("over");});
+         $("#knowndevices").tablesorter(); 
+    } 
+); 
+</script>
+
+[% IF edit %]
+
+<fieldset class="requested"><legend>Edit an existing entry</legend>
+
+[% FOR device IN devices %]
+ [% NEXT IF device.id != edit %]
+<form action="[% thispage | html_entity %]" method="post">
+    <table>
+      <tr><td>Mac address</td>  <td>
+                                    <input name="mac"    value="[% device.mac | html_entity %]" type="text" />
+                                    <input type="hidden" value="[% device.id | html_entity %]" name ="device_id" />
+                                    <!-- dont get excited, the backend ensures you can only screw up stuff youre allowed to screw up -->
+                                </td></tr>
+      <tr><td>Building</td>     <td><input name="building" type="text" value="[% device.building | html_entity %]" /></td></tr>
+      <tr><td>Room</td>         <td><input name="room"     type="text" value="[% device.room     | html_entity %]" /></td></tr>
+      
+      <tr><td>Unit</td>         <td>
+                                     <select name="unit" >
+      [% IF amspecial == 'true' %]
+                                     [% FOR unit IN allunits.keys.sort %]
+                                         <option value="[% unit | html_entity %]" [% IF device.unit==unit %] selected="selected" [% END %]>[% allunits.$unit | html_entity %]</option>
+                                     [% END %]
+      [% ELSE %]
+                                     [% FOR unit IN myunits.keys.sort %]
+                                         <option value="[% unit | html_entity %]" [% IF device.unit==unit %] selected="selected" [% END %]>[% myunits.$unit | html_entity %]</option>
+                                     [% END %]
+      [% END %]
+                                     </select>
+                                </td></tr>
+      
+      [% IF amspecial == 'true' %]
+        <tr class="teamoption"><td>OUCS owned</td>   <td>
+                                     <select name="oucs_owned">
+                                       <option value="true" [% IF device.oucs_owned==1 %] selected="selected" [% END %]>yes</option>
+                                       <option value="false" [% IF device.oucs_owned==0 %] selected="selected" [% END %]>no</option>
+                                     </select>
+                                  </td></tr>
+        <tr class="teamoption"><td>Status</td>       <td>
+                                     <select name="status" >
+                                     [% FOR entry IN status %]
+                                         <option value="[% entry.id | html_entity %]" [% IF device.status_state == entry.state %] selected="selected" [% END %]>[% entry.state | html_entity %]</option>
+                                     [% END %]
+                                     </select>
+                                  </td></tr>
+      [% END %]
+      <tr><td></td><td><input type="submit" value="submit" /></td></tr>
+      <tr><td></td><td><a href="[% thispage | html_entity %]">or click to add an entry instead</td></tr>
+      </table>
+</form>
+[% END # end the loop
+%]
+</fieldset>
+
+[% ELSE %]
+[%
+ # Note that the previous assos array contains the values for a previous
+ # submission (if they exist)
+ #
+ # This way when adding may very similar access points it's onlynecessary to
+ # edit the mac address
+%]
+<fieldset><legend>Add an entry</legend>
+<form action="[% thispage | html_entity %]" method="post" name="add">
+    <table>
+      <tr><td>Mac address</td>  <td><input name="mac"      type="text" [% IF previous.mac %]value="[% previous.mac | html_entity %]"[% END %] /></td></tr>
+      <tr><td>Building</td>     <td><input name="building" type="text" [% IF previous.building %] value="[% previous.building | html_entity %]"[% END %] /></td></tr>
+      <tr><td>Room</td>         <td><input name="room"     type="text" [% IF previous.room %] value="[% previous.room | html_entity %]"[% END %] /></td></tr>
+
+      <tr><td>Unit</td>         
+                                <td>
+                                     <select name="unit" >
+      [% IF amspecial == 'true' %]
+                                     [% FOR unit IN allunits.keys.sort %]
+                                         <option value="[% unit | html_entity %]" [% IF previous.unit ==  unit %]selected="selected"[% END %]>[% unit | html_entity %] : [% allunits.$unit | html_entity %]</option>
+                                     [% END %]
+      [% ELSE %]
+                                     [% FOR unit IN myunits.keys.sort %]
+                                         <option value="[% unit | html_entity %]" [% IF previous.unit ==  unit %]selected="selected"[% END %]>[% myunits.$unit | html_entity %]</option>
+                                     [% END %]
+      [% END %]
+                                     </select>
+                                </td></tr>
+
+
+      [% IF amspecial == 'true' %]
+        <tr class="teamoption"><td>OUCS owned</td>   <td>
+                                     <select name="oucs_owned">
+                                       <option value="true">yes</option>
+                                       <option value="false" [% IF previous.oucs_owned == 'false' %]selected="selected"[% END %]>no</option>
+                                     </select>
+                                  </td></tr>
+        <tr class="teamoption"><td>Status</td>       <td>
+                                     <select name="status" >
+                                     [% FOR entry IN status %]
+                                         <option value="[% entry.id | html_entity %]" [% IF previous.status == entry.id %]selected="selected"[% END %]>[% entry.state | html_entity %]</option>
+                                     [% END %]
+                                     </select>
+                                  </td></tr>
+      [% END %]
+      <tr><td></td><td><input type="submit" value="submit" /></td></tr>
+      </table>
+</form>
+<script type="text/javascript">
+ document.add.mac.focus();
+</script>
+
+</fieldset>
+
+[% END # end the edit form 
+%]
+
+<h3>Known Devices</h3>
+
+[% IF amspecial == 'true' %]
+    <p>Showing all known devices as you are affiliated with oucs</p>
+[% ELSE %]
+    <p>Showing all devices for your affiliated units</p>
+[% END %]
+
+[% IF devices.size > 0 %]
+<table id="knowndevices" class="requested showall stripethis">
+
+<thead>
+<tr>
+  <th>Mac address</th>
+  <th>Unit</th>
+  <th>Building</th>
+  <th>Room</th>
+  
+  [% IF amspecial == 'true' %]
+    <th>OUCS owned</th>
+  [% END %]
+  <th>Status</th>
+  <th>Options</th>
+</tr>
+</thead>
+
+<tfoot>
+ <tr>
+  [% IF amspecial == 'true' %] <td colspan="8">
+  [% ELSE %] <td colspan="6">
+  [% END %]
+  [% devices.size %] results were returned</td>
+ </tr>
+</tfoot>
+
+[% FOR device IN devices %]
+  <tr>
+  
+  <td>[% device.mac          | html_entity %]</td>
+  [% shortname=device.unit %]
+  <td>[% allunits.$shortname | html_entity %]</td>
+  <td>[% device.building     | html_entity %]</td>
+  <td>[% device.room         | html_entity %]</td>
+  
+  [% IF amspecial == 'true' %]
+    <td class="teamoption">[% IF device.oucs_owned == 0 %] No [% ELSE %] Yes [% END %]</td>
+  [% END %]
+    [% IF device.status_state != 'ACTIVE' %]
+        <td class="input-warning">
+    [% ELSE %]
+        <td>
+    [% END %]
+    [% device.status_state | html_entity %]</td>
+
+    <td><a href="?device_id=[% device.id | html_entity %]">edit</a></td>
+  </tr>
+  [% END %]
+</table>
+
+[% ELSE %]
+   <p>No Devices are currently registered</p>
+[% END %]

@@ -1,0 +1,99 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:38:44 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3530 $
+# $Id: inventory_status.tt 3530 2012-02-07 12:38:44Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+<form action="" method="post">
+  <fieldset><legend>Edit an existing entry</legend>
+  [% FOR entry IN status %]
+      [% IF edit == entry.id %]
+      <p>
+       Create a status called
+       <input type="text" name="status_state" maxlength="25" value="[% entry.state | html_entity %]" />
+       described as: 
+       <input type="text" name="status_description" maxlength="254" value="[% entry.description | html_entity %]" />
+       <input type="hidden" name="status_id" value="[% entry.id | html_entity %]" />
+       <input type="submit" value="Submit Changes" />
+      [% END %]
+  [% END %]
+  </fieldset>
+</form>
+[% END %]
+
+<h3>Enter a new record</h3>
+<form action="" method="post">
+  <fieldset><legend>Enter a new record</legend>
+      <p>
+       Create a status called
+       <input type="text" name="status_state" maxlength="25" />
+       described as: 
+      <input type="text" name="status_description" maxlength="254" />
+      <input type="submit" value="Create Entry" />
+      </p>
+  </fieldset>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<h3>States Registered</h3>
+
+[% IF status.size > 0 %]
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>State</th>
+    <th>Description</th>
+    <th>Hosts</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+     <td colspan="3">[% status.size %] results were returned</td>
+  <tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR entry IN status %]
+    [% id = entry.id %]
+    [% name = entry.state %]
+    
+    [% IF 0 + states_total.$name < 1 %]
+      <tr class="block-status-inactive">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+    [% counter = counter +1 %]
+      <td><a href="status?status_id=[% entry.id | html_entity %]">[% entry.state | html_entity %]</a></td>
+      <td>[% entry.description | html_entity %]</td>
+      <td>[% 0 + states_total.$name | html_entity %]</td>
+  </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No status are known to the web application.</p>
+[% END %]
+
+</div>

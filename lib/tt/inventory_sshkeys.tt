@@ -1,0 +1,141 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
+# $Revision: 3538 $
+# $Id: inventory_sshkeys.tt 3538 2012-02-10 15:39:37Z guy $
+-%]
+
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification  | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+<form action="" method="post">
+  <fieldset><legend>Enter an existing record</legend>
+  [% FOR sshkey IN sshkeys %]
+      [% IF edit == sshkey.id %]
+       <p>SSH Keys Fingerprint
+       <input type="text" name="sshkey_fingerprint" maxlength="48" value="[% sshkey.fingerprint | html_entity %]" />
+       belongs to host:
+         <select name="host_id">
+            [% FOR host IN hosts %]
+                <option value="[% host.id | html_entity %]"
+                [% IF host.id == sshkey.host_id %]
+                selected="selected"
+                [% END %]
+                >[% host.name | html_entity %]</option>
+            [% END %]
+         </select>
+        <input type="hidden" name="sshkey_id" value="[% sshkey.id | html_entity %]" />
+        <input type="submit" value="Submit Changes" />
+      [% END %]
+  [% END %]
+   </fieldset>
+</form>
+
+[% ELSIF delete %]
+
+  [% FOR sshkey IN sshkeys %]
+      [% IF delete == sshkey.id %]
+<form action="sshkeys" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry &quot;[% sshkey.fingerprint | html_entity %]&quot; (for [% sshkey.host_name | html_entity %]) ?
+ <br />
+ <input type="hidden" name="sshkey_id" value="[% sshkey.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="sshkeys">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
+[% END %]
+
+
+
+[% IF hosts.size < 1 %]
+    <p class="input-warning">It's not possible to add a new sshkey until you've created some hosts on the <a href="hosts">hosts input page</a>.</p>
+[% ELSE %]
+
+<form action="" method="post">
+  <fieldset><legend>Enter a new record</legend>
+       <p>SSH Key fingerprint
+       <input type="text" maxlength="48" name="sshkey_fingerprint" />
+       belongs to:
+         <select name="host_id">
+            [% FOR host IN hosts %]
+                <option value="[% host.id | html_entity %]" [% IF host.id == host_id %] selected="selected" [% END %]>[% host.name | html_entity %]</option>
+            [% END %]
+         </select>
+      <input type="submit" value="Create Entry" /></p>
+   </fieldset>
+</form>
+[% END %]
+
+[% IF sshkeys.size > 0 %]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allsshkeys").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<form method="get" action="sshkeys">
+<fieldset><legend>SSH keys for Active hosts</legend>
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+
+<table id="allsshkeys">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Host Name</th>
+    <th>SSH key Fingerprint</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+     <tr><td colspan="3">[% sshkeys.size %] results were found</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR sshkey IN sshkeys %]
+    [% id = manufacturer.id %]
+    [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+    
+    [% NEXT IF sshkey.state != 'ACTIVE' %]
+
+    [% IF sshkey.state=='INACTIVE' %]
+      <tr class="block-status-inactive">
+    [% ELSIF sshkey.state=='DECOMMISSIONED' %]
+      <tr class="block-status-decommissioned">
+    [% ELSIF sshkey.state=='INSTOCK' %]
+      <tr class="block-status-instock">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+    [% counter = counter +1 %]
+      <td><input type="radio" name="sshkey_id" value="[% sshkey.id  | html_entity %]" /></td>
+      <td><a href="hosts?host_id=[% sshkey.host_id | html_entity %]">[% sshkey.host_name | html_entity %]</a></td>
+      <td><a href="sshkeys?sshkey_id=[% sshkey.id | html_entity %]">[% sshkey.fingerprint | html_entity %]</a></td>
+  </tr>
+  [% END %]
+  </tbody>
+
+</table>
+</fieldset>
+</form>
+
+[% ELSE %]
+ <p class="input-warning">No sshkeys are known to the web application.</p>
+[% END %]
+
+</div>

@@ -1,0 +1,148 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_interfaces.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+<form action="" method="post">
+  <fieldset><legend>Edit an existing entry</legend>
+  [% FOR interface IN interfaces %]
+      [% IF edit == interface.id %]
+  <p>This host
+        <select name="host_id">
+          [% FOR host IN hosts %]
+          <option value="[% host.id | html_entity %]"
+           [% IF interface.host_id == host.id || makehost_id == interface.host_id %]
+           selected="selected"
+           [% END %]
+          >[% host.name | html_entity %]</option>
+          [% END %]
+        </select>
+      has the IP address
+       <input type="text" value="[% interface.address | html_entity %]" name="interface_address" />
+      which is
+       <select name="isprimary">
+         <option value="false"
+             [% IF makeprimary=='false' %]selected="selected"[% END %]>not the primary interface</option>
+         <option value="true" 
+             [% IF makeprimary=='false' %]
+             [% ELSIF interface.isprimary =='1' || makeprimary=='true' %]
+                 selected="selected"
+             [% END %]>the primary interface</option>
+       </select>
+
+       <input type="hidden" name="interface_id" value="[% interface.id | html_entity %]" />
+       <input name="edit" type="submit" value="Submit Changes and Update Cached DNS Lookup" /><br />
+       <input name="delete" type="submit" value="Delete this entry without further confirmation" /></p>
+      [% END %]
+  [% END %]
+  </fieldset>
+</form>
+[% END %]
+
+
+[% IF hosts.size < 1  %]
+    <p class="input-warning">It's not possible to add new group interface records until you've created some hosts on the <a href="hosts">hosts page</a>.</p>
+
+[% ELSE %]
+<form action="" method="post">
+<fieldset><legend>Enter a new interface</legend>
+  <p>This host: 
+        <select name="host_id">
+          [% FOR host IN hosts -%]
+             <option value="[% host.id | html_entity %]" [% IF makehost_id == host.id -%] selected="selected" [% END -%]>[% host.name | html_entity %]</option>
+          [% END %]
+        </select>
+        has the IP address OR fqdn
+       <input type="text" name="interface_address" />
+      which is
+       <select name="isprimary">
+         <option value="false">not the primary interface</option>
+         <option value="true" [% IF makeprimary=='true' %]selected="selected"[% END %]>the primary interface</option>
+       </select>
+      <input type="submit" value="Create Entry" />
+  </p>
+</fieldset>
+</form>
+
+[% END %]
+
+<h3>Current Host Interfaces</h3>
+[% IF interfaces.size > 0 %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Hosts Name</th>
+    <th>Interface Address</th>
+    <th>Resolves to</th>
+    <th>Last Updated</th>
+    <th>Status</th>
+    <th>Options</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+    <tr><td colspan="6">[% interfaces.size %] results were returned</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR interface IN interfaces %]
+    [% stateclass="" rankclass="" %]
+
+    [% IF interface.state=='INACTIVE' %]
+        [% stateclass="block-status-inactive" %]
+    [% ELSIF interface.state=='DECOMMISSIONED' %]
+        [% stateclass="block-status-decommissioned" %]
+    [% ELSIF interface.state=='INSTOCK' %]
+        [% stateclass="block-status-instock" %]
+    [% END %]
+
+    [% IF interface.isprimary=='1' %]
+        [% rankclass="primary-interface" %]
+    [% ELSE %]
+        [% rankclass="secondary-interface" %]
+    [% END %]
+
+    <tr class="[% stateclass %] [% rankclass %]">
+    
+    [% counter = counter +1 %]
+      <td [% IF interface.isprimary !='1' %] class="secondary"[% END %]>[% interface.host_name | html_entity %]</td>
+      <td [% IF interface.isprimary !='1' %] class="secondary"[% END %]>[% interface.address | html_entity %]</td>
+      <td [% IF interface.state=='ACTIVE' && interface.lastresolvedfqdn=='UNRESOLVED' %] class="input-error" [% END %]>[% interface.lastresolvedfqdn | html_entity %]</td>
+      <td>[% interface.lastresolveddate | html_entity %]</td>
+      <td>[% interface.state | html_entity %]</td>
+      <td>
+          <a href="interfaces?interface_id=[% interface.id | html_entity %]">edit this interface</a> /
+          <a href="hosts?host_id=[% interface.host_id | html_entity %]">edit this host</a>
+      </td>
+  </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No interfaces are known to the web application.</p>
+[% END %]
+
+</div>

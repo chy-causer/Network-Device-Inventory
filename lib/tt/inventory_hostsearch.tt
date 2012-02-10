@@ -1,0 +1,48 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_hostsearch.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<form id="selectbox" method="get" action="">
+   <fieldset>
+
+  [% IF quickview == 'asset' %]
+   
+   <legend>Lookup a host by the University Asset tag</legend>
+     <p>University Asset: <input type="text" name="asset" /><input type="submit" value="submit" /></p>
+   
+   [% ELSIF quickview == 'serial' %]
+   <legend>Lookup a host by the Manufacturer's Serial tag</legend>
+     <p>University Serial: <input type="text" name="serial" /><input type="submit" value="submit" /></p>
+   
+   [% ELSIF quickview == 'dnsname' %]
+   <legend>Lookup a host by the DNS name</legend>
+     <p>DNS name: <input type="text" name="dnsname" /><input type="submit" value="submit" /></p>
+   
+   [% ELSIF quickview == 'shortname' %]
+   <legend>Lookup a host by the shortname</legend>
+     <p>Shortname: <input type="text" name="shortname" /><input type="submit" value="submit" /></p>
+   
+   [% ELSIF quickview == 'ipaddress' %]
+   <legend>Lookup a host by the IP address</legend>
+     <p>Address: <input type="text" name="ipaddress" /><input type="submit" value="submit" /></p>
+   
+   [% ELSE %]
+
+  <table>
+    <tr><td>University Asset</td><td><input type="text" name="asset" /></td></tr>
+    <tr><td>Manufacturer's Serial</td><td><input type="text" name="serial" /></td></tr>
+    <tr><td>Short name</td><td><input type="text" name="shortname" /></td></tr>
+    <tr><td>DNS name</td><td><input type="text" name="dnsname" /></td></tr>
+    <tr><td>IP address</td><td><input type="text" name="ipaddress" /></td></tr>
+    <tr><td colspan="2"><input type="submit" value="submit" /></td></tr>
+  </table>
+   [% END %]
+
+   </fieldset>
+</form>
+
+<script type="text/javascript">
+onload=document.forms.selectbox.[% IF quickview.size AND quickview.size < 1 -%]ipaddress[% ELSE -%][% quickview | html_entity -%][% END -%].focus();
+</script>

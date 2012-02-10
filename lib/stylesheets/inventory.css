@@ -1,0 +1,723 @@
+/* main local css
+ *
+ * $Author: guy $
+ * $Date: 2012-01-27 15:21:19 +0000 (Fri, 27 Jan 2012) $
+ * $Id: local.css 3511 2012-01-27 15:21:19Z guy $
+ * $Revision: 3511 $ 
+ *
+ */
+
+html {
+    margin: 0; 
+    padding: 0;
+}
+body {
+    margin: 0;
+    padding: 0; 
+    font-family: verdana, arial, helvetica, sans-serif;
+    background-color: #FFFFFF; 
+    color: #000000;               /* BRANDING:  black */
+}
+
+/* OUCS Banner */
+
+div#banner {
+    margin: 0;
+    padding: 0;
+    height: 85px; /* makes bg-col fill gap */
+    background-color: #002147;    /* BRANDING:  Blue */
+}
+
+div#banner img#banner-image {
+    float: left;
+    top: 0px;
+}
+
+div#banner img#banner-crest {
+    float: right;
+    top: 0px;
+}
+
+/* content */
+
+div#main {
+    /* background-color: #DDDDFF;  PIRATE: Non Official Pastel blue */
+}
+
+div#container {
+    /* for left and right content columns */
+    clear: both;
+    margin: 0;
+    padding: 0;
+    margin:auto;
+    background-color: white;
+
+    font-size: 85%;
+}
+
+
+div#sidebar {
+    /* child of #container */
+    float: left;
+    padding: 0.25em 0 0.5em 5px;
+    minimum-width:154px;
+    maximum-width:20%;
+    background-color: #DDDDFF; /* PIRATE: Non Official Pastel blue */
+    border-right:  1px solid #002147;    /* BRANDING: Blue */ 
+    border-bottom: 1px solid #002147;    /* BRANDING: Blue */ 
+    font-size: 85%;
+}
+
+div#sidebar h3 {
+   margin:0;
+}
+
+div#sidebar p#home {
+    margin: 0;
+    padding: 0 0 0 0.8em;
+    font-variant: small-caps;
+    font-size: 0.8em;
+}
+
+div#sidebar ul {
+    margin: 1.0em 0em; /* undo default for ul */
+    padding: 0; /* reset from #sidebar */
+    list-style: none;
+}
+
+div#sidebar div.menusection {
+    padding: 0.5em 0 0.5em 0.5em;
+    font-variant: small-caps;
+    font-weight: bold;
+}
+
+div#sidebar li li {
+    background-color: #DDDDFF; /* PIRATE: Non Official Pastel blue */
+    border-bottom: 1px solid #002147;   /* BRANDING: Blue */ 
+}
+
+div#sidebar li li a {
+    display: block;
+    padding: 0.2em 0 0.2em 1.5em;
+}
+
+div#sidebar li li a:hover {
+    background-color: #FFFFFF;
+}
+
+div#sidebar li li a.disabledtool {
+    color: #BBBBBB; /* greyed out */
+}
+
+div#sidebar li li a.activetool {
+    background-color: #FFFFCC;
+}
+
+div#sidebar li li a.activetool:hover {
+    background-color: #FFFFCC;
+}
+
+
+div#content {
+    /* child of #container */
+    float:left;
+    width:78%;
+    maximum-width:78%;
+    padding: 0.5em 1em 1em 1em;
+    background-color: #FFFFFF;
+}
+
+div#content h3#title, div#widecontent h3#title {
+    /* child of #content */
+    padding: 0;
+    margin: 0;
+    margin-bottom:1.0em;
+    font-size: 1.4em;
+    font-weight: normal; /* h3 normally bold */
+    border-bottom: 1px solid #DDDDFF;
+    width: 100%; /* so border goes beyond text */
+}
+
+div#copyright {
+    clear: both;
+    padding: 0.8em;
+    font-size: 0.8em;
+    line-height: 1.2em;
+    border-top: 1px solid gray;
+    color: #002147;                     /* BRANDING: Blue */
+}
+
+/* general link settings */
+
+.input-error {
+    background-image: url(/images/critical.png);
+    background-repeat: no-repeat;
+    border: 1px solid rgb(130,36,51);   /* BRANDING: Official  red */
+    padding: 8px 5px 8px 40px;
+    background-color: rgb(233,197,203); /* BRANDING: Official Pastel red */ 
+    color: #000000;                     /* BRANDING:  black */
+}
+tr.stripe td.input-error {
+    border: 1px solid rgb(130,36,51);   /* BRANDING: Official  red */
+    padding: 5px;
+    background-color: rgb(233,197,203); /* BRANDING: Official Pastel red */ 
+    color: #000000;                     /* BRANDING:  black */
+}
+.input-success {
+    background-image: url(/images/ok.png);
+    background-repeat: no-repeat;
+    border: 1px solid #06ff00;          /* UNOFFICIAL PIRATE GREEN */
+    padding: 8px 5px 8px 40px;
+    background-color: #d2ffd1;          /* UNOFFICIAL PIRATE LIGHT GREEN */
+    color: #000000;                     /* BRANDING:  black */
+}
+.input-warning {
+    border: 1px solid #ffae00;             /* UNOFFICIAL PIRATE ORANGE */
+    padding: 5px;
+    background-color: #ffe4aa;             /* UNOFFICIAL PIRATE LIGHT ORANGE */
+    color: #000000;                        /* BRANDING:  black */
+}
+tr.stripe td.input-warning {
+    border: 1px solid #ffae00;             /* UNOFFICIAL PIRATE ORANGE */
+    padding: 5px;
+    background-color: #ffe4aa;             /* UNOFFICIAL PIRATE LIGHT ORANGE */
+    color: #000000;                        /* BRANDING:  black */
+}
+tr.input-error td, tr.input-error, td.input-error {
+    background-image: none;
+}
+td.input-error {
+    /* put the cell back to normal */
+    padding: 5px;
+}
+
+.right {
+    text-align:right;
+}
+.datamissing {
+    background-color: rgb(225,163,88);  /* BRANDING: Mid Tan */
+    color: #000000;                     /* BRANDING:  black */
+}
+div.information {
+    padding: 1.0em;
+    background-color: #DDDDFF; /* PIRATE: Non Official Pastel blue */
+}
+div.information span {
+    font-weight:bold;
+}
+h3.subnet {
+    font-weight:normal;
+}
+h3.subnet span {
+    font-weight:bold;
+}
+span.shrink {
+    font-size: smaller;
+}
+span.shrink a {
+    color: rgb(202,192,182); /* BRANDING: Pastel brown */
+}
+
+/* general link settings */
+
+a {
+    text-decoration: none; 
+    color: #222255;
+}
+
+a:hover { 
+    text-decoration: underline; 
+    color: #222222;
+}
+
+a:link img, a:visited img {
+    border:0;
+    text-decoration:none;
+}
+
+/* inventory */
+.error {
+    font-weight: bold;
+    color: rgb(233,197,203);               /* BRANDING: Official Pastel red */ 
+}
+.warning {
+    font-weight: bold;
+    color: rgb(225,163,88);                /* BRANDING: Mid Tan */
+}
+
+.debug {
+    border: 1px solid #ae00ac;             /* DEBUG ONLY dark purple */
+    padding: 5px;
+    background-color:#ffb3fe;              /* DEBUG ONLY light purple */
+    color: #000000;                        /* BRANDING:  black */
+}
+
+.status-decomissioned {
+    color: #BBBBBB;                    /* greyed out */
+    font-size:85%;
+    background-color: transparent;     /* BRANDING: transparent (ho ho) */
+}
+.status-inactive , .status-instock {
+    color: #939393;                    /* greyed out - darker grey */
+    font-size:90%;
+    background-color: transparent;     /* BRANDING: transparent (ho ho) */
+}
+.status-active {
+    font-size:110%;
+    background-color: transparent;     /* BRANDING: transparent (ho ho) */
+}
+.block-status-inactive {
+    font-size:90%; 
+    color: #939393;                    /* greyed out - darker grey */
+    background-color: #f0f0f0;         /* BRANDING: souless corporate gray */
+}
+.block-status-inactive a {
+    font-size:90%; 
+    color: #939393;                    /* greyed out - darker grey */
+    background-color: transparent;        /* BRANDING: transparent (ho ho) */ 
+}
+.block-status-decomissioned {
+    font-size:85%;
+    color: #BBBBBB;                    /* greyed out */
+    background-color: #f0f0f0;         /* BRANDING: souless corporate gray */
+}
+.block-status-decomissioned a {
+    font-size:85%;
+    color: #BBBBBB;                    /* greyed out */
+    background-color: transparent;     /* BRANDING: transparent (ho ho) */
+}
+.essential {
+    border: 1px solid red;
+}
+
+tr.primary-interface, tr.primary-interface td, span.primary-interface {
+   font-weight: normal;
+   font-size:100%;
+}
+tr.secondary-interface, tr.secondary-interface td, span.secondary-interface {
+   font-weight: normal;
+   font-size:90%;
+}
+td.secondary {
+   padding-left:10px;
+}
+ul.normal {
+   list-style: disc;
+   padding-left: 3.0em;
+}
+
+
+ul.normal li a {
+    text-decoration: none; 
+}
+
+ul.normal li a:hover { 
+    text-decoration: underline; 
+    color: rgb(75,146,219) !important;        /*     BRANDING: Mid blue */
+}
+td {
+    font-size: 1.0em !important;
+}
+
+/* dns page specific */
+#dnssearchbox {
+    float:right;
+    padding:0.6em;
+    margin: 0.6em;
+    background-color: rgb(197,210,224);  /* BRANDING: Pastel blue */
+    border:           1px solid #002147; /* BRANDING:  Blue */
+}
+
+div#widecontent {
+    /* child of #container */
+    margin-left: 0em; /* leftnav width */
+    padding: 0.5em 1em 1em 1em;
+    border-left: 1px solid gray;
+    background-color: #FFFFFF;
+}
+
+.networkshelpbox {
+    float:right;
+    clear:both;
+    padding: 0.6em;
+    margin: 0.6em;
+    width: 15em;
+    background-color: white;  /* BRANDING: white */
+    border:           1px solid #002147; /* BRANDING:  Blue */
+}
+
+td {
+    font-size:100%;
+}
+tr.stripe td {
+    background-color: #f5f5f5;          /* hint of light gray */
+    color: #000000;                     /* BRANDING:  black */
+}
+
+tr.over td {
+    background-color: rgb(202,192,182); /* BRANDING: Pastel brown */
+    color: #000000;                     /* BRANDING:  black */
+}
+
+div.requested {
+    margin: 0.5em;
+    padding:0.5em 1.0em;
+    background-color: #ededff; /* light blue */
+    color: black;
+}
+table.requested th {
+    color: white;
+    padding: 0.25em;
+    background-color: #000066; /* official  Blue */
+}
+table.requested {
+    background-color:white;
+    margin:1.0em 1.5em;;
+}
+fieldset.requested {
+    margin-top:1.0em;
+    margin-bottom:1.0em;
+}
+fieldset.requested form {
+    background-color: #ededff; /* unofficial light blue */
+    color:black;
+}
+form fieldset.superuser {
+    background-color: #f2f5a9; /* unofficial light yellow */
+    margin-left: 1.0em;    
+    color:black;
+}
+.unchangable {
+    color:gray;
+}
+
+tr.teamoption, tr.teamoption td, td.teamoption {
+    background-color: #EAEAEA; /* unofficial hint of light gray */
+    color: black;
+}
+table.requested tfoot tr td {
+    color: white;
+    padding: 0.25em;
+    /* background-color: #000066; official  Blue */
+}
+dl {
+   margin-left: 1.0em;
+}
+.general-unimportant {
+    font-size:90%; 
+    color: #939393;                    /* greyed out - darker grey */
+    background-color: transparent;     
+}
+
+/* inventory */
+.bugs {
+    width: 70%;
+    border: 1px solid black;           /* BRANDING:  black */
+    background-color: #f0f0f0;         /* BRANDING: souless corporate gray */
+    color: black;                      /* BRANDING:  black */
+}
+
+.bugs li {
+    background-color: #f0f0f0;         /* BRANDING: souless corporate gray */
+    list-style-image: url('https://comms.oucs.ox.ac.uk/images/bug.png');
+    color: black;                      /* BRANDING:  black */
+}
+
+tr.primary-interface, tr.primary-interface td, span.primary-interface {
+   font-weight: normal;
+   font-size:100%;
+}
+tr.secondary-interface, tr.secondary-interface td, span.secondary-interface {
+   font-weight: normal;
+   font-size:90%;
+}
+td.secondary {
+   padding-left:10px;
+}
+
+/* javascript table sorting */
+
+th.headerSortUp { 
+    background-image: url(/images/small_asc.gif);
+} 
+
+th.headerSortDown { 
+    background-image: url(/images/small_dsc.gif); 
+} 
+
+th.header { 
+    background-image: url(/images/small.gif);     
+    cursor: pointer; 
+    font-weight: bold; 
+    background-repeat: no-repeat; 
+    background-position: center left; 
+    padding-left: 20px !important;  
+    border-right: 1px solid #dad9c7; 
+    margin-left: -1px; 
+}
+.ui-tabs .ui-tabs-hide {
+    display: none;
+}
+span.tooltip {
+    background-color: red;
+    color: white;
+}
+#maincode{
+    background-color: #ffffff;
+    border: 1px solid gray;
+}
+
+.block-warning {
+    border: 1px solid #ffae00;          /* UNOFFICIAL PIRATE ORANGE */
+    padding: 5px;
+    background-color: #ffe4aa;          /* UNOFFICIAL PIRATE LIGHT ORANGE */
+    color: #000000;                     /* BRANDING:  black */
+}
+.block-error {
+    background-repeat: no-repeat;
+    border: 1px solid rgb(130,36,51);   /* BRANDING: Official  red */
+    padding: 5px;
+    background-color: rgb(233,197,203); /* BRANDING: Official Pastel red */ 
+    color: #000000;                     /* BRANDING:  black */
+}
+
+fieldset table {
+    background-color: white;            /* BRANDING:  white */
+    color: #000000;                     /* BRANDING:  black */
+}
+.hidden {
+    display: none;
+}
+form fieldset.manager {
+    margin-left: 1.0em;    
+}
+.ucwords {
+    text-transform: capitalize;
+}
+div.daily {
+    font-size: 120%;
+}
+div.daily ul li {
+    margin-left:10px;
+}
+
+#invbar {
+    background-color: black;
+    color: white;
+    padding: 3px;
+    height:2.0em;
+}
+
+#invbar h2 {
+    margin:0.25em 0 0 0;
+    border:0;
+    float:left;
+    padding:0.1em 0.1em 0.1em 0.5em;
+    display:block;
+}
+
+#invbar h2, #invbar h2 a, #invbar h2 a:hover {
+    background-color: black;
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+#invbar p {
+    margin:0.25em 0.5em 0 0;
+    float:right;
+    display:block;
+    border:0;
+    padding:0;
+    font-size:0.9em;
+}
+
+div#headerOuter {
+    font-size:80%;
+}
+
+form.quickadd {
+    margin-top:1.0em;
+}
+fieldset legend {
+    font-weight:bold;
+    position: relative;
+    border:0px !important;
+    color:black;
+    background-color:white;
+    padding: 2px 6px;
+    top: 0;
+    left: 0;
+}
+legend a, legend a:hover {
+    font-size: 85%;
+}
+legend a:hover {
+    text-decoration: underline;
+}
+
+form fieldset {
+    border:1px solid #002147;
+    width:90%;
+    margin-bottom:1.0em;
+}
+
+form#edithost {
+    color:white;
+    background-color: #002147;    /* BRANDING:  Blue */
+    max-width:680px;
+}
+form#edithost table {
+    max-width:680px;
+}
+th {
+    padding: 0.1em 0.2em 0.1em 0.2em;
+    color:white;
+    background-color: black;
+}
+table {
+    margin-top: 1.0em;
+    margin-bottom: 1.0em;
+}
+
+tbody {
+    border: 1px solid black;            /* BRANDING:  black */
+}
+
+div.alternate-option {
+    padding: 0 0.5em 0 0.5em;
+    color: black;
+    background-color: #f0f0f0;         /* BRANDING: souless corporate gray */
+}
+span.role, span.address {
+    font-size:80%;
+    color: #313131;         /* dark gray */
+}
+span.address {
+    display:block;
+    margin-left: 1.0em;
+}
+tfoot, tfoot td, tfoot tr, tfoot a {
+    background-color: black;    /* BRANDING: Brown */
+    color: white;
+}
+tfoot a {
+    text-decoration: underline;
+    font-size: 110%;
+}
+
+/* invoice page */
+
+div#invoice {
+    border:1px solid black;
+    background-color: #f7fcac;
+    color: #065c00;
+    padding: 1.0em;
+    margin: 1.0em;
+    background-image: url('/images/uni_logo_120.png');
+    background-position: 1.0em 1.0em;
+    background-repeat: no-repeat;
+}
+div#invoice p {
+    font-size: 85%;
+}
+#datebox {
+    float:right;
+    border-collapse:collapse;
+    border-spacing:0;
+    border:0;
+    border-right:2px solid #065c00;
+}
+#datebox tbody {
+    border:0;
+}
+#datebox th {
+    color:#065c00;
+    background-color:transparent;
+    text-transform:uppercase;
+    border:0;
+    border-right:2px solid #065c00;
+}
+#datebox td {
+    border:1px solid #065c00;
+    color: black;
+}
+table#datebox tr:first-child td {
+    border-top:2px solid #065c00;
+}
+table#datebox tr:last-child td {
+    border-bottom:2px solid #065c00;
+}
+
+div#invoice h3 {
+    margin-left:130px;
+}
+
+div#invoice h3, div#invoice h4 {
+    border-bottom:1px solid #065c00;
+}
+#supplierbox {
+    border:2px solid #065c00;
+    padding:0;
+    border-spacing:0;
+    width:100%;
+}
+#supplierbox th {
+    color:red;
+    background-color:transparent;
+    border:0;
+    border-bottom: 1px solid #065c00;
+    text-align:left;
+    width:20%;
+    text-transform:uppercase;
+}
+#supplierbox td {
+    border-bottom: 1px solid #065c00;
+    text-align:left;
+    color: black;
+}
+#hostsbox {
+    border:2px solid #065c00;
+    padding:0;
+    border-spacing:0;
+    width:100%;
+    border-collapse:collapse;
+}
+#hostsbox td, #hostsbox th {
+    border: 1px solid #065c00;
+    text-align:center;
+}
+#hostsbox td span, #hostsbox th span {
+    font-size:75%;
+}
+#hostsbox th {
+    text-transform:uppercase;
+    color:#065c00;
+    background-color:transparent;
+}
+#adminbox {
+    border:2px solid #065c00;
+    padding:0;
+    border-spacing:0;
+    width:100%;
+    border-collapse:collapse;
+}
+#adminbox td, #adminbox th {
+    border:1px solid #065c00;
+    width:25%;
+}
+#adminbox th {
+    text-transform:uppercase;
+    color:#065c00;
+    background-color:transparent;
+    text-align:left;
+}
+#adminbox td {
+    color: black;
+    text-align:center;
+}
+td.signed, #adminbox td, #datebox td {
+    font-family: 'Annie Use Your Telescope', cursive;
+    color: #000098 !important;
+}
+

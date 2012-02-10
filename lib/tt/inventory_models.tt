@@ -1,0 +1,136 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_models.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% ELSE %]
+ <p>This page lists the hardware models we maintain.</p>
+[% END %]
+
+[% IF edit %]
+<form action="" method="post">
+ <fieldset><legend>Edit an existing entry</legend>
+  [% FOR model IN models %]
+      [% IF edit == model.id %]
+      <p>
+       Model Name:
+       <input type="text" name="model_name" maxlength="35" value="[% model.name | html_entity %]" />
+       Made by: </td>
+       <select name="manufacturer_id">
+          [% FOR manufacturer IN manufacturers %]
+          <option value="[% manufacturer.id | html_entity %]"
+           [% IF model.manufacturer_id == manufacturer.id %]
+           selected="selected"
+           [% END %]
+          >[% manufacturer.name | html_entity %]</option>
+          [% END %]
+         </select>
+        <input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
+        <input type="submit" value="Submit Changes" />
+        </p>
+      [% END %]
+  [% END %]
+  </fieldset>
+</form>
+[% END %]
+
+[% IF manufacturers.size < 1 %]
+   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="locations">location</a></p>
+[% ELSE %]
+<form action="" method="post">
+ <fieldset><legend>Enter a new model</legend>
+  <p>
+      Model Name
+      <input type="text" name="model_name" maxlength="35" />
+      Made by:
+          <select name="manufacturer_id">
+          [% FOR manufacturer IN manufacturers %]
+          <option value="[% manufacturer.id | html_entity %]">[% manufacturer.name | html_entity %]</option>
+          [% END %]
+          </select>
+      <input type="submit" value="Create Entry" /></p>
+  </fieldset>
+</form>
+[% END %]
+
+<h3>Current Models</h3>
+[% IF models.size > 0 %]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Model Name</th>
+    <th>Manufacturer</th>
+    <th>Total Hosts</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
+    <th>Options</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+    <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
+  </tfoot>
+
+  [% counter=0 %]
+  [% previous_rows_manufacturerid='none' %]
+  [% FOR model IN models %]
+    [% IF previous_rows_manufacturerid != model.manufacturer_id %]
+       [% IF previous_rows_manufacturerid !='none' %]
+       </tbody>
+       [% END %]
+       <tbody>
+    [% END %]
+
+    [% counter = counter +1 %]
+       [% id = model.id %]
+       [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+    
+    [% IF 1 > count_sum %]
+      <tr class="block-status-inactive">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td>[% model.name | html_entity %]</td>
+      <td>[% model.manufacturer_name | html_entity %]</td>
+      <td>[% count_sum | html_entity %]</td>
+      <td>
+        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span>     / 
+        <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
+        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span>   / 
+        <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
+      </td>
+      <td>
+        <a href="models?model_id=[% model.id | html_entity %]">edit model</a> /
+        <a href="manufacturers?manufacturer_id=[% model.manufacturer_id | html_entity %]">edit manufacturer</a> 
+      </td>
+     [% previous_rows_manufacturerid=model.manufacturer_id %]
+  </tr>
+  [% END %]
+</tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No models are known to the web application.</p>
+[% END %]
+
+</div>

@@ -1,0 +1,186 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_invoices.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% ELSE %]
+<p>This page records hardware invoices for the equipment we maintain. The information used here is used by the list of models</p>
+[% END %]
+
+[% IF edit %]
+
+<form action="invoices" method="post">
+ <fieldset><legend>Edit an Existing Invoice</legend>
+  [% FOR invoice IN invoices %]
+      [% IF edit == invoice.id %]
+       <table>
+       <tr><th>Description</th><td><input type="text" name="invoice_description" maxlength="135" value="[% invoice.description | html_entity %]" /></td></tr>
+       <tr><th>Order Date</th><td><input type="text" name="invoice_date" maxlength="135" value="[% invoice.date | html_entity %]" /></td></tr>
+       <tr><th>Supplier</th><td>
+                             <select name="supplier_id">
+                               [% FOR supplier IN suppliers %] 
+                                 <option 
+                                 [%- IF supplier.id == invoice.supplier_id -%] selected="selected" [%- END -%] 
+                                 value="[% supplier.id %]">[% supplier.name %]</option>
+                                 [% END %]
+                               </select>
+                                </td></tr>
+       <tr><th>Purchaser</th><td>
+                               <select name="purchaser_id">
+                               [% FOR contact IN contacts %] 
+                                 <option 
+                                 [%- IF contact.id == invoice.purchaser_id -%] selected="selected" [%- END -%] 
+                                 value="[% contact.id %]">[% contact.name %]</option>
+                                 [% END %]
+                               </select>
+                               </td></tr>
+       <tr><th>Senior Signitory</th><td>
+                               <select name="signitory_id">
+                               [% FOR contact IN contacts %] 
+                                 <option 
+                                 [%- IF contact.id == invoice.signitory_id -%] selected="selected" [%- END -%] 
+                                 value="[% contact.id %]">[% contact.name %]</option>
+                                 [% END %]
+                               </select>
+                               </td></tr>
+       <tr><th>Totalcost</th><td><input type="text" name="invoice_totalcost" maxlength="135" value="[% invoice.totalcost | html_entity %]" /></td></tr>
+       <tr><th>PO number</th><td><input type="text" name="invoice_ponumber" maxlength="135" value="[% invoice.ponumber | html_entity %]" /></td></tr>
+       <tr><th>REQ number</th><td><input type="text" name="invoice_reqnumber" maxlength="135" value="[% invoice.reqnumber | html_entity %]" /></td></tr>
+       <tr><th>Costcentre</th><td><input type="text" name="invoice_costcentre" maxlength="135" value="[% invoice.costcentre | html_entity %]" /></td></tr>
+       <tr><th>Natural Account</th><td><input type="text" name="invoice_natacct" maxlength="135" value="[% invoice.natacct | html_entity %]" /></td></tr>
+       <tr><td colspan="2">
+         <input type="hidden" name="invoice_id" value="[% invoice.id | html_entity %]" />
+         <input type="hidden" name="action" value="edit" />
+         <input type="submit" value="Submit Changes" />
+         </td></tr>
+       </table>
+      [% END %]
+  [% END %]
+  </fieldset>
+</form>
+
+[% ELSIF delete %]
+
+  [% FOR invoice IN invoices %]
+      [% IF delete == invoice.id %]
+<form action="invoices" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry called &quot;[% invoice.description | html_entity %]&quot; ([% invoice.date %])?
+ <br />
+ <input type="hidden" name="invoice_id" value="[% invoice.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="invoices">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
+[% END %]
+
+<form action="" method="post">
+  <fieldset><legend>Enter a new invoice</legend>
+     <table>
+       <tr><th>Description</th><td><input type="text" name="invoice_description" maxlength="135" /></td></tr>
+       <tr><th>Order Date</th><td><input type="text" name="invoice_date" maxlength="135" /></td></tr>
+       <tr><th>Supplier</th><td>
+                             <select name="supplier_id">
+                               [% FOR supplier IN suppliers %] 
+                                 <option value="[% supplier.id %]">[% supplier.name %]</option>
+                                 [% END %]
+                               </select>
+                             </td></tr>
+       <tr><th>Purchaser</th><td>
+                             <select name="purchaser_id">
+                               [% FOR contact IN contacts %] 
+                                 <option value="[% contact.id %]">[% contact.name %]</option>
+                                 [% END %]
+                               </select>
+                             </td></tr>
+       <tr><th>Senior Signitory</th><td>
+                             <select name="signitory_id">
+                               [% FOR contact IN contacts %] 
+                                 <option value="[% contact.id %]">[% contact.name %]</option>
+                                 [% END %]
+                               </select>
+                             </td></tr>
+       <tr><th>Totalcost</th><td><input type="text" name="invoice_totalcost" maxlength="135" /></td></tr>
+       <tr><th>PO number</th><td><input type="text" name="invoice_ponumber" maxlength="135" /></td></tr>
+       <tr><th>REQ number</th><td><input type="text" name="invoice_reqnumber" maxlength="135" /></td></tr>
+       <tr><th>Costcentre</th><td><input type="text" name="invoice_costcentre" maxlength="135" /></td></tr>
+       <tr><th>Natural Account</th><td><input type="text" name="invoice_natacct" maxlength="135" /></td></tr>
+       <tr><td colspan="2">
+         <input type="hidden" name="action" value="create" />
+         <input type="submit" value="Create Entry" />
+         </td></tr>
+     </table>
+  </fieldset>
+</form>
+
+<h3>Current Invoices</h3>
+[% IF invoices.size > 0 %]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<form action="" method="get">
+<fieldset><legend>Recorded Invoices</legend>
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+<table id="allresults">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Description</th>
+    <th>Supplier</th>
+    <th>Date</th>
+    <th>Purchaser</th>
+    <th>Signitory</th>
+    <th>Total cost</th> 
+    <th>PO Number</th>
+    <th>REQ Number</th>
+    <th>Cost Centre</th>
+    <th>Natural Account</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+  <tr><td colspan="11">[% invoices.size %] results were obtained</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR invoice IN invoices %]
+      <td><input type="radio" name="invoice_id" value="[% invoice.id  | html_entity %]" /></td>
+      <td>[% invoice.description    | html_entity %]</td>
+      <td>[% invoice.supplier_name  | html_entity %]</td>
+      <td>[% invoice.date           | html_entity %]</td>
+      <td>[% invoice.purchaser_name | html_entity %]</td>
+      <td>[% invoice.signitory_name | html_entity %]</td>
+      <td>[% invoice.totalcost      | html_entity %]</td>
+      <td>[% invoice.ponumber       | html_entity %]</td>
+      <td>[% invoice.reqnumber      | html_entity %]</td>
+      <td>[% invoice.costcentre     | html_entity %]</td>
+      <td>[% invoice.natacct        | html_entity %]</td>
+   </tr>
+  
+  [% END %]
+  </tbody>
+</fieldset>
+</table>
+
+[% ELSE %]
+ <p class="block-warning">No invoices are known to the web application.</p>
+[% END %]
+
+</div>

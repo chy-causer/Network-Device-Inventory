@@ -1,0 +1,316 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
+# $Revision: 3535 $
+# $Id: inventory_hosts.tt 3535 2012-02-10 12:47:01Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+<form action="hosts" method="post">
+  <fieldset><legend>Edit an existing entry</legend>
+  <table>
+  [% FOR host IN hosts %]
+      [% IF edit == host.id %]
+      <tr>
+       <td>Host Name</td>
+       <td class="essential"><input type="text" name="host_name" maxlength="30" value="[% host.name | html_entity %]" /></td>
+       <td>Must be alphanumeric and unique</td>
+      </tr>
+      
+      <tr>
+       <td>Host Description</td>
+       <td><input type="text" name="host_description" value="[% host.description | html_entity %]" maxlength="254" /></td>
+       <td></td>
+      </tr>
+      
+      <tr>
+       <td>Host Location</td>
+       <td>
+       <select name="location_id">
+      [% FOR location IN locations %]
+       <option value="[% location.id | html_entity %]" [% IF location.id == host.location_id %] selected="selected" [% END %] >
+        [% location.name | html_entity %]
+       </option>
+      [% END %]
+       </select>
+       </td>
+       <td></td>
+      </tr>
+  
+      <tr>
+       <td>Host Status</td>
+       <td>
+       <select name="status_id">
+      [% FOR state IN status %]
+       <option value="[% state.id | html_entity %]" [% IF state.id == host.status_id %] selected="selected" [% END %] >
+        [% state.state | html_entity %]
+       </option>
+      [% END %]
+       </select>
+       </td>
+       <td></td>
+       </tr>
+
+      <tr>
+       <td>Model</td>
+       <td>
+       <select name="model_id">
+      [% FOR model IN models %]
+       <option value="[% model.id | html_entity %]"
+        [% IF model.id == host.model_id %]
+         selected="selected"
+        [% END %]
+        >
+        [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])
+       </option>
+      [% END %]
+       </select>
+       </td>
+       <td></td>
+      </tr>
+
+      <tr>
+       <td>University Asset Tag</td>
+       <td><input type="text" name="host_asset" value="[% host.asset | html_entity %]" maxlength="40" /></td>
+       <td></td>
+      </tr>
+      
+      <tr>
+       <td>Manufacturers Serial</td>
+       <td><input type="text" name="host_serial" value="[% host.serial | html_entity %]" maxlength="80" /></td>
+       <td></td>
+      </tr>
+  
+      <tr>
+       <td>Link to Invoice (optional)</td>
+       <td>
+         <select name="invoice_id">
+            <option value="">-- no recorded invoice --</option>
+            [% FOR invoice IN invoices %]
+            <option value="[% invoice.id | html_entity %]" [% 'selected="selected"' IF invoice.id == host.invoice_id %]>
+                    [% invoice.description | html_entity %] ([% invoice.date | html_entity %])</option>
+            [% END %]
+         </select>
+       </td>
+     </tr>
+      
+      <tr>
+        <td>
+            <input type="hidden" name="host_id" value="[% host.id | html_entity %]" />
+            <input type="hidden" name="action" value="edit" /></td>
+        <td><input type="submit" value="Submit Changes" /></td>
+        <td></td>
+      </tr>
+      [% END %]
+  [% END %]
+  </table>
+  </fieldset>
+</form>
+
+[% ELSIF delete %]
+
+  [% FOR host IN hosts %]
+      [% IF delete == host.id %]
+<form action="hosts" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry called &quot;[% host.name | html_entity %]&quot; 
+     [% IF host.description %] ([% host.description | html_entity %]) [% END %] ?
+ <br />
+ <input type="hidden" name="host_id" value="[% host.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="contacts">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
+[% END %]
+
+
+
+
+[% IF locations.size < 1 %]
+   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="locations">location</a></p>
+[% ELSIF status.size < 1 %]
+   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="status">status</a></p>
+[% ELSIF models.size < 1 %]
+   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="model">model</a></p>
+[% ELSE %]
+
+<form action="" method="post">
+  <fieldset><legend>Enter a new record</legend>
+  <table>
+    <tr>
+      <td>Host Name</td>
+      <td class="essential"><input type="text" name="host_name" maxlength="30" /></td>
+      <td>Must be alphanumeric and unique</td>
+    </tr>
+    <tr>
+      <td>Host Description</td>
+      <td><input type="text" name="host_description" maxlength="254" /></td>
+      <td></td>
+    </tr>
+    
+    <tr>
+      <td>Host Location</td>
+      <td> 
+       <select name="location_id">
+      [% FOR location IN locations %]
+       <option value="[% location.id | html_entity %]"> [% location.name | html_entity %] </option>
+      [% END %]
+       </select>
+      </td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>Status</td>
+      <td>
+       <select name="status_id">
+      [% FOR state IN status %]
+       <option value="[% state.id | html_entity %]"> [% state.state | html_entity %] ([% state.description | html_entity %])</option>
+      [% END %]
+       </select>
+      </td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>University Asset tag</td>
+      <td><input type="text" name="host_asset" maxlength="40" /></td>
+      <td></td>
+    </tr>
+    
+    <tr>
+      <td>Manufacturers Serial</td>
+      <td><input type="text" name="host_serial" maxlength="80" /></td>
+      <td></td>
+    </tr>
+    
+    <tr>
+      <td>Model</td>
+      <td>
+       <select name="model_id">
+      [% FOR model IN models %]
+       <option value="[% model.id | html_entity %]"> [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])</option>
+      [% END %]
+       </select>
+      </td>
+      <td></td>
+    </tr>
+  
+  <tr>
+    <td>Link to Invoice (optional)</td>
+      <td>
+       <select name="invoice_id">
+            <option value="">-- no recorded invoice --</option>
+            [% FOR invoice IN invoices %]
+            <option value="[% invoice.id | html_entity %]" [% 'selected="selected"' IF invoice.id == host.invoice_id %]>
+                    [% invoice.description | html_entity %] ([% invoice.date | html_entity %])</option>
+            [% END %]
+       </select>
+     </td>
+  </tr>
+    
+    <tr>
+      <td></td>
+      <td>
+      <input type="hidden" name="action" value="create" />
+      <input type="submit" value="Create Entry" /></td>
+      <td></td>
+    </tr>
+  </table>
+  </fieldset>
+</form>
+[% END %]
+
+
+[% IF hosts.size < 1 %]
+
+ <p class="input-warning">No hosts are known to the web application.</p>
+
+[% ELSE %]
+
+<form action="hosts" method="get">
+<fieldset><legend>Current Hosts</legend>
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Location</th>
+    <th>Status</th>
+    <th>Model</th>
+    <th>University Asset Tag</th>
+    <th>Manufacturers Serial</th>
+    <th>Invoice</th>
+    <th>Last checked</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+    <tr><td colspan="10">There were [% hosts.size | html_entity %] hosts returned by the database</td></tr>
+  </tfoot>
+  
+  <tbody>
+  
+  [% counter=0 %]
+  [% FOR host IN hosts %]
+    [% IF host.status_state=='INACTIVE' %]
+      <tr class="block-status-inactive">
+    [% ELSIF host.status_state=='DECOMMISSIONED' %]
+      <tr class="block-status-decommissioned">
+    [% ELSIF host.status_state=='INSTOCK' %]
+      <tr class="block-status-instock">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td><input type="radio" name="host_id" value="[% host.id  | html_entity %]" /></td>
+      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td>[% host.description | html_entity %]</td>
+      <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>
+      <td>[% host.status_state | html_entity %]</td>
+      <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
+      <td>[% host.asset | html_entity %]</td>
+      <td>[% host.serial | html_entity %]</td>
+      <td>[% IF host.invoice_id %] [% host.invoice_description | html_entity %] ([% host.invoice_date | html_entity %]) [% END %]</td>
+      [%# IF host.lastchecked < lastyear %]
+      <!--   <td class="input-warning">[% IF host.lastchecked.length < 1 %] <a href="viewhost?host_id=[% host.id | html_entity %]">Never</a> [% END %] -->
+      [%# ELSE %]
+         <td>
+      [%# END %]
+      [% host.lastchecked | html_entity %]</td>
+
+  </tr>
+   [% counter = counter +1 %]
+  [% END %]
+  </tbody>
+
+</table>
+</fieldset>
+</form>
+
+
+[% END %]
+
+</div>

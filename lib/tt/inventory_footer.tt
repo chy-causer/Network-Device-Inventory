@@ -1,0 +1,20 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_footer.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+
+</div>
+</div>
+
+<div class="clear" id="footer">
+   <p>A company footer would normally go here</p>
+</div>
+
+ </div> <!-- end hdr -->
+</div> <!-- end main -->
+
+
+</body>
+</html>

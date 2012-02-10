@@ -1,0 +1,159 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_problems_interfaces.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+
+<h3>Active Hosts With No Network Interfaces</h3>
+[% IF hosts_no_interface.size > 0 %]
+
+<table>
+  <thead>
+  <tr>
+    <th>Hosts Name</th>
+    <th>View host</th>
+    <th>Create Interface</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+   <tr>
+     <td colspan="3">There are [% hosts_no_interface.size %] hosts matching this query</td>
+   </tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR host IN hosts_no_interface %]
+    [% IF host.status_state=='INACTIVE' %]
+      <tr class="block-status-inactive">
+    [% ELSIF host.status_state=='DECOMMISSIONED' %]
+      <tr class="block-status-decommissioned">
+    [% ELSIF host.status_state=='INSTOCK' %]
+      <tr class="block-status-instock">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+   
+      <td>[% host.name | html_entity %]</td>
+      <td><a href="viewhost?host_id=[% host.id | html_entity %]">View host</a></td>
+      <td><a href="interfaces?host_id=[% host.id | html_entity %]&amp;isprimary=true">Create interface</a></td> 
+   </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-success">No hosts lacking network interfaces are known to the web application.</p>
+[% END %]
+
+
+<h3>Active Hosts With One Interface, not marked primary</h3>
+[% IF hosts_singleno_primary.size > 0 %]
+
+<table>
+  <thead>
+  <tr>
+    <th>Hosts Name</th>
+    <th>View host</th>
+    <th>Edit Interface</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+   <tr>
+     <td colspan="3">There are [% hosts_singleno_primary.size %] hosts matching this query</td>
+   </tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR host IN hosts_singleno_primary %]
+    [% IF host.status_state=='INACTIVE' %]
+      <tr class="block-status-inactive">
+    [% ELSIF host.status_state=='DECOMMISSIONED' %]
+      <tr class="block-status-decommissioned">
+    [% ELSIF host.status_state=='INSTOCK' %]
+      <tr class="block-status-instock">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+
+      <td>[% host.name | html_entity %]</td>
+      <td><a href="viewhost?host_id=[% host.id | html_entity %]">View host</a></td>
+      [% hosttolookup = host.id %]
+      <td>[% FOR intid IN host_to_interfaces.$hosttolookup %] 
+              <a href="interfaces?interface_id=[% intid %]&amp;isprimary=true">Edit interface</a>
+          [% END %]
+      </td> 
+   </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-success">No hosts are known to the web application where they only have one interface which isn't marked primary.</p>
+[% END %]
+
+<h3>Active Hosts With Multiple Interfaces, and none are marked primary</h3>
+[% IF hosts_multino_primary.size > 0 %]
+
+<table>
+  <thead>
+  <tr>
+    <th>Hosts Name</th>
+    <th>View host</th>
+    <th>Edit Interface</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+   <tr>
+     <td colspan="3">There are [% hosts_multino_primary.size %] hosts matching this query</td>
+   </tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR host IN hosts_multino_primary %]
+    [% IF host.status_state=='INACTIVE' %]
+      <tr class="block-status-inactive">
+    [% ELSIF host.status_state=='DECOMMISSIONED' %]
+      <tr class="block-status-decommissioned">
+    [% ELSIF host.status_state=='INSTOCK' %]
+      <tr class="block-status-instock">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td>[% host.name | html_entity %]</td>
+      <td><a href="viewhost?host_id=[% host.id | html_entity %]">View host</a></td>
+     
+      [% hosttolookup = host.id %] 
+      [% counter = 1 %]
+      <td>[% FOR intid IN host_to_interfaces.$hosttolookup %]
+             <a href="interfaces?interface_id=[% intid %]">Edit interface ([% counter %])</a>
+              [% counter = counter + 1 %]
+           [% END %]
+      </td>
+
+   </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-success">No hosts are known to the web application where they have multiple interfaces but none are marked as primary.</p>
+[% END %]
+
+</div>

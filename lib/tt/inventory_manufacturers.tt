@@ -1,0 +1,109 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_manufacturers.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% ELSE %]
+<p>This page records hardware manufacturers for the equipment we maintain. The information used here is used by the list of models</p>
+[% END %]
+
+[% IF edit %]
+<form action="" method="post">
+ <fieldset><legend>Edit an Existing Entry</legend>
+  [% FOR manufacturer IN manufacturers %]
+      [% IF edit == manufacturer.id %]
+       <p>Manufacturers Name
+       <input type="text" name="manufacturer_name" maxlength="35" value="[% manufacturer.name | html_entity %]" />
+       <input type="hidden" name="manufacturer_id" value="[% manufacturer.id | html_entity %]" />
+       <input type="submit" value="Submit Changes" /></td>
+      [% END %]
+  [% END %]
+  </fieldset>
+</form>
+[% END %]
+
+<form action="" method="post">
+  <fieldset><legend>Enter a new record</legend>
+    <p>Create a new manufacturer called: 
+      <input type="text" maxlength="35" name="manufacturer_name" />
+      <input type="submit" value="Create Entry" />
+    </p>
+  </fieldset>
+</form>
+
+<h3>Current Manufacturers</h3>
+[% IF manufacturers.size > 0 %]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Manufacturers Name</th>
+    <th>Number of Known Models</th>
+    <th>Total Hosts</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
+    <th>Options</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+  <tr><td colspan="5">[% manufacturers.size %] results were obtained</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR manufacturer IN manufacturers %]
+    [% id = manufacturer.id %]
+    [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+    
+    [% IF 1 > count_sum %]
+      <tr class="block-status-inactive">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+    
+    [% counter = counter +1 %]
+       <td>[% manufacturer.name | html_entity %]</td>
+       <td>
+         [% model_counts.$id.model_total | html_entity %]
+       </td>
+      <td>[% count_sum | html_entity %]</td>
+      <td>
+        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span>     / 
+        <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
+        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span>   / 
+        <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
+      </td>
+      <td>
+        <a href="manufacturers?manufacturer_id=[% manufacturer.id  | html_entity %]">edit</a>
+      </td>
+   </tr>
+  
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No manufacturers are known to the web application.</p>
+[% END %]
+
+</div>

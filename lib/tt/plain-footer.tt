@@ -1,0 +1,14 @@
+</div>
+</div> <!-- div#container -->
+
+</div>
+</div> <!-- branding -->
+
+<div id="copyright">
+    <a href="[% group_website %]">[% group_name %]</a>
+    <a href="mailto:[% group_email %]">&lt;[% group_email %]&gt;</a><br />
+    Released under the GPL v2<br />
+</div>
+
+</body>
+</html>

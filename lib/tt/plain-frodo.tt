@@ -1,0 +1,97 @@
+[%
+# Template Toolkit page to show the current known live frodos
+#
+# $Author: guy $
+# $Id: plain-frodo.tt 2437 2009-05-15 09:38:30Z guy $
+# $Date: 2009-05-15 10:38:30 +0100 (Fri, 15 May 2009) $
+# $Revision
+%]
+[% 
+# If we done know of any frodos, we just show a polite message
+IF frodos.size < 1 %]
+ <p class="input-warning">I know of no Frodos at this time. This could be due to a database error</p>
+
+[% ELSE %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults" summary="Frodo project summary">
+ <thead>
+ <tr>
+  <th>Label</th>
+  <th>Cached Hostname<br />(visit hosts web interface)</th>
+  <th>Model</th>
+  <th>Location</th>
+  <th>IP address</th>
+  <th>UPS hostname</th>
+  <th>UPS IP address</th>
+ </tr>
+ </thead>
+
+ <tfoot>
+  <tr>
+   <td colspan="7">[% frodos.size | html_entity %] frodos were returned from the database</td>
+  </tr>
+ </tfoot>
+
+ <tbody>
+[% sortedKEYS = frodos.keys.nsort %]
+[% 
+# 
+# Ignore the odd syntax, each line we're about to do is one record
+#
+FOREACH frodo IN sortedKEYS %]
+   <tr>
+    <td>[% frodos.$frodo.host_name | html_entity %]</td>
+    
+    [% IF frodos.$frodo.host_lastresolvedfqdn=='UNRESOLVED' %]
+        <td class="input-warning">UNRESOLVED
+    [% ELSE %]
+        <td><a href="https://[% frodos.$frodo.host_lastresolvedfqdn | html_entity %]">[% frodos.$frodo.host_lastresolvedfqdn | html_entity %]</a>
+    [% END %]
+    </td>
+    
+    <td>[% frodos.$frodo.model_name | html_entity %]</td>
+    <td>[% frodos.$frodo.location_name | html_entity %]</td>
+    <td>[% frodos.$frodo.host_address | html_entity %]</td>
+
+    [% SET hit=0 %]
+    [% FOR device IN links %]
+      [% IF device.host_id == frodos.$frodo.host_id %]
+        [% IF device.ups_lastresolvedfqdn.length > 0 || device.ups_address > 0 %]
+          
+          [% IF device.ups_lastresolvedfqdn=='UNRESOLVED' %]
+              <td class="input-warning">UNRESOLVED
+              (<a href="interfaces?interface_id=[% device.ups_interface_id | html_entity %]">update now?</a>)
+          [% ELSE  %]
+              <td><a href="http://[% device.ups_lastresolvedfqdn | html_entity %]">[% device.ups_lastresolvedfqdn | html_entity %]</a>
+          [% END %]
+          </td>
+          
+          <td>[% device.ups_address | html_entity %]</td>
+        [% ELSE %]
+          <td>Unmanaged UPS</td>
+          <td>Unmanaged UPS</td>
+        [% END %]
+      [% hit=1 %]
+      [% END %]
+    [% END %]
+    [% IF hit==0 %]    
+        <td class="input-warning">None</td>
+        <td class="input-warning">None</td>
+    [% END %]
+
+  </tr>
+ [% 
+ # And this is the end of each line
+ # we loop to the next until we run out
+ END %]
+ </tbody>
+
+</table>
+
+[% END %]

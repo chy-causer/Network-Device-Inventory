@@ -1,0 +1,124 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_protocols.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+<form action="" method="post">
+ <fieldset><legend>Edit an existing entry</legend>
+ <table>
+  [% FOR protocol IN protocols %]
+      [% IF edit == protocol.id %]
+      <tr>
+       <td>Protocols Shortname</td>
+       <td><input type="text" name="protocol_shortname" value="[% protocol.shortname | html_entity %]" maxlength="15" /></td>
+       <td>Must be alphanumeric and unique</td>
+      </tr>
+      <tr>
+       <td>Protocols Longname</td>
+       <td><input type="text" name="protocol_longname" value="[% protocol.longname | html_entity %]" maxlength="150" /></td>
+       <td>Must be alphanumeric and unique</td>
+      </tr>
+      <tr>
+        <td><input type="hidden" name="protocol_id" value="[% protocol.id | html_entity %]" /></td>
+        <td><input type="submit" value="Submit Changes" /></td>
+        <td></td>
+      </tr>
+      [% END %]
+  [% END %]
+  </table>
+  </fieldset>
+</form>
+[% END %]
+
+<form action="" method="post">
+  <fieldset><legend>Enter a new record</legend>
+  <table>
+    <tr>
+      <td>Protocols Shortname</td>
+      <td><input type="text" name="protocol_shortname" maxlength="15" /></td>
+      <td>Must be alphanumeric and unique</td>
+    </tr>
+    <tr>
+      <td>Protocols Longname</td>
+      <td><input type="text" name="protocol_longname" maxlength="150" /></td>
+      <td>Must be alphanumeric and unique</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="submit" value="Create Entry" /></td>
+      <td></td>
+    </tr>
+  </table>
+  </fieldset>
+</form>
+
+<h3>Current Locations</h3>
+[% IF protocols.size > 0 %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Protocol Shortname</th>
+    <th>Protocol Longname</th>
+    <th>Services Using Protocol</th>
+    <th>Breakdown by Host State<br />Active / Inactive / Instock / Decommissioned</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+    <tr><td colspan="4">[% protocols.size %] results were returned</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR protocol IN protocols %]
+    [% id = protocol.id %]
+    [% sum = interface_count.$id.active %]
+
+    [% IF sum < 1 %]
+      <tr class="block-status-inactive">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+
+    [% counter = counter +1 %]
+      <td><a href="protocols?protocol_id=[% protocol.id | html_entity %]">[% protocol.shortname | html_entity %]</a></td>
+      <td>[% protocol.longname | html_entity %]</td>
+      <td>[% 0 + service_count.$id.protocol_total | html_entity %]</td>
+      <td>
+        <span class="status-active">[% 0 + interface_count.$id.active | html_entity %]</span>
+        / <span class="status-inactive">[% 0 + interface_count.$id.inactive | html_entity %]</span> 
+        / <span class="status-instock">[% 0 + interface_count.$id.instock | html_entity %]</span>
+        / <span class="status-decommissioned">[% 0 + interface_count.$id.decommissioned | html_entity %]</span> 
+      </td>
+  </tr>
+  [% END %]
+  </tbody>
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No protocols are known to the web application.</p>
+[% END %]
+
+</div>

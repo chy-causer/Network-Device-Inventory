@@ -1,0 +1,94 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-09 09:38:20 +0000 (Thu, 09 Feb 2012) $
+# $Revision: 3532 $
+# $Id: inventory_header.tt 3532 2012-02-09 09:38:20Z guy $
+-%]<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>[% appname %] - [% pagetitle | html_entity %] - [% groupname %]</title>
+    <link href="/favicon.ico" rel="icon" type="image/x-icon" />
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/local.css" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/inventory.css" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/nonstandard.css" />
+[% IF javascript == 'on' %]
+    <link rel="stylesheet" type="text/css" href="/stylesheets/jquery.css" />
+    <script type="text/javascript" src="/javascript/jquery.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.tablesorter.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.scrollabletable.js"></script> 
+    <script type="text/javascript" src="/javascript/ui.core.js"></script> 
+    <script type="text/javascript" src="/javascript/ui.tabs.js"></script> 
+[% END %]
+</head>
+
+<body>
+
+<div class="show-all" id="main">
+     
+     <div id="headerOuter">
+          <div id="upperBarOuter">
+            <h1>[% companyname %]</h1>
+          </div>
+
+         <div id="lowerBarOuter">
+         <div id="lowerBarInner"><script type="text/javascript">
+
+var d=new Date()
+var weekday=new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
+var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+document.write(weekday[d.getDay()] + " ")
+document.write(d.getDate() + ". ")
+document.write(monthname[d.getMonth()] + " ")
+document.write(d.getFullYear())
+
+</script>
+         </div>
+         </div> <!-- lowerBarOuter -->
+         
+         <div id="logoOuter"></div>
+   </div> <!-- headerOuter -->
+
+<div id="invbar">
+  <form method="get" action="viewhost">
+    <h2><a href="https://networks.oucs.ox.ac.uk/">[% groupname %]</a> &gt; <a href="index">i[% appname %]</a>
+    [%- IF pagetitle && pagetitle != Index -%]
+        &gt; [%- pagetitle FILTER ucfirst | html_entity -%]
+    [%- END -%]
+    </h2>
+    <p>Search for <input type="text" name="searchterm" /> <input type="submit" value="go" />(DNS, shortname, IP or serial)</p>
+  </form>
+</div>
+
+
+<div id="container" class="clear">
+
+<div id="sidebar">
+
+<div class="daily">
+
+<h3>Changes</h3>
+<ul>
+  <li><a href="quickdevice">Add a Device</a></li>
+  <li><a href="quickadd">Add a Server</a></li>
+  <li><a href="quickcnames">Frodo CNAMES</a></li>
+</ul>
+
+<h3>Reference</h3>
+<ul>
+  <li><a href="viewhost">Quick Search</a></li>
+  <li><a href="frodo">Frodo Project Overview</a></li>
+  <li><a href="bashrc">Bashrc output</a></li>
+</ul>
+</div>
+
+<h4>Lower Level</h4>
+<ul>
+  <li><a href="admin">Direct record modification</a></li>
+</ul>
+
+</div> <!-- div#sidebar -->
+
+<div id="content">

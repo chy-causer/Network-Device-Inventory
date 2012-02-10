@@ -1,0 +1,141 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_servicegroups.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+      <p class="input-error">ERROR: [% message.$notification | html_entity %]</p>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+[% IF edit %]
+   <h3>Edit an existing entry</h3>
+<form action="" method="post">
+ <fieldset>
+  <table summary="input options for editing a entry">
+  [% FOR hashref IN servicegroups %]
+      [% IF edit == hashref.id %]
+      <tr>
+       <td>Name</td>
+       <td class="essential"><input type="text" name="servicegroup_name" maxlength="24" value="[% hashref.name  | html_entity %]" /></td>
+       <td>Must be alphanumeric and unique</td>
+      </tr>
+      <tr>
+       <td>BASH</td>
+       <td><input type="text" name="servicegroup_bash" maxlength="24" value="[% hashref.bash  | html_entity %]" /></td>
+       <td>This will be converted to upper case alphanumeric only and must be unique</td>
+      </tr>
+      <tr>
+       <td>Nagios</td>
+       <td><input type="text" name="servicegroup_nagios" maxlength="24" value="[% hashref.nagios  | html_entity %]" /></td>
+       <td>must be unique</td>
+      </tr>
+      <tr>
+       <td>Description</td>
+       <td><input type="text" name="servicegroup_description" maxlength="150" value="[% hashref.description  | html_entity %]" /></td>
+       <td></td>
+      </tr>
+      <tr>
+        <td><input type="hidden" name="servicegroup_id" value="[% hashref.id  | html_entity %]" /></td>
+        <td><input type="submit" value="Submit Changes" /></td>
+        <td></td>
+      </tr>
+      [% END %]
+  [% END %]
+  </table>
+ </fieldset>
+</form>
+[% END %]
+
+<h3>Enter a new record</h3>
+<form action="" method="post">
+ <fieldset>
+  <table summary="input options for creating a entry">
+    <tr>
+      <td>Name</td>
+      <td class="essential"><input type="text" maxlength="24" name="servicegroup_name" /></td>
+      <td>Must be alphanumeric and unique</td>
+    </tr>
+    <tr>
+      <td>BASH reference</td>
+      <td><input type="text" name="servicegroup_bash" maxlength="24" /></td>
+      <td>This will be converted to upper case alphanumeric only and must be unique</td>
+    </tr>
+    <tr>
+      <td>Nagios reference</td>
+      <td><input type="text" name="servicegroup_nagios" maxlength="24" /></td>
+      <td>Must be alphanumeric and unique</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td><input type="text" name="servicegroup_description" maxlength="150" /></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="submit" value="Create Entry" /></td>
+      <td></td>
+    </tr>
+  </table>
+ </fieldset>
+</form>
+
+<h3>Current Groups</h3>
+[% IF servicegroups.size > 0 %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults" summary="Currently known servicegroups">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>BASH reference</th>
+    <th>Nagios reference</th>
+    <th>Description</th>
+    <th>Options</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+    <tr><td colspan="5">Further information on servicegroup mapping can be found on the <a href="nagiosservicegroups">Nagios Service Group Memberships</a> page.</td></tr>
+  </tfoot>
+  
+  <tbody>
+  [% counter=1 %]
+  [% FOREACH servicegroup IN servicegroups %]
+      [% counter = counter +1 %]
+      [% name = servicegroup.name %]
+      [% count_sum = group_summary.$name.active + group_summary.$name.inactive + group_summary.$name.instock %]
+    
+    [% IF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td><a href="servicegroups?servicegroup_id=[% servicegroup.id | html_entity %]">[% servicegroup.name  | html_entity %]</a></td>
+      <td>[% servicegroup.bash | html_entity %]</td>
+      <td>[% servicegroup.nagios | html_entity %]</td>
+      <td>[% servicegroup.description | html_entity %]</td>
+      <td><a href="servicegroups?servicegroup_id=[% servicegroup.id | html_entity %]">edit this entry</a></td>
+  </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+ <p class="input-warning">No servicegroups are known to the web application.</p>
+[% END %]
+
+</div>

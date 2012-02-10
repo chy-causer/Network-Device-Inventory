@@ -1,0 +1,17 @@
+
+<div id="sidebar">
+<p id="home"><a href="[% baseurl %]">[HOME]</a></p>
+[% IF forename -%]
+    <p>Logged in as:<br />[% forename | html_entity %] [% surname | html_entity %].<br />
+    (If you're not [% forename | html_entity %] [% surname | html_entity %],
+    <a href="https://webauth.ox.ac.uk/logout">click here</a>)</p>
+[% END -%]
+
+<ul>
+ <li><a href="index">Inventory Home</a></li>
+</ul>
+
+</div> <!-- div#sidebar -->
+
+<div id="content">
+  <h3 id="title">[% pagetitle | html_entity %]</h3>
