@@ -1,0 +1,401 @@
+#!/usr/bin/perl
+#
+# Name: edithost
+# Creator: Guy Edwards
+# Created: 2008-07-28
+# Description: Viewhost administration page for the inventory
+#
+# $Id: edithost 3539 2012-02-10 16:01:31Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-10 16:01:31 +0000 (Fri, 10 Feb 2012) $
+# $LastChangedRevision: 3539 $
+# $uid: oM1JJoZJ5povBUwzgbCfz3u4BN5lYayaJ8AUjs_NjhTtK $
+#
+
+use warnings FATAL => 'all';
+use strict;
+our $VERSION = qw('0.0.2');
+
+use CGI;
+use Template;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use NetAddr::IP;
+use URI::Escape;
+use Regexp::Common 'net';
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Cnames qw(get_cnames_info);
+use Inventory::Hosts qw(get_hosts_info host_info_wrapper update_time);
+use Inventory::Introles qw(get_hostgroups_info);
+use Inventory::Models qw(get_models_info);
+use Inventory::Interfaces qw(get_interfaces_info);
+use Inventory::Locations qw(get_locations_info);
+use Inventory::Introlemembers
+  qw(get_memberships_info memberships_byinterfaceid);
+use Inventory::Photos qw(get_photos_byhostid);
+use Inventory::Sshkeys qw(sshkeys_byhostid);
+use Inventory::Status qw(get_status_info);
+use Inventory::Ups qw(get_ups_info delete_ups edit_ups ups_byhostid);
+use Inventory::Edithost;
+use Inventory::Invoices;
+
+my $PAGE     = 'search hosts';
+my $BASEURL  = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost       = $CONFIG->{'database'}->{db_host};
+my $dbname       = $CONFIG->{'database'}->{db_name};
+my $dbuser       = $CONFIG->{'database'}->{db_user};
+my $dbpass       = $CONFIG->{'database'}->{db_pass};
+my $dbh          = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users  = $CONFIG->{'general'}->{allowed_users};
+my $netdisco_url = $CONFIG->{'links'}->{netdisco_url};
+my $nagios_url   = $CONFIG->{'links'}->{nagios_url};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+my $script = $q->url( -relative => 1 );
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'Add or Edit Hosts',
+        baseurl    => $BASEURL,
+        extramenu  => 'inventory',
+        javascript => 'on',
+    }
+);
+
+# invalid users get no further than the next line
+Inventory::acl_checker( $tt, $valid_users );
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+my %gets =
+  Inventory::populate_query_fields();    # not strictly a get field of course
+my %POSTS;
+if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
+    %POSTS = $q->Vars;
+}
+
+# need to build up messages store from each sub call we do
+my ( $lookup, %messages, @message_store );
+
+# we complete the interface role for quickadd devices
+my %introle_mapping = (
+    frodo   => 29,
+    secdist => 44,
+    secpoe  => 46,
+    secups  => 43,
+    secvg   => 48,
+);
+
+# we complete the host name (not DNS, just in Inventory) for quickadd devices
+my %hostname_mapping = (
+    secdist => 'sec-dist-%s-%s',
+    secpoe  => 'sec-poe-%s-%s',
+    secups  => 'sec-ups-%s-%s',
+    secvg   => 'sec-vg224-%s-%s',
+);
+
+# form submission triggers a whole update of all data
+if ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
+
+    # need to set host_name, cname_x and interface_x_role for the user
+    # if they are doing quickadd on a templated device
+    if (    $POSTS{'script_mode'}
+        and $POSTS{'device_type'}
+        and $POSTS{'interface_x_ip'}
+        and $POSTS{'script_mode'} eq 'quickdevice'
+        and exists $introle_mapping{ $POSTS{'device_type'} } )
+    {
+
+        # interface role lookup
+        $POSTS{'interface_x_role'} = $introle_mapping{ $POSTS{'device_type'} };
+
+        $POSTS{'host_name'} = $POSTS{'arec_x'};
+
+        # frodo-xxx is computed if an IP is given
+        # but is only used when device_type is frodo
+        my $aobj = NetAddr::IP->new( $POSTS{'interface_x_ip'} );
+        if ( defined $aobj ) {
+            $aobj->addr =~ m/^$RE{net}{IPv4}{-keep}$/;
+            my ( $oct3, $oct4 ) = ( $4, $5 );
+
+            if ( $POSTS{'arec_x'} ) {
+
+                # for frodos the host_name in inventory is same as arec
+                $POSTS{'host_name'} = $POSTS{'arec_x'};
+                $POSTS{'cname_x'}   = "frodo-${oct3}${oct4}"
+                  if $oct4 < 100;
+            }
+            else {
+
+                # but for others we can compute it
+                $POSTS{'host_name'} =
+                  sprintf( $hostname_mapping{ $POSTS{'device_type'} },
+                    $oct3, $oct4 );
+            }
+        }
+
+        # set the model for VG224
+        if ( $POSTS{'device_type'} eq 'secvg' ) {
+            $POSTS{'model_id'} = 43;    # XXX hardcoded value
+        }
+    }
+
+    @message_store = Inventory::Edithost::do_update_all( $dbh, \%POSTS );
+
+    if ( not exists $message_store[0]->{'ERROR'} ) {
+
+        # successful host creation, at least
+        $gets{'shortname'} ||= $POSTS{'host_name'};
+    }
+    else {
+
+        # need to go back to same view
+        $script = $POSTS{'script_mode'};
+    }
+}
+
+my %searchterms = (
+    host_id   => qr/^[\d]*$/x,
+    shortname => qr/^[\w\-]*$/x,
+    dnsname   => qr/^[\w\.\-]*$/x,
+    ipaddress => sub { return NetAddr::IP->new(shift); },
+    serial    => qr/^[\w\-]*$/x,
+    asset     => qr/^[\w\-]*$/x,
+);
+
+my %hosts;
+
+# so foreach searchterm / comparison...
+while ( my ( $key, $value ) = each %searchterms ) {
+
+    # if we are asking for that searchterm... and have a submitted value
+    if ( exists $gets{$key} && length( $gets{$key} ) > 0 ) {
+
+        # we dont want the searchboxes to be sensitive to spaces
+        # Remove leading spaces:
+        $gets{$key} =~ s/^\s*//gmx;
+        $gets{$key} =~ s/^\+*//gmx;
+
+        # Remove trailing spaces:
+        $gets{$key} =~ s/\s*$//gmx;
+        $gets{$key} =~ s/\+*$//gmx;
+
+        my ( %message, $checklast );
+        if ( ref $searchterms{$key} ne 'Regexp' ) {
+
+            # it's an a ipaddress lookup, lets return a netaddr output
+            my $ip      = URI::Escape::uri_unescape( $gets{$key} );
+            my $address = $searchterms{$key}->($ip);
+            if ( !$address ) {
+                $message{'ERROR'} =
+                  "The search field $key contained invalid characters";
+                last;
+            }
+            $lookup = "$key: $gets{$key}";
+            %hosts  = %{
+                Inventory::Hosts::host_info_wrapper( $dbh, $key, $gets{$key} );
+              };
+        }
+        elsif ( $gets{$key} =~ m/$gets{$key}/x ) {
+            $lookup = "$key: $gets{$key}";
+            %hosts  = %{
+                Inventory::Hosts::host_info_wrapper( $dbh, $key, $gets{$key} );
+              };
+        }
+        else {
+            $message{'ERROR'} =
+              "The search field $key contained invalid characters";
+        }
+
+        push @message_store, \%message if scalar keys %message;
+    }
+}
+
+my @locations    = Inventory::Locations::get_locations_info($dbh);
+my @models       = Inventory::Models::get_models_info($dbh);
+my @frodo_models = Inventory::Models::get_frodo_models($dbh);
+my @status       = Inventory::Status::get_status_info($dbh);
+my @ups          = Inventory::Ups::get_ups_info($dbh);
+my @hostgroups   = Inventory::Introles::get_hostgroups_info($dbh);
+my @invoices     = Inventory::Invoices::get_invoices_info($dbh);
+
+# dont attempt a lookup on a simple non query page load
+if ( defined $lookup && length $lookup > 0 ) {
+    %hosts = %{ set_globals_vialookup( $dbh, \%hosts ); };
+}
+
+my $quickview;
+if ( exists $gets{'quickview'} ) {
+    $quickview = $gets{'quickview'};
+}
+
+$tt->process(
+    "inventory_edithost.tt",
+    {
+        hosts         => \%hosts,
+        message_store => \@message_store,
+        quickview     => $quickview,
+        lookup        => $lookup,
+        development   => ( $HOSTNAME eq 'overlord' ? 1 : 0 ),
+
+        script_mode => $script,
+        quickdevice => ( $script eq 'quickdevice' ? 1 : 0 ),
+        quickadd    => ( $script eq 'quickadd' ? 1 : 0 ),
+        edithost    => ( $script eq 'edithost' ? 1 : 0 ),
+
+        invoices     => \@invoices,
+        locations    => \@locations,
+        ups          => \@ups,
+        hostgroups   => \@hostgroups,
+        models       => \@models,
+        frodo_models => \@frodo_models,
+        status       => \@status,
+    }
+);
+$tt->process('stdfoot.tt');
+
+###########################################################################
+#                              subroutines                                #
+###########################################################################
+
+sub set_globals_vialookup {
+    my $dbh   = shift;
+    my %hosts = %{ shift() };
+
+    my @memberships = Inventory::Introlemembers::get_memberships_info($dbh);
+
+    foreach my $id ( keys %hosts ) {
+
+        # tell me what interfaces they have
+        my @interfaces =
+          Inventory::Interfaces::get_interfaces_info( $dbh, undef, $id );
+
+        my ( @hostgroups, @detailed_interfaces );
+
+        foreach my $interface (@interfaces) {
+
+            # we take the information, add to it and output a fatter
+            # interfaces array (yes, yes: of hashrefs)
+
+            my %int_details = %{$interface};
+            my $int_id      = $int_details{'id'};
+
+            my @hostgroupmemberships =
+              Inventory::Introlemembers::memberships_byinterfaceid( $dbh,
+                $int_id );
+
+            foreach my $groupid (@hostgroupmemberships) {
+                next if !defined $groupid || length($groupid) < 1;
+
+                my @result =
+                  Inventory::Introles::get_hostgroups_info( $dbh, $groupid );
+                push @hostgroups, @result;
+
+                # allow the interface to know about its roles
+                foreach my $m (@memberships) {
+                    next
+                      unless $m->{host_id} == $int_id
+                          and $m->{hostgroup_id} == $groupid;
+
+                    push @{ $int_details{'hostgroups'} },
+                      { role => $groupid, id => $m->{membership_id} };
+                }
+            }
+
+            # this is where we assign nagios information
+            push @detailed_interfaces, \%int_details;
+        }
+
+        $hosts{$id}{'interfaces'} = \@detailed_interfaces;
+        $hosts{$id}{'hostgroups'} = \@hostgroups;
+
+        # find the ups data and add it to the info
+        my @ups = Inventory::Ups::ups_byhostid( $dbh, $id );
+        $hosts{$id}{'ups'} = \@ups;
+
+        # what cnames the host has
+        my @cnames = Inventory::Cnames::get_cnames_info( $dbh, $id );
+        $hosts{$id}{'cnames'} = \@cnames;
+
+        # tell me what photos they have and get details for each
+        my @photos = Inventory::Photos::get_photos_byhostid( $dbh, $id );
+        $hosts{$id}{'photos'} = \@photos;
+
+    }
+
+    return \%hosts;
+}
+
+__END__
+
+=head1 NAME
+viewhost
+
+=head1 VERSION
+
+This documentation refers to version 0.0.2
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+The page which allows someone to lookup all details for certain hosts, using
+various possible searchterms
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION
+
+/srv/www/$HOSTNAME/lib/inventory.ini
+
+=head1 DEPENDENCIES
+
+=head1 EXIT STATUS
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <networks@oucs.ox.ac.uk>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <networks@oucs.ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+(c) University of Oxford

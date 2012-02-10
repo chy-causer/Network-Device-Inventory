@@ -1,0 +1,140 @@
+#!/usr/bin/perl -T
+#
+# Name: evil-frodo
+# Creator: Guy Edwards
+# Created: 2008-10-28
+# Description: Main frodo project overview that ITSS will see
+#
+# $Id: evil-frodo 3524 2012-02-06 15:52:19Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
+# $LastChangedRevision: 3524 $
+# $uid: 5WcK4xea2dlUjnH0u7Rd2saOqegtzShM1w2_cMvqIKyW3 $
+#
+use warnings FATAL => 'all';
+use strict;
+
+use CGI;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use Template;
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Ups qw(get_links_info);
+use Inventory::Frodos qw(ordered_hash_frodos);
+
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/home/networks/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost           = $CONFIG->{'database'}->{db_host};
+my $dbname           = $CONFIG->{'database'}->{db_name};
+my $dbuser           = $CONFIG->{'database'}->{db_user};
+my $dbpass           = $CONFIG->{'database'}->{db_pass};
+my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'Frodo Project Overview',
+        baseurl    => $BASEURL,
+        javascript => 'on',
+    }
+);
+
+my %gets =
+  Inventory::populate_query_fields();    # not strictly a get field of course
+my $orderby;
+if ( !exists $gets{'orderby'} || $gets{'orderby'} =~ m/\W/x ) {
+    $orderby = 'host_name';
+}
+else {
+    $orderby = $gets{'orderby'};
+}
+
+# all the frodos
+my %frodos = %{ ordered_hash_frodos( $dbh, $orderby ) };
+
+# all the ups joined to hosts
+my @links = Inventory::Ups::get_links_info($dbh);
+
+$tt->process(
+    'plain-frodo.tt',
+    {
+        frodos => \%frodos,
+        links  => \@links,
+    }
+);
+
+$tt->process( 'stdfoot.tt', {} );
+
+__END__
+
+=head1 NAME
+evil-frodo
+
+=head1 VERSION
+
+This documentation refers to  version 
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+Main frodo project overview that ITSS will see
+
+This generates the frodo project overview page hosted on evil
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION
+
+/home/networks/inventory.ini
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <hostmaster@ox.ac.uk>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <hostmaster@ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+
+
+(c) University of Oxford

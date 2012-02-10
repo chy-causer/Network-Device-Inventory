@@ -1,0 +1,46 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-10 16:17:11 +0000 (Fri, 10 Feb 2012) $
+# $Revision: 3540 $
+# $Id: todo 3540 2012-02-10 16:17:11Z guy $
+-%]
+  
+1.1 Immediate requirements
+
+ * Javascript input validation for the quickfrodo page to help people wrongly typing the frodo- name
+ * Add a service level to support contracts
+ * Show all devices under a support contract / not under a support contract 
+ * Support contracts: cost and duration of contract, start and end date plus service level
+ * Introduce edit restrictions on the groups (frodos/ups and status) where names mustn't change
+
+1.2 Stop issues in the long term
+
+ * On the photos page make it use a sha hash as the complete filename
+ * script to check/update cached dns records overnight
+ * dont let a ups be its own ups
+
+1.3 Add usability
+
+ * Show a date picker jQuery widget on date fields
+ * As the user types, show if the name is unique and available or not (tick or cross)
+ * Make problem search run each night as a scheduled job
+
+1.4 Make releasable
+
+ * Write tests for each module
+ * Add install instructions
+ * put license details in each file
+
+1.5 Add more functionality
+
+ * "show me a host whose details haven't been checked in the last year"
+ * "show me a random problem and hint how I might fix it"
+ * add a change audit trail
+ * add ability to view the change log
+ * add geolocation data for locations
+
+1.6 Controlled distribution
+ * package integrity check (manifest plus sha256) versus files in that release
+ * update via the web
+ * local skinning not overwritten
+

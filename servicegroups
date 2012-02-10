@@ -1,0 +1,159 @@
+#!/usr/bin/perl -T
+#
+# Name: servicegroups
+# Creator: Guy Edwards
+# Created: 2008-09-15
+# Description: Servicegroups administration page for the inventory
+#
+# $Id: servicegroups 3538 2012-02-10 15:39:37Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
+# $LastChangedRevision: 3538 $
+# $uid: MffU3FcGXqFzNXpelzn9yGmeMcHz5jcJ54DH9YvPWXkgG $
+#
+
+use warnings FATAL => 'all';
+use strict;
+
+use CGI;
+use Template;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Servicegroups
+  qw(create_servicegroups edit_servicegroups get_servicegroups_info);
+
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost           = $CONFIG->{'database'}->{db_host};
+my $dbname           = $CONFIG->{'database'}->{db_name};
+my $dbuser           = $CONFIG->{'database'}->{db_user};
+my $dbpass           = $CONFIG->{'database'}->{db_pass};
+my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users      = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'Servicegroups',
+        baseurl    => $BASEURL,
+        extramenu  => 'inventory',
+        javascript => 'on',
+    }
+);
+
+# invalid users get no further than the next line
+Inventory::acl_checker( $tt, $valid_users );
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+my %gets = populate_query_fields();    # not strictly a get field of course
+my %POSTS;
+if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
+    %POSTS = $q->Vars;
+}
+
+my $edit;
+if ( $gets{'servicegroup_id'} && $gets{'servicegroup_id'} !~ m/\D/x ) {
+    $edit = $gets{'servicegroup_id'};
+}
+
+my %message;    # communicate success or failure, sink or swim
+
+# are we editing an existing entry?
+if ( $POSTS{'servicegroup_id'} ) {
+    %message =
+      %{ Inventory::Servicegroups::edit_servicegroups( $dbh, \%POSTS ) };
+}
+elsif ( $POSTS{'servicegroup_name'} ) {
+
+    # are we creating a new entry?
+    %message =
+      %{ Inventory::Servicegroups::create_servicegroups( $dbh, \%POSTS ) };
+}
+
+# list all the servicegroups (array of hashes)
+my @servicegroups =
+  Inventory::Servicegroups::get_servicegroups_info( $dbh, '', $gets{'orderby'},
+    $gets{'direction'} );
+
+$tt->process(
+    'inventory_servicegroups.tt',
+    {
+        servicegroups => \@servicegroups,
+        message       => \%message,
+        edit          => $edit,
+    }
+);
+$tt->process( 'stdfoot.tt', {} );
+
+__END__
+
+=head1 NAME
+
+=head1 VERSION
+
+This documentation refers to  version 
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Configuration files used?
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <hostmaster@ox.ac.uk>
+
+=head1 AUTHOR
+
+
+, maintained by <hostmaster@ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+
+
+(c) University of Oxford

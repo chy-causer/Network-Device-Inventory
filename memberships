@@ -1,0 +1,180 @@
+#!/usr/bin/perl -T
+#
+# Name: memberships
+# Creator: Guy Edwards
+# Created: 2008-07-28
+# Description: Host to hostgroup administration page for the inventory
+#
+# $Id: memberships 3538 2012-02-10 15:39:37Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
+# $LastChangedRevision: 3538 $
+# $uid: 3v41lbnbaJS2ODRMCytIJNuGX2q8ZmrJfZ6dMaItRnGHK $
+#
+
+use warnings FATAL => 'all';
+use strict;
+
+use CGI;
+use Template;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Hosts qw(get_hosts_info);
+use Inventory::Hostgroups qw(get_hostgroups_info);
+use Inventory::Memberships qw(create_memberships edit_memberships
+  count_memberships get_memberships_info);
+
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost           = $CONFIG->{'database'}->{db_host};
+my $dbname           = $CONFIG->{'database'}->{db_name};
+my $dbuser           = $CONFIG->{'database'}->{db_user};
+my $dbpass           = $CONFIG->{'database'}->{db_pass};
+my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users      = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'Group Memberships',
+        baseurl    => $BASEURL,
+        extramenu  => 'inventory',
+        javascript => 'on',
+    }
+);
+
+# invalid users get no further than the next line
+Inventory::acl_checker( $tt, $valid_users );
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+#
+my %gets =
+  Inventory::populate_query_fields();    # not strictly a get field of course
+my %POSTS;
+if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
+    %POSTS = $q->Vars;
+}
+
+my $edit;
+if ( $gets{'membership_id'} && $gets{'membership_id'} !~ m/\D/x ) {
+    $edit = $gets{'membership_id'};
+}
+
+my @message_store;    # communicate success or failure, sink or swim
+
+# are we editing an existing entry?
+if ( $POSTS{'membership_id'} ) {
+    if ( $POSTS{'submit'} eq 'Delete Entry' ) {
+        @message_store =
+          Inventory::Memberships::delete_memberships( $dbh, \%POSTS );
+    }
+    else {
+        @message_store =
+          Inventory::Memberships::edit_memberships( $dbh, \%POSTS );
+    }
+}
+elsif ( $POSTS{'hostgroup_id'} ) {
+
+    # are we creating a new entry?
+    @message_store =
+      Inventory::Memberships::create_memberships( $dbh, \%POSTS );
+}
+
+# list all the memberships (array of hashes)
+my @memberships = Inventory::Memberships::get_memberships_info($dbh);
+
+# list all the hosts (array of hashes)
+my @hosts = Inventory::Hosts::get_hosts_info($dbh);
+
+# list all the hostgroups (array of hashes)
+my @hostgroups = Inventory::Hostgroups::get_hostgroups_info($dbh);
+
+# get a count per hostgroup
+my %group_summary =
+  %{ Inventory::Memberships::count_memberships( $dbh, 'group' ) };
+my %host_summary =
+  %{ Inventory::Memberships::count_memberships( $dbh, 'host' ) };
+
+$tt->process(
+    'inventory_memberships.tt',
+    {
+        memberships   => \@memberships,
+        message_store => \@message_store,
+        edit          => $edit,
+        hostgroups    => \@hostgroups,
+        hosts         => \@hosts,
+        group_summary => \%group_summary,
+        host_summary  => \%host_summary,
+    }
+);
+$tt->process( 'stdfoot.tt', {} );
+
+__END__
+
+=head1 NAME
+
+=head1 VERSION
+
+This documentation refers to  version 
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+Configuration files used?
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <hostmaster@ox.ac.uk>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <hostmaster@ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+(c) University of Oxford

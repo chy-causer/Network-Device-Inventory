@@ -1,0 +1,166 @@
+#!/usr/bin/perl -T
+#
+# Name: models
+# Creator: Guy Edwards
+# Created: 2009-04-09
+# Description: Models administration page for the inventory application
+#
+# $Id: models 3538 2012-02-10 15:39:37Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
+# $LastChangedRevision: 3538 $
+# $uid: n8KLYcb9RRVvcJCDXbrdNd6ibPE5iqjnLd5ZzV3n4Cuik $
+#
+
+use warnings FATAL => 'all';
+use strict;
+
+use CGI;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use Template;
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Models
+  qw(create_models edit_models get_models_info count_hosts_permodel);
+use Inventory::Manufacturers qw(get_manufacturers_info);
+
+my $HOSTNAME = CGI::url( -base => 1 );
+my $BASEURL = $HOSTNAME;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost           = $CONFIG->{'database'}->{db_host};
+my $dbname           = $CONFIG->{'database'}->{db_name};
+my $dbuser           = $CONFIG->{'database'}->{db_user};
+my $dbpass           = $CONFIG->{'database'}->{db_pass};
+my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users      = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'Hardware Models',
+        baseurl    => $BASEURL,
+        extramenu  => 'inventory',
+        javascript => 'on',
+    }
+);
+
+# invalid users get no further than the next line
+Inventory::acl_checker( $tt, $valid_users );
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+my %gets = populate_query_fields();    # not strictly a get field of course
+my %POSTS;
+if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
+    %POSTS = $q->Vars;
+}
+
+my $edit;
+if ( $gets{'model_id'} && $gets{'model_id'} !~ m/\D/x ) {
+    $edit = $gets{'model_id'};
+}
+
+my %message;    # communicate success or failure, sink or swim
+
+# are we editing an existing entry?
+if ( $POSTS{'model_id'} ) {
+    %message = %{ Inventory::Models::edit_models( $dbh, \%POSTS ) };
+}
+elsif ( $POSTS{'model_name'} ) {
+
+    # are we creating a new entry?
+    %message = %{ Inventory::Models::create_models( $dbh, \%POSTS ) };
+}
+
+# list all the models (array of hashes)
+my @models = Inventory::Models::get_models_info($dbh);
+
+# list all the manufacturers in order to populate dropdown (array of hashes)
+my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
+
+# number of models per manufacturer
+my %host_count = %{ Inventory::Models::count_hosts_permodel($dbh) };
+
+$tt->process(
+    'inventory_models.tt',
+    {
+        models        => \@models,
+        manufacturers => \@manufacturers,
+        message       => \%message,
+        edit          => $edit,
+        host_counts   => \%host_count,
+    }
+);
+$tt->process( 'stdfoot.tt', {} );
+
+__END__
+
+=head1 NAME
+Models
+
+=head1 VERSION
+
+This documentation refers to  version 
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+Lets the user view and edit the list of hardware models that the inventory database knows about
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION
+
+Configuration files used?
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <hostmaster@ox.ac.uk>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <hostmaster@ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+
+
+(c) University of Oxford

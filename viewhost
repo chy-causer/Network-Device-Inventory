@@ -1,0 +1,383 @@
+#!/usr/bin/perl -T 
+#
+# Name: viewhost
+# Creator: Guy Edwards
+# Created: 2008-07-28
+# Description: Viewhost administration page for the inventory
+#
+# $Id: viewhost 3539 2012-02-10 16:01:31Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-10 16:01:31 +0000 (Fri, 10 Feb 2012) $
+# $LastChangedRevision: 3539 $
+# $uid: oM1JJoZJ5povBUwzgbCfz3u4BN5lYayaJ8AUjs_NjhTtK $
+#
+
+use warnings FATAL => 'all';
+use strict;
+our $VERSION = qw('0.0.3');
+
+use CGI;
+use Template;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use NetAddr::IP;
+use URI::Escape;
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Cnames qw(get_cnames_info);
+use Inventory::Hosts qw(get_hosts_info host_info_wrapper update_time);
+use Inventory::Introles qw(get_hostgroups_info);
+use Inventory::Models qw(get_models_info);
+use Inventory::Interfaces qw(get_interfaces_info);
+use Inventory::Locations qw(get_locations_info);
+use Inventory::Introlemembers qw(memberships_byinterfaceid);
+use Inventory::Photos qw(get_photos_byhostid);
+use Inventory::Sshkeys qw(sshkeys_byhostid);
+use Inventory::Status qw(get_status_info);
+use Inventory::Ups qw(ups_byhostid);
+
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost       = $CONFIG->{'database'}->{db_host};
+my $dbname       = $CONFIG->{'database'}->{db_name};
+my $dbuser       = $CONFIG->{'database'}->{db_user};
+my $dbpass       = $CONFIG->{'database'}->{db_pass};
+my $dbh          = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users  = $CONFIG->{'general'}->{allowed_users};
+my $netdisco_url = $CONFIG->{'links'}->{netdisco_url};
+my $nagios_url   = $CONFIG->{'links'}->{nagios_url};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+my %POSTS;
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'View Hosts',
+        baseurl    => $BASEURL,
+        extramenu  => 'inventory',
+        javascript => 'on',
+    }
+);
+
+# invalid users get no further than the next line
+Inventory::acl_checker( $tt, $valid_users );
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+#
+my %gets = Inventory::populate_query_fields();    # not strictly a get field
+
+if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
+    %POSTS = $q->Vars;
+}
+
+my ( $search, $message, $hosts );
+
+if ( scalar( keys %gets ) > 0 ) {
+    ( $search, $message, $hosts ) = perform_search( \%gets );
+}
+
+if ( $POSTS{'host_id'} ) {
+    $message = Inventory::Hosts::update_time( $dbh, \%POSTS );
+}
+
+# dont attempt a lookup on a simple non query page load
+if ( defined $search && length $search > 0 ) {
+    $hosts = set_globals_vialookup( $dbh, $hosts );
+}
+
+my $quickview;
+if ( exists $gets{'quickview'} ) {
+    $quickview = $gets{'quickview'};
+}
+
+$tt->process(
+    'inventory_viewhost.tt',
+    {
+        hosts        => $hosts,
+        message      => $message,
+        quickview    => $quickview,
+        lookup       => $search,
+        nagios_url   => $nagios_url,
+        netdisco_url => $netdisco_url,
+
+    }
+);
+
+$tt->process('stdfoot.tt');
+
+###########################################################################
+#                              subroutines                                #
+###########################################################################
+
+sub perform_search {
+    my %message;
+    my %hosts;
+    my %query = %{ shift() };
+
+    my %regex = (
+        host_id    => qr/^[\d]+$/x,
+        shortname  => qr/^[\w\-]+$/x,
+        dnsname    => qr/^[\w\.\-]+$/x,
+        ipaddress  => sub { return NetAddr::IP->new(shift); },
+        serial     => qr/^[\w\-]+$/x,
+        asset      => qr/^[\w\-]+$/x,
+        searchterm => qr/^[\:\w\d\.\-]+$/x,
+    );
+    my $lookup;
+
+    # so foreach searchterm / comparison...
+    foreach my $term ( keys %regex ) {
+
+        if ( exists $query{$term} && length( $query{$term} ) > 0 ) {
+
+            # searchterm
+            # so a search request has been submitted
+            $lookup = $term;
+
+            # we dont want the searchboxes to be sensitive to spaces
+            # Remove leading spaces:
+            $query{$term} =~ s/^\s*//gmx;
+            $query{$term} =~ s/^\+*//gmx;
+
+            # Remove trailing spaces:
+            $query{$term} =~ s/\s*$//gmx;
+            $query{$term} =~ s/\+*$//gmx;
+
+            if ( $term eq 'searchterm' ) {
+
+                my @likelyfields = determine_search( $query{$term} );
+
+                # catchall search - we have to work out what it is
+
+                foreach my $sfield (@likelyfields) {
+                    my %newhosts = %{
+                        Inventory::Hosts::host_info_wrapper( $dbh, $sfield,
+                            $query{$term} )
+                      };
+                    if (   scalar( keys %newhosts ) > 0
+                        && scalar( keys %hosts ) > 0 )
+                    {
+                        my %temphosts = ( %hosts, %newhosts );
+                        %hosts = %temphosts;
+                    }
+                    elsif ( scalar( keys %newhosts ) > 0 ) {
+                        %hosts = %newhosts;
+                    }
+
+                    # otherwise there are no results
+                }
+
+            }
+            elsif ( ref $regex{$term} ne 'Regexp' ) {
+
+                # it's an a ipaddress lookup, lets return a netaddr output
+                my $ip      = URI::Escape::uri_unescape( $query{$term} );
+                my $address = $regex{$term}->($ip);
+                if ( !$address ) {
+                    $message{'ERROR'} =
+                      "The search field $term contained invalid characters";
+                    last;
+                }
+                $lookup = "$term: $query{$term}";
+                %hosts  = %{
+                    Inventory::Hosts::host_info_wrapper( $dbh, $term,
+                        $query{$term} );
+                  };
+            }
+            elsif ( $query{$term} =~ m/$regex{$term}/x ) {
+                $lookup = "$term: $query{$term}";
+                %hosts  = %{
+                    Inventory::Hosts::host_info_wrapper( $dbh, $term,
+                        $query{$term} );
+                  };
+            }
+            else {
+                $message{'ERROR'} =
+                  "The search field $term contained invalid characters";
+            }
+        }
+    }
+
+    return $lookup, \%message, \%hosts;
+}
+
+sub determine_search {
+
+    # given a simple search text, try and intelligently work out what it is
+    my $query = shift;
+
+    if ( $query =~ m/^[a-zA-Z0-9-]+$/x ) {
+
+        if ( $query =~ m/^[\d]+$/x ) {
+            return qw(host_id serial asset);
+        }
+        else {
+            return qw(shortname serial asset);
+        }
+    }
+
+    # if not an ipv4 address and we can resolve...
+    # note that netaddr::ip will hapily take a dns name, which we dont want in
+    # this circumstance
+    #
+    # 163.1.3.223
+    elsif ( $query =~ m/^[\d\w\.\-]+[a-zA-Z]{1}$/x ) {
+        return qw(dnsname);
+    }
+
+    elsif ( NetAddr::IP->new($query) ) {
+        return qw(ipaddress);
+    }
+
+    return;
+}
+
+sub set_globals_vialookup {
+    my $db    = shift;
+    my %hosts = %{ shift() };
+
+    my @memberships = Inventory::Introlemembers::get_memberships_info($db);
+
+    foreach my $id ( keys %hosts ) {
+
+        # tell me what interfaces they have
+        my @interfaces =
+          Inventory::Interfaces::get_interfaces_info( $db, undef, $id );
+
+        my ( @hostgroups, @detailed_interfaces );
+
+        foreach my $interface (@interfaces) {
+
+            # we take the information, add to it and output a fatter
+            # interfaces array (yes, yes: of hashrefs)
+
+            my %int_details = %{$interface};
+            my $int_id      = $int_details{'id'};
+
+            my @hostgroupmemberships =
+              Inventory::Introlemembers::memberships_byinterfaceid( $db,
+                $int_id );
+
+            foreach my $groupid (@hostgroupmemberships) {
+                next if !defined $groupid || length($groupid) < 1;
+
+                my @result =
+                  Inventory::Introles::get_hostgroups_info( $db, $groupid );
+                push @hostgroups, @result;
+
+                # allow the interface to know about its roles
+                foreach my $m (@memberships) {
+                    next
+                      unless $m->{host_id} == $int_id
+                          and $m->{hostgroup_id} == $groupid;
+
+                    push @{ $int_details{'hostgroups'} },
+                      {
+                        role        => $groupid,
+                        id          => $m->{membership_id},
+                        name        => $m->{hostgroup_name},
+                        description => $m->{hostgroup_description},
+                      };
+                }
+            }
+
+            # this is where we assign nagios information
+            push @detailed_interfaces, \%int_details;
+        }
+
+        $hosts{$id}{'interfaces'} = \@detailed_interfaces;
+        $hosts{$id}{'hostgroups'} = \@hostgroups;
+
+        # find the ups data and add it to the info
+        my @ups = Inventory::Ups::ups_byhostid( $db, $id );
+        $hosts{$id}{'ups'} = \@ups;
+
+        # find the ups data and add it to the info
+        my @ssh = Inventory::Sshkeys::sshkeys_byhostid( $db, $id );
+        $hosts{$id}{'sshkeys'} = \@ssh;
+
+        # what cnames the host has
+        my @cnames = Inventory::Cnames::get_cnames_info( $db, $id );
+        $hosts{$id}{'cnames'} = \@cnames;
+
+        # tell me what photos they have and get details for each
+        my @photos = Inventory::Photos::get_photos_byhostid( $db, $id );
+        $hosts{$id}{'photos'} = \@photos;
+    }
+
+    return \%hosts;
+}
+
+__END__
+
+=head1 NAME
+viewhost
+
+=head1 VERSION
+
+This documentation refers to version 0.0.2
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+The page which allows someone to lookup all details for certain hosts, using
+various possible searchterms
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION
+
+/srv/www/$HOSTNAME/lib/inventory.ini
+
+=head1 DEPENDENCIES
+
+=head1 EXIT STATUS
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <networks@oucs.ox.ac.uk>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <networks@oucs.ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+(c) University of Oxford

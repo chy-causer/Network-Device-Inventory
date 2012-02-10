@@ -1,0 +1,247 @@
+#!/usr/bin/perl -T
+#
+# Name: problems_interfaces
+# Creator: Guy Edwards
+# Created: 2008-10-14
+# Description: Look for logic issues in the interface records
+#
+# $Id: problems_interfaces 3538 2012-02-10 15:39:37Z guy $
+# $LastChangedBy: guy $
+# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
+# $LastChangedRevision: 3538 $
+# $uid: o0rvN2nBh3JvWjZ6rNx2okb_zQfY1z3ihGoh0fmOdYNvg $
+#
+
+use warnings FATAL => 'all';
+use strict;
+
+use CGI;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use Template;
+
+use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory::Hosts qw(get_hosts_info);
+use Inventory::Interfaces qw(get_interfaces_info);
+our $VERSION = qw('0.0.1');
+
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost           = $CONFIG->{'database'}->{db_host};
+my $dbname           = $CONFIG->{'database'}->{db_name};
+my $dbuser           = $CONFIG->{'database'}->{db_user};
+my $dbpass           = $CONFIG->{'database'}->{db_pass};
+my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users      = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => 'Interface Problems',
+        baseurl    => $BASEURL,
+        extramenu  => 'inventory',
+        javascript => 'on',
+    }
+);
+
+# invalid users get no further than the next line
+Inventory::acl_checker( $tt, $valid_users );
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+my %gets = populate_query_fields();    # not strictly a get field of course
+my %POSTS;
+if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
+    %POSTS = $q->Vars;
+}
+
+# list all the interfaces (array of hashes)
+my @interfaces = Inventory::Interfaces::get_interfaces_info($dbh);
+
+# list all the hosts (array of hashes)
+my @hosts = Inventory::Hosts::get_hosts_info($dbh);
+
+my @bugarray = interfaces_bugcheck( \@interfaces, \@hosts );
+
+# list all hosts with no interface
+my @hosts_no_interface = @{ $bugarray[0] };
+
+# list all hosts with one interface and no primary interface
+my @hosts_singleno_primary = @{ $bugarray[1] };
+
+# list all hosts with multiple interfaces and no primary interface
+my @hosts_multino_primary = @{ $bugarray[2] };
+
+my %host_to_interfaces =
+  %{ hash_hostid_to_tointerfaces( \@interfaces, \@hosts ) };
+
+$tt->process(
+    'inventory_problems_interfaces.tt',
+    {
+        interfaces             => \@interfaces,
+        hosts                  => \@hosts,
+        hosts_no_interface     => \@hosts_no_interface,
+        hosts_singleno_primary => \@hosts_singleno_primary,
+        hosts_multino_primary  => \@hosts_multino_primary,
+        host_to_interfaces     => \%host_to_interfaces,
+    }
+);
+$tt->process( 'stdfoot.tt', {} );
+
+###########################################################################
+#                             subroutines                                 #
+###########################################################################
+
+sub interfaces_bugcheck {
+
+    # find hosts with only one interface
+    # AND that interface isn't marked as primary
+    #
+    my $ref1        = shift;
+    my $ref2        = shift;
+    my @binterfaces = @{$ref1};
+    my @bhosts      = @{$ref2};
+
+    my @bhosts_no_interface;
+    my @bhosts_singleno_primary;
+    my @bhosts_multino_primary;
+
+    foreach my $hostref (@bhosts) {
+        my %host_details    = %{$hostref};
+        my $interface_total = 0;
+        my $has_primary     = 0;
+        next if $host_details{'status_state'} ne 'ACTIVE';
+
+        foreach my $interfaceref (@binterfaces) {
+            my %interface_details = %{$interfaceref};
+            if ( $host_details{'id'} == $interface_details{'host_id'} ) {
+
+                # host has an interface
+                $interface_total++;
+
+                # if it's got more than one interface, ignore it
+                if ( $interface_details{'isprimary'} == 1 ) {
+                    $has_primary = 1;
+                }
+            }
+        }
+
+        if ( $interface_total == 0 ) {
+
+            # no interfaces
+            push @bhosts_no_interface, \%host_details;
+        }
+
+        if ( $interface_total == 1 && $has_primary == 0 ) {
+
+            # one interface, no primary
+            push @bhosts_singleno_primary, \%host_details;
+        }
+
+        if ( $interface_total > 1 && $has_primary == 0 ) {
+
+            # multiple interfaces, no primary
+            push @bhosts_multino_primary, \%host_details;
+        }
+
+    }
+
+    return \@bhosts_no_interface, \@bhosts_singleno_primary,
+      \@bhosts_multino_primary;
+}
+
+sub hash_hostid_to_tointerfaces {
+    my $ref1        = shift;
+    my $ref2        = shift;
+    my @ninterfaces = @{$ref1};
+    my @nhosts      = @{$ref2};
+
+    my %return_hash;
+
+    foreach my $hostref (@nhosts) {
+        my %host_details = %{$hostref};
+        my @host_interfaces;
+
+        foreach my $interfaceref (@ninterfaces) {
+            my %interface_details = %{$interfaceref};
+
+            if ( $host_details{'id'} == $interface_details{'host_id'} ) {
+
+                # host has an interface
+                push @host_interfaces, $interface_details{'id'};
+            }
+        }
+
+        my $host_id = $host_details{'id'};
+        $return_hash{$host_id} = \@host_interfaces;
+    }
+
+    return \%return_hash;
+}
+
+__END__
+
+=head1 NAME
+
+=head1 VERSION
+
+This documentation refers to production version 0.0.1
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION
+
+Configuration files used?
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <hostmaster@ox.ac.uk>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <hostmaster@ox.ac.uk>
+
+=head1 LICENSE AND COPYRIGHT
+
+(c) University of Oxford
