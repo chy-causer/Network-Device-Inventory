@@ -1,12 +1,17 @@
 =head1 INTRODUCTION
 
 This is a network device inventory that was written in 2007 and used
-internally to feed a network monitoring system. It was approved for release as
-open source code on the 10th February 2012
+internally to university network support team as a central data source and to
+feed a network monitoring system.
 
-At the time of public release the code is still in the process of being
-'publicified' so may make references to in house systems or be in a non
-working state, it's intended to fix this as soon as possible.
+It was approved for release as open source code on the 10th February 2012
+
+At the time of public release the code is in the process of being
+'publicified' so may make references to private/in house systems and terms or be in a non
+working state where parts have been rmeoved. 
+
+It's intended to fix this as soon as possible, a working demonstration site is
+currently being configured.
 
 =head1 INSTALLATION
 
@@ -24,7 +29,9 @@ The major steps currently involve:
 
  Test
 
-This process will be significantly improved shortly.
+The INSTALL file contains a more complete guide to the current install process
+(warts and all) but it's intended that this process will be significantly
+improved shortly.
 
 
 =head2 Dependencies
@@ -50,9 +57,10 @@ URI
 =head1 FUTURE WORK
 
 By the end of February this should be installable and understandable outside of
-the original coompany it was written for.
+the original company it was written for.
 
-The todo file contains the full roadmap.
+The todo file contains the full future roadmap in terms of improvements and
+new features.
 
 =head1 COPYRIGHT AND LICENCE
 

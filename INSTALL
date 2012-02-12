@@ -44,12 +44,13 @@ DOWNLOAD_DIR='/home/foo/temp'
    # http://jqueryui.com/download
    # then copy the files:
    mkdir /var/www/inventory/static/javascript
-   
+   wget http://autobahn.tablesorter.com/jquery.tablesorter.min.js
+
    scp js/jquery-1.7.1.min.js $HOSTSSH:/var/www/$SITENAME/static/javascript/jquery.min.js
    scp js/jquery-ui-1.8.17.custom.min.js $HOSTSSH:/var/www/$SITENAME/static/javascript/jquery.custom.min.js
    scp development-bundle/ui/minified/*.js $HOSTSSH:/var/www/$SITENAME/static/javascript/
 
-   scp development-bundle/themes/pepper-grinder/jquery.ui.all.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
+   scp development-bundle/themes/pepper-grinder/jquery.ui.*.css   $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
    scp css/pepper-grinder/jquery-ui-1.8.17.custom.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
    scp css/pepper-grinder/images/* $HOSTSSH:/var/www/$SITENAME/static/images/
    # on the webserver

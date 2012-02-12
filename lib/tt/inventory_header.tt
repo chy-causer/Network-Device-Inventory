@@ -8,7 +8,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <title>[% appname %] - [% pagetitle | html_entity %] - [% groupname %]</title>
+    <title>[% appname | html_entity %] - [% pagetitle | html_entity %] - [% groupname | html_entity %]</title>
     <link href="/favicon.ico" rel="icon" type="image/x-icon" />
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     
@@ -21,9 +21,7 @@
     <script type="text/javascript" src="/javascript/jquery.min.js"></script> 
     <script type="text/javascript" src="/javascript/jquery.custom.min.js"></script>
     
-    <script type="text/javascript" src="/javascript/jquery.tablesorter.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.scrollabletable.js"></script> 
-    
+    <script type="text/javascript" src="/javascript/jquery.tablesorter.min.js"></script> 
     <script type="text/javascript" src="/javascript/jquery.ui.core.min.js"></script> 
     <script type="text/javascript" src="/javascript/jquery.ui.sortable.min.js"></script> 
     <script type="text/javascript" src="/javascript/jquery.ui.tabs.min.js"></script> 
