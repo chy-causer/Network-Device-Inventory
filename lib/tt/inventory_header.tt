@@ -57,7 +57,7 @@ document.write(d.getFullYear())
 
 <div id="invbar">
   <form method="get" action="viewhost">
-    <h2><a href="https://networks.oucs.ox.ac.uk/">[% groupname | html_entity %]</a> &gt; <a href="index">[% appname | html_entity %]</a>
+    <h2><a href="[% groupwebsite | html_entity %]">[% groupname | html_entity %]</a> &gt; <a href="index">[% appname | html_entity %]</a>
     [%- IF pagetitle && pagetitle != Index -%]
         &gt; [%- pagetitle FILTER ucfirst | html_entity -%]
     [%- END -%]
