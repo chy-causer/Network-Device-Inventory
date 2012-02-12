@@ -61,8 +61,9 @@ $tt->process(
     {
         pagetitle  => 'Frodo Overview',
         baseurl    => $BASEURL,
-        extramenu  => 'inventory',
-        javascript => 'on',
+        groupname  => $CONFIG->{'general'}->{groupname},
+        appname    => $CONFIG->{'general'}->{appname},
+        companyname=> $CONFIG->{'general'}->{companyname},
     }
 );
 
@@ -80,10 +81,10 @@ else {
 }
 
 # invalid users get no further than the next line
-Inventory::acl_checker( $tt, $valid_users );
+if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 # all the frodos
-my %frodos = %{ ordered_hash_frodos( $dbh, $orderby ) };
+my $frodos = ordered_hash_frodos( $dbh, $orderby );
 
 # all the ups joined to hosts
 my @links = Inventory::Ups::get_links_info($dbh);
@@ -91,11 +92,11 @@ my @links = Inventory::Ups::get_links_info($dbh);
 $tt->process(
     'inventory_frodo.tt',
     {
-        frodos => \%frodos,
+        frodos => $frodos,
         links  => \@links,
     }
 );
-$tt->process('stdfoot.tt');
+$tt->process('inventory_footer.tt');
 
 __END__
 

@@ -55,7 +55,7 @@ print $q->header();
 my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
 
 # invalid users get no further than the next line
-Inventory::acl_checker( $tt, $valid_users );
+if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 my %fqdns_bybashgroups =
   %{ Inventory::Introlemembers::fqdns_bybashgroup($dbh) };

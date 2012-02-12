@@ -62,13 +62,14 @@ $tt->process(
     {
         pagetitle  => 'Locations',
         baseurl    => $BASEURL,
-        extramenu  => 'inventory',
-        javascript => 'on',
+        groupname  => $CONFIG->{'general'}->{groupname},
+        appname    => $CONFIG->{'general'}->{appname},
+        companyname=> $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-Inventory::acl_checker( $tt, $valid_users );
+if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
@@ -111,7 +112,7 @@ $tt->process(
         location_counts => \%location_counts,
     }
 );
-$tt->process( 'stdfoot.tt', {} );
+$tt->process( 'inventory_footer.tt', {} );
 
 __END__
 

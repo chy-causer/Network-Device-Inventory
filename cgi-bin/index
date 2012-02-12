@@ -53,16 +53,17 @@ $tt->process(
     {
         pagetitle  => 'Index',
         baseurl    => $BASEURL,
-        extramenu  => 'inventory',
-        javascript => 'on',
+        groupname  => $CONFIG->{'general'}->{groupname},
+        appname    => $CONFIG->{'general'}->{appname},
+        companyname=> $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-Inventory::acl_checker( $tt, $valid_users );
+if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 $tt->process( 'inventory_index.tt', {} );
-$tt->process('stdfoot.tt');
+$tt->process('inventory_footer.tt');
 
 __END__
 

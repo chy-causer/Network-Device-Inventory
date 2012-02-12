@@ -52,17 +52,20 @@ $tt->process(
     {
         pagetitle  => 'Integrity',
         baseurl    => $BASEURL,
-        extramenu  => 'inventory',
-        javascript => 'on',
+        groupname  => $CONFIG->{'general'}->{groupname},
+        appname    => $CONFIG->{'general'}->{appname},
+        companyname=> $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-Inventory::acl_checker( $tt, $valid_users );
+if(! exists $CONFIG->{'general'}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 my %files;
 my @dirs = (
-             "/srv/www/$HOSTNAME/cgi-bin/inventory", 
+             # Fix the cgi-bin path being behind static
+             "/srv/www/$HOSTNAME/static/cgi-bin", 
+             # "/srv/www/$HOSTNAME/cgi-bin/inventory", 
              "/srv/www/$HOSTNAME/lib/tt", 
              '/usr/local/lib/site_perl/Inventory'
              );
@@ -82,7 +85,7 @@ $files{'Inventory.pm'} = file_details('Inventory.pm','/usr/local/lib/site_perl')
 $tt->process( 'inventory_about.tt', {
                   files => \%files,
 } );
-$tt->process( 'stdfoot.tt');
+$tt->process( 'inventory_footer.tt');
 
 sub file_details {
        my ($file,$directory) = @_;

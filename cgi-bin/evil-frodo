@@ -60,7 +60,9 @@ $tt->process(
     {
         pagetitle  => 'Frodo Project Overview',
         baseurl    => $BASEURL,
-        javascript => 'on',
+        groupname  => $CONFIG->{'general'}->{groupname},
+        appname    => $CONFIG->{'general'}->{appname},
+        companyname=> $CONFIG->{'general'}->{companyname},
     }
 );
 
@@ -88,7 +90,7 @@ $tt->process(
     }
 );
 
-$tt->process( 'stdfoot.tt', {} );
+$tt->process( 'inventory_footer.tt', {} );
 
 __END__
 
