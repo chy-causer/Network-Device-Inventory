@@ -93,10 +93,20 @@
 <h3>Current Cnames</h3>
 [% IF cnames.size > 0 %]
 <script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
+$(document).ready(function() { 
+    $("#allresults").tablesorter({ 
+        widgets: ['zebra'],
+        textExtraction:"complex",
+        // pass the headers argument and assing a object 
+        headers: { 
+            // assign the secound column (we start counting zero) 
+            0: { 
+                // disable it by setting the property sorter to false 
+                sorter: false 
+            },  
+        }   
+    }); 
+});
 </script>
 
 <form method="get" action="quickcnames">
@@ -118,7 +128,6 @@ $(document).ready(function(){
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
   [% FOR cname IN cnames %]
     [% thisname ="" %] 
     [% FOR host IN hosts %]
@@ -127,17 +136,11 @@ $(document).ready(function(){
        [% END %]
     [% END %]
 
-    [% IF counter % 2 > 0 %]
-      <tr class="stripe">
-    [% ELSE %]
-      <tr>
-    [% END %]
-    
-    [% counter = counter +1 %]
+   <tr>
       <td><input type="radio" name="cname_id" value="[% cname.id  | html_entity %]" /></td>
       <td><strong>[% cname.shortname | html_entity %]</strong>.frodo.ox.ac.uk</td>
-      <td>IN CNAME <strong>[% cname.dnsname   | html_entity %]</strong>.frodo.ox.ac.uk</td>
-      <td>[% thisname %]</td>
+      <td>IN CNAME <strong>[% cname.dnsname | html_entity %]</strong>.frodo.ox.ac.uk</td>
+      <td>[% thisname | html_entity %]</td>
    </tr>
   
   [% END %]

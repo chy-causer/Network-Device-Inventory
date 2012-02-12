@@ -157,7 +157,7 @@ div#copyright {
     background-color: rgb(233,197,203); /* BRANDING: Official Pastel red */ 
     color: #000000;                     /* BRANDING:  black */
 }
-tr.stripe td.input-error {
+tr.odd td.input-error, tr.stripe td.input-error {
     border: 1px solid rgb(130,36,51);   /* BRANDING: Official  red */
     padding: 5px;
     background-color: rgb(233,197,203); /* BRANDING: Official Pastel red */ 
@@ -177,7 +177,7 @@ tr.stripe td.input-error {
     background-color: #ffe4aa;             /* UNOFFICIAL PIRATE LIGHT ORANGE */
     color: #000000;                        /* BRANDING:  black */
 }
-tr.stripe td.input-warning {
+tr.odd td.input-warning, tr.stripe td.input-warning {
     border: 1px solid #ffae00;             /* UNOFFICIAL PIRATE ORANGE */
     padding: 5px;
     background-color: #ffe4aa;             /* UNOFFICIAL PIRATE LIGHT ORANGE */
@@ -349,7 +349,7 @@ div#widecontent {
 td {
     font-size:100%;
 }
-tr.stripe td {
+tr.odd td, tr.stripe td {
     background-color: #f5f5f5;          /* hint of light gray */
     color: #000000;                     /* BRANDING:  black */
 }
