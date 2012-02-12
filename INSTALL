@@ -1,0 +1,9 @@
+1. Make the dns name required
+2. Copy the apache configuration in to place
+3. Make the directories needed 
+   mkdir /var/www/inventory/static/cgi-bin -p
+   mkdir /var/www/inventory/static/stylesheets -p
+   mkdir /var/www/inventory/static/images -p
+   mkdir /var/www/inventory/lib/tt -p
+4. Create the database needed from conf/database.sql
+

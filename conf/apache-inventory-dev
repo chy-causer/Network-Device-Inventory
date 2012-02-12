@@ -1,0 +1,44 @@
+<VirtualHost *:80>
+    ServerName inventory-dev.example.com
+    ServerAlias inventory-dev.example.com
+    
+    RewriteEngine On
+    RewriteLogLevel 0
+
+    # the perl index page is our default doc
+    # RewriteCond %{REQUEST_URI}  =/  
+    # RewriteRule ^/$             /index                              [L,R]
+
+    ### Check for CGI existing first, then fall back to static content.
+    RewriteCond  /var/www/inventory-dev/static/cgi-bin/%{REQUEST_FILENAME}     -f [OR]
+    RewriteCond  /var/www/inventory-dev/static/cgi-bin/%{REQUEST_FILENAME}     -l  
+    RewriteCond  /var/www/inventory-dev/static/%{REQUEST_FILENAME}    !-f 
+    RewriteCond  /var/www/inventory-dev/static/%{REQUEST_FILENAME}    !-l 
+    RewriteRule  ^/(.+)          /cgi-bin/$1
+
+    LogLevel warn
+    ErrorLog ${APACHE_LOG_DIR}/inventory-dev.example.com.error.log
+    CustomLog ${APACHE_LOG_DIR}/inventory-dev.example.com.access.log combined
+
+    DocumentRoot "/var/www/inventory-dev/static"
+    Alias /favicon.ico "/var/www/inventory-dev/static/favicon.ico"
+
+    <Directory "/var/www/inventory-dev/static/cgi-bin">
+        Options ExecCGI 
+        SetHandler perl-script
+        PerlHandler ModPerl::Registry
+	AllowOverride None
+    </Directory>
+
+    <Directory "/var/www/inventory-dev/static">
+        DirectoryIndex /cgi-bin/index 
+        Options -Indexes
+	AllowOverride None
+    </Directory>
+
+    #ErrorDocument 401 /cgi-bin/401
+    #ErrorDocument 403 /cgi-bin/403
+    #ErrorDocument 404 /cgi-bin/404
+    #ErrorDocument 500 /cgi-bin/500
+
+</VirtualHost>
