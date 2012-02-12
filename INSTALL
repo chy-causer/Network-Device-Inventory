@@ -1,9 +1,56 @@
+SITENAME='inventory'
+HOSTSSH='foo.exmaple.com'
+DOWNLOAD_DIR='/home/foo/temp'
+
+0. Packages the webserver needs
+     apt-get install libnet-dns-perl
+     apt-get install libregexp-common-perl
+     apt-get install libnetaddr-ip-perl
+     apt-get install libfile-slurp-perl
+
 1. Make the dns name required
 2. Copy the apache configuration in to place
 3. Make the directories needed 
-   mkdir /var/www/inventory/static/cgi-bin -p
-   mkdir /var/www/inventory/static/stylesheets -p
-   mkdir /var/www/inventory/static/images -p
-   mkdir /var/www/inventory/lib/tt -p
-4. Create the database needed from conf/database.sql
+   mkdir /var/www/$SITENAME/static/cgi-bin -p
+   mkdir /var/www/$SITENAME/static/stylesheets -p
+   mkdir /var/www/$SITENAME/static/images -p
+   mkdir /var/www/$SITENAME/lib/tt -p
+4. copy the SQL file conf/database.sql to the server
+5. use `pwgen 10` to create passwords and put them in the copied sql file for
+   the two user accounts at the start of the file
+6. import into postgres e.g. psql < /tmp/database.sql
+7. copy the config file into place
+   scp $DOWNLOAD_DIR/conf/$SITENAME.ini $HOSTSSH:/var/www/$SITENAME/lib/
+   configure the database details host/dbname/user/password
+   configure the  pathways
+8. copy modules into place
+   # TODO: package up properly
+   mkdir /usr/local/lib/site_perl/Inventory -p
+   scp $DOWNLOAD_DIR/lib/modules/Inventory/*.pm $HOSTSSH:/usr/local/lib/site_perl/Inventory/
+9. copy the web files into place
+   scp $DOWNLOAD_DIR/lib/tt/inventory_*.tt $HOSTSSH:/var/www/$SITENAME/lib/tt/
+   scp $DOWNLOAD_DIR/lib/stylesheets/*.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
+   scp $DOWNLOAD_DIR/lib/images/inventory_* $HOSTSSH:/var/www/$SITENAME/static/images/
+   scp $DOWNLOAD_DIR/cgi-bin/* $HOSTSSH:/var/www/$SITENAME/static/cgi-bin/
+10. TODO: fix this workaround for finding the config file
+   ln -s /var/www /srv/www
+11. TODO and fix these two aliases in the cgi-bin
+   ln -s edithost quickadd
+   ln -s edithost quickdevice
+12. Sort out jquery
+   # TODO: this is a real mess
+   #
+   # download the desired theme from 
+   # http://jqueryui.com/download
+   # then copy the files:
+   mkdir /var/www/inventory/static/javascript
+   
+   scp js/jquery-1.7.1.min.js $HOSTSSH:/var/www/$SITENAME/static/javascript/jquery.min.js
+   scp js/jquery-ui-1.8.17.custom.min.js $HOSTSSH:/var/www/$SITENAME/static/javascript/jquery.custom.min.js
+   scp development-bundle/ui/minified/*.js $HOSTSSH:/var/www/$SITENAME/static/javascript/
 
+   scp development-bundle/themes/pepper-grinder/jquery.ui.all.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
+   scp css/pepper-grinder/jquery-ui-1.8.17.custom.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
+   scp css/pepper-grinder/images/* $HOSTSSH:/var/www/$SITENAME/static/images/
+   # on the webserver
+   sed -i 's/(images\//(\/images\//g' stylesheets/*.css
