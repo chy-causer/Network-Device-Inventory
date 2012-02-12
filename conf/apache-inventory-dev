@@ -15,6 +15,9 @@
     RewriteCond  /var/www/inventory-dev/static/%{REQUEST_FILENAME}    !-f 
     RewriteCond  /var/www/inventory-dev/static/%{REQUEST_FILENAME}    !-l 
     RewriteRule  ^/(.+)          /cgi-bin/$1
+    
+    RewriteRule  ^/quickadd      /cgi-bin/edithost
+    RewriteRule  ^/quickdevice   /cgi-bin/edithost
 
     LogLevel warn
     ErrorLog ${APACHE_LOG_DIR}/inventory-dev.example.com.error.log

@@ -2,6 +2,60 @@ DROP DATABASE inventory;
 CREATE DATABASE inventory;
 \c inventory;
 
+CREATE USER demouser WITH PASSWORD 'replace-with-pwgen';
+CREATE USER writeuser WITH PASSWORD 'replace-with-pwgen';
+
+CREATE TABLE suppliers (
+    id      serial NOT NULL,
+    name    character varying UNIQUE NOT NULL,
+    website    character varying,
+    techphone  character varying,
+    salesphone character varying,
+    address    character varying,
+    PRIMARY KEY(id)
+);
+
+CREATE TABLE contacts (
+    id            serial NOT NULL,
+    supplier_id   integer NOT NULL,
+    name          character varying NOT NULL,
+    address       character varying,
+    telephone     character varying,
+    role          character varying,
+    notes         character varying,
+    PRIMARY KEY(id)
+);
+ALTER TABLE ONLY contacts ADD CONSTRAINT contacts_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
+
+CREATE TABLE invoices (
+    id            serial NOT NULL,
+    supplier_id   integer NOT NULL,
+    date          date DEFAULT NOW(),
+    description   character varying,
+    purchaser_id  integer NOT NULL,
+    signitory_id  integer NOT NULL,
+    ponumber      character varying,
+    reqnumber     character varying,
+    costcentre    character varying,
+    natacct       character varying,
+    totalcost     NUMERIC(10,2),
+    PRIMARY KEY(id)
+);
+ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
+ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_purchaser_id_fkey FOREIGN KEY (purchaser_id) REFERENCES contacts(id);
+ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_signitory_id_fkey FOREIGN KEY (signitory_id) REFERENCES contacts(id);
+
+CREATE TABLE contracts (
+    id            serial NOT NULL,
+    name          character varying NOT NULL,
+    serial        character varying,
+    startdate     character varying,
+    enddate       character varying,
+    invoice_id    integer DEFAULT NULL,
+    PRIMARY KEY(id)
+);
+ALTER TABLE ONLY contracts ADD CONSTRAINT contracts_invoice_id_fkey FOREIGN KEY (invoice_id) REFERENCES invoices(id);
+
 CREATE TABLE manufacturers (
     id    serial NOT NULL,
     name  character varying UNIQUE NOT NULL,
@@ -15,7 +69,6 @@ CREATE TABLE models (
     PRIMARY KEY(id)
 );
 ALTER TABLE ONLY models ADD CONSTRAINT models_manufacturer_id_fkey FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(id);
-
 
 CREATE TABLE locations (
     id      serial NOT NULL,
@@ -43,12 +96,14 @@ CREATE TABLE hosts (
     asset       character varying,
     serial      character varying,
     model_id    integer NOT NULL,
+    invoice_id  integer,
     lastchecked date DEFAULT NOW(),
     PRIMARY KEY(id)
 );
 ALTER TABLE ONLY hosts ADD CONSTRAINT hosts_location_id_fkey FOREIGN KEY (location_id) REFERENCES locations(id);
 ALTER TABLE ONLY hosts ADD CONSTRAINT hosts_model_id_fkey FOREIGN KEY (model_id) REFERENCES models(id);
 ALTER TABLE ONLY hosts ADD CONSTRAINT hosts_status_id_fkey FOREIGN KEY (status_id) REFERENCES status(id);
+ALTER TABLE ONLY hosts ADD CONSTRAINT hosts_invoice_id_fkey FOREIGN KEY (invoice_id) REFERENCES invoices(id);
 
 CREATE TABLE photos (
     id      serial NOT NULL,
@@ -189,110 +244,104 @@ ALTER TABLE ONLY voipswitches ADD CONSTRAINT voipswitches_voipnetwork_id_fkey FO
 ALTER TABLE ONLY voipswitches ADD CONSTRAINT voipswitches_voipbackend_id_fkey FOREIGN KEY (voipbackend_id) REFERENCES voipbackends(id);
 ALTER TABLE ONLY voipswitches ADD CONSTRAINT voipswitches_voipconnectiontype_id_fkey FOREIGN KEY (voipconnectiontype_id) REFERENCES voipconnectiontypes(id);
 
-CREATE TABLE suppliers (
-    id      serial NOT NULL,
-    name    character varying UNIQUE NOT NULL,
-    PRIMARY KEY(id)
-);
-ALTER TABLE suppliers ADD COLUMN website character varying;
-ALTER TABLE suppliers ADD COLUMN techphone character varying;
-ALTER TABLE suppliers ADD COLUMN salesphone character varying;
-ALTER TABLE suppliers ADD COLUMN address character varying;
 
-CREATE TABLE contacts (
-    id            serial NOT NULL,
-    supplier_id   integer NOT NULL,
-    name          character varying NOT NULL,
-    address       character varying,
-    telephone     character varying,
-    PRIMARY KEY(id)
-);
-ALTER TABLE ONLY contacts ADD CONSTRAINT contacts_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
-ALTER TABLE contacts ADD COLUMN role character varying;
-ALTER TABLE contacts ADD COLUMN notes character varying;
+GRANT select ON hostgroups TO demouser;
+GRANT select ON interfaces_to_services TO demouser;
+GRANT select ON hosts TO demouser;
+GRANT select ON interfaces TO demouser;
+GRANT select ON hosts_to_hostgroups TO demouser;
+GRANT select ON services TO demouser;
+GRANT select ON locations TO demouser;
+GRANT select ON sshkeys TO demouser;
+GRANT select ON photos TO demouser;
+GRANT select ON manufacturers TO demouser;
+GRANT select ON models TO demouser;
+GRANT select ON voipbackends TO demouser;
+GRANT select ON voipconnectiontypes TO demouser;
+GRANT select ON voipnetworks TO demouser;
+GRANT select ON vlans TO demouser;
+GRANT select ON voipswitches TO demouser;
+GRANT select ON status TO demouser;
+GRANT select ON protocols TO demouser;
+GRANT select ON hosts_to_upshost TO demouser;
+GRANT select ON suppliers TO demouser;
 
-CREATE TABLE invoices (
-    id            serial NOT NULL,
-    supplier_id   integer NOT NULL,
-    date          date DEFAULT NOW(),
-    description   character varying,
-    purchaser_id  integer NOT NULL,
-    signitory_id  integer NOT NULL,
-    ponumber      character varying,
-    reqnumber     character varying,
-    costcentre    character varying,
-    natacct       character varying,
-    totalcost     NUMERIC(10,2);
-    PRIMARY KEY(id)
-);
-ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
+GRANT select ON contacts TO demouser;
+GRANT select ON invoices TO demouser;
+GRANT select ON contracts TO demouser;
 
+GRANT select ON hostgroups_id_seq TO demouser;
+GRANT select ON interfaces_to_services_id_seq TO demouser;
+GRANT select ON hosts_id_seq TO demouser;
+GRANT select ON interfaces_id_seq TO demouser;
+GRANT select ON hosts_to_hostgroups_id_seq TO demouser;
+GRANT select ON services_id_seq TO demouser;
+GRANT select ON locations_id_seq TO demouser;
+GRANT select ON sshkeys_id_seq TO demouser;
+GRANT select ON photos_id_seq TO demouser;
+GRANT select ON manufacturers_id_seq TO demouser;
+GRANT select ON models_id_seq TO demouser;
+GRANT select ON voipbackends_id_seq TO demouser;
+GRANT select ON voipconnectiontypes_id_seq TO demouser;
+GRANT select ON voipnetworks_id_seq TO demouser;
+GRANT select ON vlans_id_seq TO demouser;
+GRANT select ON voipswitches_id_seq TO demouser;
+GRANT select ON status_id_seq TO demouser;
+GRANT select ON protocols_id_seq TO demouser;
+GRANT select ON hosts_to_upshost_id_seq TO demouser;
+GRANT select ON suppliers_id_seq TO demouser;
 
-
-CREATE TABLE contracts (
-    id            serial NOT NULL,
-    invoice_id    integer NOT NULL,
-    name          character varying NOT NULL,
-    serial        character varying,
-    startdate     character varying,
-    enddate       character varying,
-    PRIMARY KEY(id)
-);
-ALTER TABLE ONLY contracts ADD CONSTRAINT contracts_invoice_id_fkey FOREIGN KEY (invoice_id) REFERENCES invoices(id);
-
-
-ALTER TABLE hosts ADD COLUMN invoice_id integer DEFAULT NULL;
-ALTER TABLE ONLY hosts ADD CONSTRAINT hosts_invoice_id_fkey FOREIGN KEY (invoice_id) REFERENCES invoices(id);
+GRANT select ON contacts_id_seq TO demouser;
+GRANT select ON invoices_id_seq TO demouser;
+GRANT select ON contracts_id_seq TO demouser;
 
 
-GRANT select,insert,update,delete ON hostgroups TO demouser;
-GRANT select,insert,update,delete ON interfaces_to_services TO demouser;
-GRANT select,insert,update,delete ON hosts TO demouser;
-GRANT select,insert,update,delete ON interfaces TO demouser;
-GRANT select,insert,update,delete ON hosts_to_hostgroups TO demouser;
-GRANT select,insert,update,delete ON services TO demouser;
-GRANT select,insert,update,delete ON locations TO demouser;
-GRANT select,insert,update,delete ON sshkeys TO demouser;
-GRANT select,insert,update,delete ON photos TO demouser;
-GRANT select,insert,update,delete ON manufacturers TO demouser;
-GRANT select,insert,update,delete ON models TO demouser;
-GRANT select,insert,update,delete ON voipbackends TO demouser;
-GRANT select,insert,update,delete ON voipconnectiontypes TO demouser;
-GRANT select,insert,update,delete ON voipnetworks TO demouser;
-GRANT select,insert,update,delete ON vlans TO demouser;
-GRANT select,insert,update,delete ON voipswitches TO demouser;
-GRANT select,insert,update,delete ON status TO demouser;
-GRANT select,insert,update,delete ON protocols TO demouser;
-GRANT select,insert,update,delete ON hosts_to_upshost TO demouser;
-GRANT select,insert,update,delete ON suppliers TO demouser;
+GRANT select,insert,update,delete ON hostgroups TO writeuser;
+GRANT select,insert,update,delete ON interfaces_to_services TO writeuser;
+GRANT select,insert,update,delete ON hosts TO writeuser;
+GRANT select,insert,update,delete ON interfaces TO writeuser;
+GRANT select,insert,update,delete ON hosts_to_hostgroups TO writeuser;
+GRANT select,insert,update,delete ON services TO writeuser;
+GRANT select,insert,update,delete ON locations TO writeuser;
+GRANT select,insert,update,delete ON sshkeys TO writeuser;
+GRANT select,insert,update,delete ON photos TO writeuser;
+GRANT select,insert,update,delete ON manufacturers TO writeuser;
+GRANT select,insert,update,delete ON models TO writeuser;
+GRANT select,insert,update,delete ON voipbackends TO writeuser;
+GRANT select,insert,update,delete ON voipconnectiontypes TO writeuser;
+GRANT select,insert,update,delete ON voipnetworks TO writeuser;
+GRANT select,insert,update,delete ON vlans TO writeuser;
+GRANT select,insert,update,delete ON voipswitches TO writeuser;
+GRANT select,insert,update,delete ON status TO writeuser;
+GRANT select,insert,update,delete ON protocols TO writeuser;
+GRANT select,insert,update,delete ON hosts_to_upshost TO writeuser;
+GRANT select,insert,update,delete ON suppliers TO writeuser;
 
-GRANT select,insert,update,delete ON contacts TO demouser;
-GRANT select,insert,update,delete ON invoices TO demouser;
-GRANT select,insert,update,delete ON contracts TO demouser;
+GRANT select,insert,update,delete ON contacts TO writeuser;
+GRANT select,insert,update,delete ON invoices TO writeuser;
+GRANT select,insert,update,delete ON contracts TO writeuser;
 
-GRANT all ON hostgroups_id_seq TO demouser;
-GRANT all ON interfaces_to_services_id_seq TO demouser;
-GRANT all ON hosts_id_seq TO demouser;
-GRANT all ON interfaces_id_seq TO demouser;
-GRANT all ON hosts_to_hostgroups_id_seq TO demouser;
-GRANT all ON services_id_seq TO demouser;
-GRANT all ON locations_id_seq TO demouser;
-GRANT all ON sshkeys_id_seq TO demouser;
-GRANT all ON photos_id_seq TO demouser;
-GRANT all ON manufacturers_id_seq TO demouser;
-GRANT all ON models_id_seq TO demouser;
-GRANT all ON voipbackends_id_seq TO demouser;
-GRANT all ON voipconnectiontypes_id_seq TO demouser;
-GRANT all ON voipnetworks_id_seq TO demouser;
-GRANT all ON vlans_id_seq TO demouser;
-GRANT all ON voipswitches_id_seq TO demouser;
-GRANT all ON status_id_seq TO demouser;
-GRANT all ON protocols_id_seq TO demouser;
-GRANT all ON hosts_to_upshost_id_seq TO demouser;
-GRANT all ON suppliers_id_seq TO demouser;
+GRANT all ON hostgroups_id_seq TO writeuser;
+GRANT all ON interfaces_to_services_id_seq TO writeuser;
+GRANT all ON hosts_id_seq TO writeuser;
+GRANT all ON interfaces_id_seq TO writeuser;
+GRANT all ON hosts_to_hostgroups_id_seq TO writeuser;
+GRANT all ON services_id_seq TO writeuser;
+GRANT all ON locations_id_seq TO writeuser;
+GRANT all ON sshkeys_id_seq TO writeuser;
+GRANT all ON photos_id_seq TO writeuser;
+GRANT all ON manufacturers_id_seq TO writeuser;
+GRANT all ON models_id_seq TO writeuser;
+GRANT all ON voipbackends_id_seq TO writeuser;
+GRANT all ON voipconnectiontypes_id_seq TO writeuser;
+GRANT all ON voipnetworks_id_seq TO writeuser;
+GRANT all ON vlans_id_seq TO writeuser;
+GRANT all ON voipswitches_id_seq TO writeuser;
+GRANT all ON status_id_seq TO writeuser;
+GRANT all ON protocols_id_seq TO writeuser;
+GRANT all ON hosts_to_upshost_id_seq TO writeuser;
+GRANT all ON suppliers_id_seq TO writeuser;
 
-GRANT all ON contacts_id_seq TO demouser;
-GRANT all ON invoices_id_seq TO demouser;
-GRANT all ON contracts_id_seq TO demouser;
-
-
+GRANT all ON contacts_id_seq TO writeuser;
+GRANT all ON invoices_id_seq TO writeuser;
+GRANT all ON contracts_id_seq TO writeuser;
