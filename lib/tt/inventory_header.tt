@@ -11,17 +11,23 @@
     <title>[% appname %] - [% pagetitle | html_entity %] - [% groupname %]</title>
     <link href="/favicon.ico" rel="icon" type="image/x-icon" />
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    
     <link rel="stylesheet" type="text/css" href="/stylesheets/local.css" />
     <link rel="stylesheet" type="text/css" href="/stylesheets/inventory.css" />
     <link rel="stylesheet" type="text/css" href="/stylesheets/nonstandard.css" />
-[% IF javascript == 'on' %]
     <link rel="stylesheet" type="text/css" href="/stylesheets/jquery.css" />
-    <script type="text/javascript" src="/javascript/jquery.js"></script> 
+    <link rel="stylesheet" type="text/css" href="/stylesheets/jquery.ui.all.css" />
+    
+    <script type="text/javascript" src="/javascript/jquery.min.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.custom.min.js"></script>
+    
     <script type="text/javascript" src="/javascript/jquery.tablesorter.js"></script> 
     <script type="text/javascript" src="/javascript/jquery.scrollabletable.js"></script> 
-    <script type="text/javascript" src="/javascript/ui.core.js"></script> 
-    <script type="text/javascript" src="/javascript/ui.tabs.js"></script> 
-[% END %]
+    
+    <script type="text/javascript" src="/javascript/jquery.ui.core.min.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.ui.sortable.min.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.ui.tabs.min.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.ui.widget.js"></script> 
 </head>
 
 <body>
@@ -30,7 +36,7 @@
      
      <div id="headerOuter">
           <div id="upperBarOuter">
-            <h1>[% companyname %]</h1>
+            <h1>[% companyname | html_entity %]</h1>
           </div>
 
          <div id="lowerBarOuter">
@@ -53,7 +59,7 @@ document.write(d.getFullYear())
 
 <div id="invbar">
   <form method="get" action="viewhost">
-    <h2><a href="https://networks.oucs.ox.ac.uk/">[% groupname %]</a> &gt; <a href="index">i[% appname %]</a>
+    <h2><a href="https://networks.oucs.ox.ac.uk/">[% groupname | html_entity %]</a> &gt; <a href="index">[% appname | html_entity %]</a>
     [%- IF pagetitle && pagetitle != Index -%]
         &gt; [%- pagetitle FILTER ucfirst | html_entity -%]
     [%- END -%]
