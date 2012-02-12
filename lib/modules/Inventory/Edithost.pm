@@ -12,13 +12,6 @@ our @EXPORT_OK = qw(
   do_update_all
 );
 
-use Inventory::Hosts;
-use Inventory::Ups;
-use Inventory::Interfaces;
-use Inventory::Introlemembers;
-use Inventory::Cnames;
-use Inventory::Locations;
-
 use NetAddr::IP;
 use Regexp::Common 'net';
 

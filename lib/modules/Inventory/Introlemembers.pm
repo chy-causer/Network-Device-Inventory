@@ -20,8 +20,6 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Inventory::Interfaces;
-use Inventory::Introles;
 
 sub internal_checkinput {
     my $posts = @_;

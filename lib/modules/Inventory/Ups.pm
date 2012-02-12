@@ -273,6 +273,7 @@ sub get_links_info {
 
 sub get_ups_info {
     my $dbh = shift;
+    return if !$dbh;
 
     # return all hosts in the frodo_ups and ups groups
     # this means we can make a dropdown of hosts that are just ups's
