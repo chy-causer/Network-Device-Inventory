@@ -138,11 +138,34 @@
 
 
 [% IF locations.size < 1 %]
-   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="locations">location</a></p>
+
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+      <strong>Need a Location First:</strong> You cannot create a new host until you've entered at least one <a href="locations">location</a>.</p>
+   </div>
+</div>
+
 [% ELSIF status.size < 1 %]
-   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="status">status</a></p>
+
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+      <strong>Need a Status First:</strong> You cannot create a new host until you've entered at least one <a href="status">status</a>.</p>
+   </div>
+</div>
+
+
 [% ELSIF models.size < 1 %]
-   <p class="input-warning">You cannot create a new host until you've entered at least one <a href="model">model</a></p>
+
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+      <strong>Need a Model First:</strong> You cannot create a new host until you've entered at least one <a href="models">model</a>.</p>
+   </div>
+</div>
+
+
 [% ELSE %]
 
 <form action="" method="post">

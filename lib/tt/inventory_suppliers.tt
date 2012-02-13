@@ -115,7 +115,13 @@ $(document).ready(function(){
 </table>
 
 [% ELSE %]
- <p class="block-warning">No suppliers are known to the web application.</p>
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no suppliers at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
 [% END %]
 
 </div>

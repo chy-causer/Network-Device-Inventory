@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/local.css" />
     <link rel="stylesheet" type="text/css" href="/stylesheets/inventory.css" />
     <link rel="stylesheet" type="text/css" href="/stylesheets/nonstandard.css" />
-    <link rel="stylesheet" type="text/css" href="/stylesheets/jquery.css" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/jquery-ui-1.8.17.custom.css" />
     <link rel="stylesheet" type="text/css" href="/stylesheets/jquery.ui.all.css" />
     
     <script type="text/javascript" src="/javascript/jquery.min.js"></script> 

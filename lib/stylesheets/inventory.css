@@ -711,3 +711,6 @@ td.signed, #adminbox td, #datebox td {
 div#footer {
     clear:both;
 }
+.ui-state-error a, .ui-state-error a:hover {
+     border-bottom: 1px solid;
+}

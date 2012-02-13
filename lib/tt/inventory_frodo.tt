@@ -6,7 +6,14 @@
 -%]
 
 [% IF frodos.size < 1 %]
- <p class="input-warning">I know of no Frodos at this time. This could be due to a database error</p>
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no <abbr>FroDo</abbr> devices at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
 
 [% ELSE %]
 <script type="text/javascript">
@@ -16,7 +23,7 @@ $(document).ready(function(){
 ); 
 </script>
 
-<table id="allresults" summary="Frodo project summary">
+<table id="allresults" summary="FroDo project summary">
  <thead>
  <tr>
   <th>Hostname<br />(visit hosts web interface)</th>
