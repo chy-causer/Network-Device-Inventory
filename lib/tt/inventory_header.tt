@@ -30,30 +30,20 @@
 
 <body>
 
-<div class="show-all" id="main">
-     
-     <div id="headerOuter">
-          <div id="upperBarOuter">
-            <h1>[% companyname | html_entity %]</h1>
-          </div>
-
-         <div id="lowerBarOuter">
-         <div id="lowerBarInner"><script type="text/javascript">
-
-var d=new Date()
-var weekday=new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
-var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
-document.write(weekday[d.getDay()] + " ")
-document.write(d.getDate() + ". ")
-document.write(monthname[d.getMonth()] + " ")
-document.write(d.getFullYear())
-
-</script>
-         </div>
-         </div> <!-- lowerBarOuter -->
-         
-         <div id="logoOuter"></div>
-   </div> <!-- headerOuter -->
+<div id="header">
+  <h1>[% companyname | html_entity %]</h1>
+   <p>
+    <script type="text/javascript">
+      var d=new Date()
+      var weekday=new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
+      var monthname=new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+      document.write(weekday[d.getDay()] + " ")
+      document.write(d.getDate() + ". ")
+      document.write(monthname[d.getMonth()] + " ")
+      document.write(d.getFullYear())
+     </script>
+   </p>
+</div> <!-- header -->
 
 <div id="invbar">
   <form method="get" action="viewhost">
@@ -69,30 +59,29 @@ document.write(d.getFullYear())
 
 <div id="container" class="clear">
 
-<div id="sidebar">
+ <div id="sidebar">
 
-<div class="daily">
+  <div class="daily">
+  <h3>Changes</h3>
+  <ul>
+    <li><a href="quickdevice">Add a Device</a></li>
+    <li><a href="quickadd">Add a Server</a></li>
+    <li><a href="quickcnames">Frodo CNAMES</a></li>
+  </ul>
 
-<h3>Changes</h3>
-<ul>
-  <li><a href="quickdevice">Add a Device</a></li>
-  <li><a href="quickadd">Add a Server</a></li>
-  <li><a href="quickcnames">Frodo CNAMES</a></li>
-</ul>
+  <h3>Reference</h3>
+  <ul>
+   <li><a href="viewhost">Quick Search</a></li>
+   <li><a href="frodo">Frodo Project Overview</a></li>
+   <li><a href="bashrc">Bashrc output</a></li>
+  </ul>
+ </div> <!-- daily -->
 
-<h3>Reference</h3>
-<ul>
-  <li><a href="viewhost">Quick Search</a></li>
-  <li><a href="frodo">Frodo Project Overview</a></li>
-  <li><a href="bashrc">Bashrc output</a></li>
-</ul>
-</div>
-
-<h4>Lower Level</h4>
-<ul>
+ <h4>Lower Level</h4>
+ <ul>
   <li><a href="admin">Direct record modification</a></li>
-</ul>
+ </ul>
 
-</div> <!-- div#sidebar -->
+ </div> <!-- div#sidebar -->
 
 <div id="content">

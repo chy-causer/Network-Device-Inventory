@@ -1,1 +1,55 @@
 /* place local stylesheet rules here and an update will ignore them */
+
+div#header { }
+
+#header h1 { 
+    color: #654b24; 
+    margin: 0;
+    padding: 0;
+}
+
+#header p {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #654b24;
+}
+
+div#sidebar {
+}
+
+div#content {
+    color: black;
+    background-color: white;
+}
+
+div#container {
+    color:#654b24;
+    background-color: #eceadf;
+}
+
+div#footer {
+    height: 3.0em;
+}
+div#footer p:first-child {
+    color:#eceadf;
+    background-color: black;
+}
+div#footer p {
+    margin:0;
+    padding:0.25em;
+}
+
+div#footer p, #header p, #header h1 {
+    padding-left: 10px; 
+}
+
+div#footer, #header p, div#footer p:last-child {
+    color:#654b24;
+    background-color: #eceadf;
+}
+div#sidebar li {
+    background-color: #eceadf;
+    border-bottom: 1px solid #654b24;
+    color: #654b24;
+}
+

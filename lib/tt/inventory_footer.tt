@@ -5,16 +5,13 @@
 # $Id: inventory_footer.tt 3529 2012-02-07 12:33:58Z guy $
 -%]
 
-</div>
-</div>
+  </div> <!-- content -->
+</div> <!-- container -->
 
-<div class="clear" id="footer">
+<div id="footer">
    <p>A company footer would normally go here</p>
+   <p><a href="http://github.com/guyed/Network-Device-Inventory">Inventory, downloadable from github</a>, available under the GPL v2, &copy; 2007 OUCS, University of Oxford</p>
 </div>
-
- </div> <!-- end hdr -->
-</div> <!-- end main -->
-
 
 </body>
 </html>

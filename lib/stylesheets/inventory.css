@@ -49,23 +49,17 @@ div#container {
     clear: both;
     margin: 0;
     padding: 0;
-    margin:auto;
-    background-color: white;
-
     font-size: 85%;
 }
 
 
 div#sidebar {
     /* child of #container */
-    float: left;
     padding: 0.25em 0 0.5em 5px;
-    minimum-width:154px;
-    maximum-width:20%;
-    background-color: #DDDDFF; /* PIRATE: Non Official Pastel blue */
-    border-right:  1px solid #002147;    /* BRANDING: Blue */ 
-    border-bottom: 1px solid #002147;    /* BRANDING: Blue */ 
+    max-width:30%;
+    width:170px;
     font-size: 85%;
+    float:left;
 }
 
 div#sidebar h3 {
@@ -91,38 +85,32 @@ div#sidebar div.menusection {
     font-weight: bold;
 }
 
-div#sidebar li li {
-    background-color: #DDDDFF; /* PIRATE: Non Official Pastel blue */
-    border-bottom: 1px solid #002147;   /* BRANDING: Blue */ 
-}
-
-div#sidebar li li a {
+div#sidebar li a {
     display: block;
     padding: 0.2em 0 0.2em 1.5em;
 }
 
-div#sidebar li li a:hover {
+div#sidebar li a:hover {
     background-color: #FFFFFF;
 }
 
-div#sidebar li li a.disabledtool {
+div#sidebar li a.disabledtool {
     color: #BBBBBB; /* greyed out */
 }
 
-div#sidebar li li a.activetool {
+div#sidebar li a.activetool {
     background-color: #FFFFCC;
 }
 
-div#sidebar li li a.activetool:hover {
+div#sidebar li a.activetool:hover {
     background-color: #FFFFCC;
 }
 
 
 div#content {
     /* child of #container */
+    width:70%;
     float:left;
-    width:78%;
-    maximum-width:78%;
     padding: 0.5em 1em 1em 1em;
     background-color: #FFFFFF;
 }
@@ -419,7 +407,6 @@ dl {
 
 .bugs li {
     background-color: #f0f0f0;         /* BRANDING: souless corporate gray */
-    list-style-image: url('https://comms.oucs.ox.ac.uk/images/bug.png');
     color: black;                      /* BRANDING:  black */
 }
 
@@ -722,6 +709,5 @@ td.signed, #adminbox td, #datebox td {
 }
 
 div#footer {
-    border-top: 1px solid black;
     clear:both;
 }
