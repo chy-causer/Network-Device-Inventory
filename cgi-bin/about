@@ -77,13 +77,14 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
 }
 
 if ( $POSTS{'file'} ) {
-    $message = update_file( $POSTS{'file'} );
+    $message = update_file( $manifest, $POSTS{'file'} );
 }
 
 if ( not check_manifest($manifest) ) {
 
-    debug ("OK, something wrong with the manifest.... will build another");
-    create_manifest( $manifest, ($CGIDIR, $htmltemplatepath, '/usr/local/lib/site_perl/Inventory'));
+    debug("OK, something wrong with the manifest.... will build another");
+    create_manifest( $manifest,
+        ( $CGIDIR, $htmltemplatepath, '/usr/local/lib/site_perl/Inventory' ) );
 }
 
 my $files = read_manifest($manifest);
@@ -104,11 +105,11 @@ $tt->process('inventory_footer.tt');
 
 sub file_details {
     my ( $file, $directory ) = @_;
-   
-   my $GIT_HUB_URL =
+
+    my $GIT_HUB_URL =
       'https://raw.github.com/guyed/Network-Device-Inventory/master';
 
-    if (not defined $file) {
+    if ( not defined $file ) {
         warn "file_details called incorrectly";
         return;
     }
@@ -127,7 +128,6 @@ sub file_details {
         # not a file
         return;
     }
-
 
     my %details = (
         'name'            => "$directory/$file",
@@ -156,18 +156,18 @@ sub file_details {
     $details{'local_sha1'} = $l_sha->hexdigest;
 
     my $ua = LWP::UserAgent->new;
-       $ua->timeout(10);
-       $ua->env_proxy;
- 
-    my $response = $ua->get($details{'github_url'});
- 
-    if (not $response->is_success) {
-       $details{'github_sha1'} = 'unretrieved';
-       die $response->status_line;
+    $ua->timeout(10);
+    $ua->env_proxy;
+
+    my $response = $ua->get( $details{'github_url'} );
+
+    if ( not $response->is_success ) {
+        $details{'github_sha1'} = 'unretrieved';
+        die $response->status_line;
     }
     else {
         my $g_sha = Digest::SHA->new();
-        $g_sha->add($response->decoded_content);
+        $g_sha->add( $response->decoded_content );
         $details{'github_sha1'} = $g_sha->hexdigest;
     }
 
@@ -176,7 +176,7 @@ sub file_details {
 
         next if $line !~ m/^#/;
         if ( $line =~ m/^#[\s]*\$Id:\s(\S+)\s(\S+)\s(\S+)\s/ ) {
-             
+
             # everything worked
             $details{'error'} = 0;
 
@@ -223,14 +223,17 @@ sub create_manifest {
     my $date = $dt->iso8601();
 
     foreach my $entry ( keys %file ) {
+
         # localname localsha remotename remotesha date type
-        my $line = "$file{$entry}{name} $file{$entry}{local_sha1} "
+        my $line =
+            "$file{$entry}{name} $file{$entry}{local_sha1} "
           . "$file{$entry}{github_url} $file{$entry}{github_sha1} "
           . "$date $file{$entry}{type}\n";
         push @output, $line;
     }
 
-    File::Slurp::write_file( "$filelist", @output ) or die "Can't write $filelist : $!";
+    File::Slurp::write_file( "$filelist", @output )
+      or die "Can't write $filelist : $!";
 
     return;
 }
@@ -241,9 +244,9 @@ sub read_manifest {
 
     my @lines = File::Slurp::read_file("$filelist");
     foreach my $line (@lines) {
-        
+
         # skip blank lines
-        if ( $line =~ m/^\s*$/){
+        if ( $line =~ m/^\s*$/ ) {
             next;
         }
 
@@ -262,57 +265,60 @@ sub read_manifest {
 }
 
 sub update_file {
-    my $updatef = shift;
+    my $filelist = shift;
+    my $updatef  = shift;
 
     # check the given filename is in our manifest so someone doesnt try and do
     # odd things
-    my $current = read_manifest($manifest);
-    
-    if( not exists $current{$updatef} ){
-        return "Internal Error: That file doesn't seem to be part of the applicaiton I know about";
+    my %current = %{ read_manifest($filelist) };
+
+    if ( not exists $current{$updatef} ) {
+        return
+"Internal Error: That file doesn't seem to be part of the application I know about";
     }
 
     # if it is, retrieve it
     my $ua = LWP::UserAgent->new;
-       $ua->timeout(10);
-       $ua->env_proxy;
- 
+    $ua->timeout(10);
+    $ua->env_proxy;
+
     my $response = $ua->get( $current{$updatef}{'github_url'} );
- 
-    if (not $response->is_success) {
-       warn "Unable to download $current{$updatef}{'github_url'} due to : $!\n";
-       return "Internal Error: I don't seem to be able to download that file";
+
+    if ( not $response->is_success ) {
+        warn
+          "Unable to download $current{$updatef}{'github_url'} due to : $!\n";
+        return "Internal Error: I don't seem to be able to download that file";
     }
 
     # overwrite the existing file
     my @output = $response->decoded_content;
-    if( not File::Slurp::write_file( "$updatef", @output ) ){
-      warn "Couldn't update $updatef with downloaded content : $!\n";
-      return "Internal Error: I couldn't overwrite that file";
+    if ( not eval { File::Slurp::write_file( "$updatef", @output ) } ) {
+        warn "Couldn't update $updatef with downloaded content : $!\n";
+        return
+"Internal Error: I couldn't overwrite that file - probably a permissions issue";
     }
 
-    return "File overwritten";
+    return 'File overwritten';
 }
-
 
 sub check_manifest {
     my $file = shift;
 
-    if (not -r $file ){
+    if ( not -r $file ) {
         return 0;
     }
 
     my %data = %{ read_manifest($file) };
 
-   if (keys (%data) < 1){
+    if ( keys(%data) < 1 ) {
         return 0;
-   }
+    }
 
-   # TODO: if older than X ....
+    # TODO: if older than X ....
 
-   debug("check_manifest thinks the manifest looks fine.");
+    debug("check_manifest thinks the manifest looks fine.");
 
-   return 1;
+    return 1;
 }
 
 sub debug {
