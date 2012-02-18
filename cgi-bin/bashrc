@@ -5,12 +5,6 @@
 # Created: 2008-09-09
 # Description: bashrc style output for groups
 #
-# $Id: bashrc 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: rSA0zyWEI5krA_ppu0Xd1VEhEsLB09hecpu4fS8q9dO2o $
-#
 
 use warnings FATAL => 'all';
 use strict;

@@ -5,12 +5,6 @@
 # Created: 2008-10-10
 # Description:  Page to support creation of DNS records from frodo names
 #
-# $Id: quickcnames 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: iWiiJ6Q6CPbNQq8qGX7BdqefQaUWSOyzPE4zNZT7Dt8xX $
-#
 
 use warnings FATAL => 'all';
 use strict;

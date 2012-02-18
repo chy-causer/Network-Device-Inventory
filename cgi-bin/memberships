@@ -5,12 +5,6 @@
 # Created: 2008-07-28
 # Description: Host to hostgroup administration page for the inventory
 #
-# $Id: memberships 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: 3v41lbnbaJS2ODRMCytIJNuGX2q8ZmrJfZ6dMaItRnGHK $
-#
 
 use warnings FATAL => 'all';
 use strict;

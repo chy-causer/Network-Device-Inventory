@@ -5,12 +5,6 @@
 # Created: 2008-07-28
 # Description: Groups administration page for the inventory
 #
-# $Id: photos 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: nuP9CIihl8L9z8rkwx9ZdjeoGwJHRAX3MNovBpOk_JGU3 $
-#
 
 use warnings FATAL => 'all';
 use strict;

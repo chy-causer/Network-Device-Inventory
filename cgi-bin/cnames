@@ -5,12 +5,6 @@
 # Created: 2008-10-10
 # Description:  Page to support creation of DNS records from frodo names
 #
-# $Id: cnames 3539 2012-02-10 16:01:31Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 16:01:31 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3539 $
-# $uid: iWiiJ6Q6CPbNQq8qGX7BdqefQaUWSOyzPE4zNZT7Dt8xX $
-#
 
 use warnings FATAL => 'all';
 use strict;

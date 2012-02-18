@@ -5,11 +5,6 @@
 # Created: 2008-09-10
 # Description: Frodo Project Overview page
 #
-# $Id: frodo 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: PxPLvXfZWSGS2DA_sR48fxAchSL9i5hKahAptc9uq1PjL $
 #
 use warnings FATAL => 'all';
 use strict;

@@ -5,12 +5,6 @@
 # Created: 2008-10-14
 # Description: Look for logic issues in the interface records
 #
-# $Id: problems_interfaces 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: o0rvN2nBh3JvWjZ6rNx2okb_zQfY1z3ihGoh0fmOdYNvg $
-#
 
 use warnings FATAL => 'all';
 use strict;

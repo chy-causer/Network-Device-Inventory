@@ -5,12 +5,6 @@
 # Created: 2009-07-04
 # Description: Interface Roles administration page for the inventory application
 #
-# $Id: introles 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: $
-#
 
 use warnings FATAL => 'all';
 use strict;

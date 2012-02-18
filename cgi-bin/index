@@ -5,12 +5,6 @@
 # Created: 2008-09-11
 # Description: Main index page leading to the specific pages for the parts of the suite
 #
-# $Id: index 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: KKjhHq14X9lzAosAuDi3IBDfdQvqj1MWLwVLtdqvbh8_w $
-#
 
 use warnings FATAL => 'all';
 use strict;

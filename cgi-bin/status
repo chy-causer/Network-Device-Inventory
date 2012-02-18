@@ -5,12 +5,6 @@
 # Created: 2008-07-28
 # Description: Status administration page for the inventory
 #
-# $Id: status 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: GmKix_TgrnM6fz3isHzVZqZBXQZtEvuMgfK3eHQ71JGev $
-#
 
 use warnings FATAL => 'all';
 use strict;

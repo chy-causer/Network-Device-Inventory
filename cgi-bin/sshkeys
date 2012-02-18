@@ -6,12 +6,6 @@
 # Description: unknown
 # Sshkeys administration page for the inventory application
 #
-# $Id: sshkeys 3539 2012-02-10 16:01:31Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 16:01:31 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3539 $
-# $uid: 1W20hg_HdKTeRbgGPqYPcPFBUC9jhx3o13jBN4Her1u1m $
-#
 
 use warnings FATAL => 'all';
 use strict;

@@ -5,12 +5,6 @@
 # Created: 2009-04-09
 # Description: Models administration page for the inventory application
 #
-# $Id: models 3538 2012-02-10 15:39:37Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3538 $
-# $uid: n8KLYcb9RRVvcJCDXbrdNd6ibPE5iqjnLd5ZzV3n4Cuik $
-#
 
 use warnings FATAL => 'all';
 use strict;
