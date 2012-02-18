@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Servicegroups.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Servicegroups.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: gpGaljqrLLnSLh2iJpjq6ZIFh8jVSndT7yQDL1N98mg_o $
-#
 package Inventory::Servicegroups;
 use strict;
 use warnings;

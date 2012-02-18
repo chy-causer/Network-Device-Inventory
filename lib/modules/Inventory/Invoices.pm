@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Invoices.pm
-# Creator: Guy Edwards
-# Created: 2012-01-30
-# Description: Module for handling data about invoices
-#
-# $Id: Invoices.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-#
-
 package Inventory::Invoices;
 use strict;
 use warnings;

@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Locations.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Locations.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: E9_XxmQUp2xoEGQClDmg9VkdPctUC_unBsjUwq7rI7j89 $
-#
 package Inventory::Locations;
 use strict;
 use warnings;

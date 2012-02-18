@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Cnames.pm
-# Creator: Guy Edwards
-# Created: 2008-10-10
-# Description: unknown
-#
-# $Id: Cnames.pm 3539 2012-02-10 16:01:31Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 16:01:31 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3539 $
-# $uid: _dsnNDfSDgeCvQb9gCp1s0Hrl6iWSpppI1Fj_HtJLEsiu $
-#
 package Inventory::Cnames;
 use strict;
 use warnings;

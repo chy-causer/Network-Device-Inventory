@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Suppliers.pm
-# Creator: Guy Edwards
-# Created: 2012-01-30
-# Description: Module for handling data about suppliers
-#
-# $Id: Suppliers.pm 3533 2012-02-09 09:55:25Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-09 09:55:25 +0000 (Thu, 09 Feb 2012) $
-# $LastChangedRevision: 3533 $
-#
-
 package Inventory::Suppliers;
 use strict;
 use warnings;

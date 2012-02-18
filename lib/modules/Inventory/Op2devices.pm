@@ -1,23 +1,8 @@
 package Inventory::Op2devices;
 
-#
-# Name: Op2devices.pm
-# Creator: unknown
-# Created: unknown
-# Description: unknown
-# $Date: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: _2Q2iBoWaXdmpyunjXD0IjzJhtbmMKRrK4yEc2MtthcUp $
 use strict;
 use warnings;
 
-#
-# $Author: guy $
-# $Id: Op2devices.pm 3524 2012-02-06 15:52:19Z guy $
-# $Revision: 3524 $
-#
 use version; our $VERSION = qv('0.0.1');
 use base qw( Exporter);
 our @EXPORT_OK = qw(

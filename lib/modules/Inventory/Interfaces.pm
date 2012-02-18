@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Interfaces.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Interfaces.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: 5KN1VboihA3ux9Ps7rDNLV6Lr2x5oQzS5uzjB0_nHcWvP $
-#
 package Inventory::Interfaces;
 use strict;
 use warnings;

@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Photos.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: upload and manipulation of photos
-#
-# $Id: Photos.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: J9Qs3aQYirqoXD7dKEcESIMxrLSwfrOacJ4XwFhzVBxZd $
-#
 package Inventory::Photos;
 use strict;
 use warnings;

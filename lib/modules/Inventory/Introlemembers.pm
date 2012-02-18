@@ -1,7 +1,3 @@
-# $Id: Introlemembers.pm 3535 2012-02-10 12:47:01Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3535 $
 package Inventory::Introlemembers;
 use strict;
 use warnings;

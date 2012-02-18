@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Contacts.pm
-# Creator: Guy Edwards
-# Created: 2012-01-30
-# Description: Module for handling data about contacts
-#
-# $Id: Contacts.pm 3532 2012-02-09 09:38:20Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-09 09:38:20 +0000 (Thu, 09 Feb 2012) $
-# $LastChangedRevision: 3532 $
-#
-
 package Inventory::Contacts;
 use strict;
 use warnings;

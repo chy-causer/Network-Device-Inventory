@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Models.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Models.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: TpsX8pfE4VwO6yYnfOvBIDNv4odVOMra2oT7YoLpY43df $
-#
 package Inventory::Models;
 use strict;
 use warnings;

@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Manufacturers.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Manufacturers.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: 94iW_9Wkvsoy4xeZCyWPd_vBu_dqgax4JVUjEzBLeALYp $
-#
 package Inventory::Manufacturers;
 use strict;
 use warnings;

@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Memberships.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Memberships.pm 3535 2012-02-10 12:47:01Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3535 $
-# $uid: _aTNXT0GG3LmZWUzeFndfwQsl6m_Y0Antg1O2EBsteLmB $
-#
 package Inventory::Memberships;
 use strict;
 use warnings;

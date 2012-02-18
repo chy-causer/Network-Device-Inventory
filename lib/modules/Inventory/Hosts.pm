@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Hosts.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Hosts.pm 3539 2012-02-10 16:01:31Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-10 16:01:31 +0000 (Fri, 10 Feb 2012) $
-# $LastChangedRevision: 3539 $
-# $uid: Ia0u8va7v5Jya7JNj6vesVYyjkdAiBSb7CN22vo_DLElQ $
-#
 package Inventory::Hosts;
 use strict;
 use warnings;

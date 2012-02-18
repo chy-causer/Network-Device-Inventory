@@ -1,7 +1,3 @@
-# $Id: Introles.pm 3526 2012-02-07 11:54:05Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-07 11:54:05 +0000 (Tue, 07 Feb 2012) $
-# $LastChangedRevision: 3526 $
 package Inventory::Introles;
 use strict;
 use warnings;

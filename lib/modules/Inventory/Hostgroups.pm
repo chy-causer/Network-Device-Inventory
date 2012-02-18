@@ -1,16 +1,3 @@
-#!/usr/bin/perl -T
-#
-# Name: Hostgroups.pm
-# Creator: Guy Edwards
-# Created: 2008-08-05
-# Description: unknown
-#
-# $Id: Hostgroups.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: rttj3XkTvYvBRhw2w257RqG02h4fNaaZ0_9e2lUAV6U8Y $
-#
 package Inventory::Hostgroups;
 use strict;
 use warnings;
