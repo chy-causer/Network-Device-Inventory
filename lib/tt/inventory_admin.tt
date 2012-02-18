@@ -1,13 +1,6 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3538 $
-# $Id: inventory_admin.tt 3538 2012-02-10 15:39:37Z guy $
--%]
-
 <h4>Frodos DNS</h4>
 <ul>
-  <li><a href="cnames">Frodo Cnames</a></li>
+  <li><a href="cnames">Frodo Cnames</a> (full many-many interface)</li>
 </ul>
 
 <h4>Opsview specific</h4>
@@ -37,7 +30,7 @@
   <li><a href="invoices">Invoices</a></li>
 </ul>
 
-<h4>Trouble shooting and sanity checking</h4>
+<h4>Troubleshooting and sanity checking</h4>
 <ul>
   <li><a href="problems_interfaces">Interface Problems</a></li>
   <li><a href="about">History, License, file version information</a></li>
