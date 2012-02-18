@@ -1,9 +1,3 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3535 $
-# $Id: inventory_viewhost.tt 3535 2012-02-10 12:47:01Z guy $
--%]
 <div>
 [% IF message.keys.size %]
   [% FOR notification IN message.keys %] 
@@ -28,9 +22,25 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
 [% IF lookup && lookup.length > 0 -%]
 
  [% IF hosts.keys.size > 1 %]
- <p class="input-warning">There were [% hosts.size | html_entity %] hosts returned by the database</p>
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           There were [% hosts.size | html_entity %] hosts returned by the search.
+      </p>
+   </div>
+</div>
+
  [% ELSIF hosts.size == 0 -%]
- <p class="input-error">There were [% hosts.size | html_entity %] hosts returned by the database</p>
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           There were no hosts returned by the search.
+      </p>
+   </div>
+</div>
+
  [% ELSE -%]
  <p class="input-success">Your search matched one host:</p>
  [% END -%]
@@ -58,7 +68,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
       [% IF hostgroup.name == 'device-frodo' %]
   
   <tr>
-    <th>Frodo Alias</th>
+    <th>FroDo Alias</th>
     [% IF hosts.$host.cnames.size > 0 %]
       [% FOREACH cname IN hosts.$host.cnames %]
         [% IF cname.host_id == hosts.$host.id %]
@@ -192,19 +202,19 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
         </span>
     [% END %]
 
-    [% IF interface.isprimary=='1' %]
+    [%- IF interface.isprimary=='1' -%]
        - designated primary
-    [% ELSE %]
+    [%- ELSE -%]
        - secondary 
-    [% END %]
+    [%- END -%]
      <ul>
-      [% IF interface.hostgroups.size < 1 %]
+      [%- IF interface.hostgroups.size < 1 -%]
         <li class="input-warning">This interface is a member of no hostgroups</li>
       [% ELSE %]
-        [% FOREACH thisrole IN interface.hostgroups %]
-            <li> Has role: [% thisrole.name %] ([% thisrole.description %])</li>
-        [% END %]  
-      [% END %]
+        [%- FOREACH thisrole IN interface.hostgroups -%]
+            <li> Has role: [% thisrole.name | html_entity %] ([% thisrole.description | html_entity %])</li>
+        [%- END -%]  
+      [%- END -%]
        <li><a href="[% netdisco_url | html_entity %][% interface.address | html_entity %]">Lookup this interface on Netdisco</a></li>
        <li><a href="[% nagios_url | html_entity %][% interface.lastresolvedfqdn | html_entity %]">Lookup this dns name in Opsview</a></li>
      </ul>
@@ -228,25 +238,31 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
   [% photocounter=1 %]
   <tr>
 
-  [% FOREACH photo IN hosts.$host.photos %]
+  [% FOREACH photo IN hosts.$host.photos -%]
     
-    [% IF photocounter > 3 %]
+    [% IF photocounter > 3 -%]
       </tr>
       <tr>
-      [% photocounter = 1 %]
-    [% END %]
+      [%- photocounter = 1 -%]
+    [%- END -%]
     
     <td><a href="[% photo.url | html_entity %]"><img src="[% photo.url | html_entity %]" width="150" alt="a photo of this host" /></a></td>
     [% photocounter = photocounter + 1 %]
-  [% END %]
+  [%- END -%]
 
   </tr>
   </table>
     </td>
 
-[% ELSE %]
- <td class="input-warning">No Photos have been uploaded for this host</td>
-[% END %]
+[% ELSE -%]
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           No Photos have been uploaded for this host
+      </p>
+   </div>
+</div>
+[% END -%]
 
   </tr>
 
