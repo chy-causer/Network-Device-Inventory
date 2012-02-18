@@ -1,10 +1,3 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-10 13:19:20 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3536 $
-# $Id: inventory_about.tt 3536 2012-02-10 13:19:20Z guy $
--%]
-
 [%- errorcount=0 -%]
 
 [%- FOR file IN files.keys -%]
@@ -16,7 +9,11 @@
 [%- IF errorcount==0 -%]
    <p class="block-success">There are no version issues detected (currently only checks svn properties)</p>
 [%- ELSE -%]
-   <p class="block-warnings">There are [% errorcount %] version issues that may need attention</p>
+   <p class="block-warning">There are [% errorcount %] version issues that may need attention</p>
+[%- END -%]
+
+[%- IF message && message.length > 0 -%]
+   <p class="block-warning">[% message | html_entity %]</p>
 [%- END -%]
 
 <script type="text/javascript">
@@ -35,49 +32,31 @@ $(document).ready(function(){
   <li><a href="#templates"><span>Templates</span></a></li>
 </ul>
 
- <div id="history">
-  <p>This inventory system was written in 2007 to support a backbone network
-  and services team for a university.</p>
+<div id="history">
+  <p>This inventory system was written in 2007 to support a backbone network and services team for a university.</p>
 
-  <p>The team ran ~70 servers but suffered from information in multiple
-  locations such as wiki pages and spreadsheets.</p>
+  <p>The team ran ~70 servers but information in multiple locations such as wiki pages and spreadsheets.</p>
 
-  <p>The inventory was created to centralise that information and to feed it
-  into the configuration of a seperate servicce/network monitoring system. It
-  was constructed out of necessity.</p>
+  <p>The inventory was created to centralise that information and to feed it into the configuration of a seperate service/network monitoring system</p>
 
-  <p>In February 2012, after request from the author, the software was
-  approved by the university for release under the GPL.</p>
-
- </div>
+  <p>In February 2012, after request from the author, the software was approved for release under the GPL</p>
+</div>
 
 <div id="license">
     
-<h3>Network Device Inventory v1</h3> 
+    <h3>Inventory version 1, Copyright (C) 2007 Guy Edwards</h3>
+    
+    <p>This program comes with ABSOLUTELY NO WARRANTY; for details 
+    <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1"> view the GPL2 License</a>.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions; View the license link above for details.</p>
 
-<p>Keep a database of devices to feed other systems (such as monitoring software).</p>
-<p>Copyright 2007 University of Oxford</p>
+    <p>The University of Oxford disclaims all copyright interest in the program
+    `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, 
+    Director of Oxford University Computer Services.</p>
 
-<p>This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.</p>
-
-<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">
-GNU General Public License for more details.</a></p>
-
-<p>You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
-Street, Fifth Floor, Boston, MA 02110-1301 USA.</p>
-
-<p>The University of Oxford disclaims all copyright interest in the program
-&quot;Inventory&quot; written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
-Oxford University Computer Services.</p>
-
-<p>Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
-also disclaims all copyright interest in the program.</p>
+    <p>Oliver Gorwits, who contributed sections of the hostgroups programming also
+    disclaims all copyright interest in the program.</p>
 </div>
 
 <div id="scripts">
@@ -85,41 +64,71 @@ also disclaims all copyright interest in the program.</p>
 <h4>Scripts</h4>
 
 <table>
-<tr><th>Filename</th><th>SVN Revision</th><th>Date</th></tr>
-[%- FOR file IN files.keys.sort -%]
-   [%- NEXT IF files.$file.type == 'template' -%] 
-   [%- NEXT IF files.$file.type == 'module' -%] 
-   [%- IF files.$file.error == '1' -%]
+<tr>
+   <th>Filename</th>
+   <th colspan="2">Matches version on github?</th>
+</tr>
+[% FOR file IN files.keys.sort %]
+   [% NEXT IF files.$file.type == 'template' %] 
+   [% NEXT IF files.$file.type == 'module' %] 
+   [% IF files.$file.error == '1' %]
      <tr class="warning">
-   [%- ELSE -%]
+   [% ELSE %]
    <tr>
-   [%- END -%]
-     <td>[% files.$file.name %]</td>
-     <td>[% files.$file.revision %]</td>
-     <td>[% files.$file.lastchangeddate %]</td>
+   [% END %]
+     <td>[% files.$file.name | html_entity %]</td>
+     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
+     <td class="block-success" colspan="2">Matches</td>
+     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
+      <td class="block-error" colspan="2">Error contacting github</td>
+     [%- ELSE -%]
+     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
+     <td>
+        <form action="" method="POST">
+          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
+          <input type="submit" value="download from github" />
+        </form>
+     </td>
+     [%- END -%]
    </tr>
-[%- END -%]
+[% END %]
 </table>
 </div>
 
 
 <div id="modules">
+
 <h4>Modules</h4>
 
 <table>
- <tr><th>Filename</th><th>SVN Revision</th><th>Date</th></tr>
-[%- FOR file IN files.keys.sort -%]
-   [%- NEXT IF files.$file.type != 'module' -%] 
-   [%- IF files.$file.error == '1' -%]
+<tr>
+   <th>Filename</th>
+   <th colspan="2">Matches version on github?</th>
+</tr>
+
+[% FOR file IN files.keys.sort %]
+   [% NEXT IF files.$file.type != 'module' %] 
+   [% IF files.$file.error == '1' %]
      <tr class="warning">
-   [%- ELSE -%]
+   [% ELSE %]
    <tr>
-   [%- END -%]
-     <td>[% files.$file.name %]</td>
-     <td>[% files.$file.revision %]</td>
-     <td>[% files.$file.lastchangeddate %]</td>
+   [% END %]
+     <td>[% files.$file.name | html_entity %]</td>
+     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
+     <td class="block-success" colspan="2">Matches</td>
+     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
+      <td class="block-error" colspan="2">Error contacting github</td>
+     [%- ELSE -%]
+     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
+     <td>
+        <form action="" method="POST">
+          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
+          <input type="submit" value="download from github" />
+        </form>
+     </td>
+     [%- END -%]
    </tr>
-[%- END -%]
+[% END %]
 </table>
 </div>
 
@@ -128,20 +137,33 @@ also disclaims all copyright interest in the program.</p>
 <h4>Templates</h4>
 
 <table>
-<tr><th>Filename</th><th>SVN Revision</th><th>Date</th></tr>
-[%- FOR file IN files.keys.sort -%]
-   [%- NEXT IF files.$file.type != 'template' -%] 
-   [%- IF files.$file.error == '1' -%]
+<tr>
+   <th>Filename</th>
+   <th colspan="2">Matches version on github?</th>
+</tr>
+
+[% FOR file IN files.keys.sort %]
+   [% NEXT IF files.$file.type != 'template' %] 
+   [% IF files.$file.error == '1' %]
      <tr class="warning">
-   [%- ELSE -%]
+   [% ELSE %]
    <tr>
-   [%- END -%]
-     <td>[% files.$file.name %]</td>
-     <td>[% files.$file.revision %]</td>
-     <td>[% files.$file.lastchangeddate %]</td>
+   [% END %]
+     <td>[% files.$file.name | html_entity %]</td>
+     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
+     <td class="block-success" colspan="2">Matches</td>
+     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
+      <td class="block-error" colspan="2">Error contacting github</td>
+     [%- ELSE -%]
+     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
+     <td>
+        <form action="" method="POST">
+          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
+          <input type="submit" value="download from github" />
+        </form>
+     </td>
+     [%- END -%]
    </tr>
-[%- END -%]
+[% END %]
 </table>
 </div>
-
-</div> <!-- end tabs -->

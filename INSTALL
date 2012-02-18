@@ -7,6 +7,7 @@ DOWNLOAD_DIR='/home/foo/temp'
      apt-get install libregexp-common-perl
      apt-get install libnetaddr-ip-perl
      apt-get install libfile-slurp-perl
+     apt-get install libcrypt-ssleay-perl
 
 1. Make the dns name required
 2. Copy the apache configuration in to place
