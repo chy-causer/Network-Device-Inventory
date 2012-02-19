@@ -1,10 +1,4 @@
-#!/usr/bin/perl -T
-#
-# Name: index
-# Creator: Guy Edwards
-# Created: 2008-09-11
-# Description: Main index page leading to the specific pages for the parts of the suite
-#
+#!/usr/bin/perl
 
 use warnings FATAL => 'all';
 use strict;

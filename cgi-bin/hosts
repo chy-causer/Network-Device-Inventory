@@ -1,10 +1,4 @@
-#!/usr/bin/perl -T 
-#
-# Name: hosts
-# Creator: Guy Edwards
-# Created: 2008-07-28
-# Description: Hosts administration page for the inventory application
-#
+#!/usr/bin/perl 
 
 use warnings FATAL => 'all';
 use strict;

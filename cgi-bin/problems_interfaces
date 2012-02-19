@@ -1,10 +1,4 @@
-#!/usr/bin/perl -T
-#
-# Name: problems_interfaces
-# Creator: Guy Edwards
-# Created: 2008-10-14
-# Description: Look for logic issues in the interface records
-#
+#!/usr/bin/perl
 
 use warnings FATAL => 'all';
 use strict;

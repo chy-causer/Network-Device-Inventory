@@ -1,10 +1,4 @@
 #!/usr/bin/perl
-#
-# Name: edithost
-# Creator: Guy Edwards
-# Created: 2008-07-28
-# Description: Viewhost administration page for the inventory
-#
 
 use warnings FATAL => 'all';
 use strict;

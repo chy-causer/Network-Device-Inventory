@@ -1,11 +1,5 @@
-#!/usr/bin/perl -T
-#
-# Name: evil-frodo
-# Creator: Guy Edwards
-# Created: 2008-10-28
-# Description: Main frodo project overview that ITSS will see
-#
-#
+#!/usr/bin/perl
+
 use warnings FATAL => 'all';
 use strict;
 

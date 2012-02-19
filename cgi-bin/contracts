@@ -1,10 +1,4 @@
-#!/usr/bin/perl -T
-#
-# Name: contracts
-# Creator: Guy Edwards
-# Created: 2012-01-30
-# Description: Contracts administration page for the inventory application
-#
+#!/usr/bin/perl
 
 use warnings FATAL => 'all';
 use strict;

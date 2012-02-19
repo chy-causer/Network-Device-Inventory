@@ -1,10 +1,4 @@
 #!/usr/bin/perl 
-#
-# Name: photos
-# Creator: Guy Edwards
-# Created: 2008-07-28
-# Description: Groups administration page for the inventory
-#
 
 use warnings FATAL => 'all';
 use strict;

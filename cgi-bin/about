@@ -1,10 +1,4 @@
 #!/usr/bin/perl
-#
-# Name: about
-# Creator: Guy Edwards
-# Created: 2012-02-07
-# Description: Show the version numbers and checksums for website files
-#
 
 use warnings FATAL => 'all';
 use strict;

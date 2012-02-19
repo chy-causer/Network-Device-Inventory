@@ -1,10 +1,4 @@
-#!/usr/bin/perl -T 
-#
-# Name: viewhost
-# Creator: Guy Edwards
-# Created: 2008-07-28
-# Description: Viewhost administration page for the inventory
-#
+#!/usr/bin/perl 
 
 use warnings FATAL => 'all';
 use strict;

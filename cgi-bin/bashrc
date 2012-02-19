@@ -1,10 +1,4 @@
-#!/usr/bin/perl -T
-#
-# Name: bashrc
-# Creator: Guy Edwards
-# Created: 2008-09-09
-# Description: bashrc style output for groups
-#
+#!/usr/bin/perl
 
 use warnings FATAL => 'all';
 use strict;

@@ -1,11 +1,4 @@
-#!/usr/bin/perl -T
-#
-# Name: sshkeys
-# Creator: Guy Edwards
-# Created: 2008-07-28
-# Description: unknown
-# Sshkeys administration page for the inventory application
-#
+#!/usr/bin/perl
 
 use warnings FATAL => 'all';
 use strict;
