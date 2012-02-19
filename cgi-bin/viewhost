@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = qw('0.0.3');
+our $VERSION = qw('1.0.0');
 
 use CGI;
 use Template;
@@ -47,6 +47,7 @@ my $valid_users  = $CONFIG->{'general'}->{allowed_users};
 my $netdisco_url = $CONFIG->{'links'}->{netdisco_url};
 my $nagios_url   = $CONFIG->{'links'}->{nagios_url};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 
 my %POSTS;
 
@@ -58,7 +59,7 @@ my $q = CGI->new();
 print $q->header();
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
 
 # print the stock header (banner and title)
 $tt->process(
@@ -331,7 +332,7 @@ viewhost
 
 =head1 VERSION
 
-This documentation refers to version 0.0.2
+This documentation refers to version 1.0.0
 
 =head1 USAGE
 

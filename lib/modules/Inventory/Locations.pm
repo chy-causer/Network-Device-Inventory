@@ -20,14 +20,8 @@ sub create_locations {
     my ( $dbh, $posts ) = @_;
     my %message;
 
-    if (   !exists $posts->{'location_name'}
-        || $posts->{'location_name'} =~ m/[^\w\s\-\(\)\:]/x
-        || length( $posts->{'location_name'} ) < 1
-        || length( $posts->{'location_name'} ) > 55 )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = "Input Error: Check your input is alpha numeric";
+    if ( !defined $dbh ) {
+        $message{'ERROR'} = 'Internal Error: lost database connectivity';
         return \%message;
     }
 
@@ -48,26 +42,11 @@ sub create_locations {
 sub edit_locations {
     my ( $dbh, $posts ) = @_;
     my %message;
-
-    # dump bad inputs
-    if (
-        !exists $posts->{'location_id'}
-        || $posts->{'location_id'} =~ m/\D/x
-
-        || !exists $posts->{'location_name'}
-        || $posts->{'location_name'} =~ m/[^\w\s\-\(\)\:]/x
-        || length( $posts->{'location_name'} ) < 1
-        || length( $posts->{'location_name'} ) > 55
-      )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          "Input Error: One of the supplied inputs was invalid.";
+    
+    if ( !defined $dbh ) {
+        $message{'ERROR'} = 'Internal Error: lost database connectivity';
         return \%message;
     }
-
-    $posts->{'location_name'} = $posts->{'location_name'};
 
     my $sth = $dbh->prepare('UPDATE locations SET name=? WHERE id=?');
     if ( !$sth->execute( $posts->{'location_name'}, $posts->{'location_id'} ) )
@@ -109,8 +88,7 @@ sub count_locations_perhost {
     my %message;
 
     if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
+        $message{'ERROR'} = 'Internal Error: lost database connectivity';
         return \%message;
     }
 

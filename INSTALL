@@ -16,6 +16,10 @@ DOWNLOAD_DIR='/home/foo/temp'
    mkdir /var/www/$SITENAME/static/stylesheets -p
    mkdir /var/www/$SITENAME/static/images -p
    mkdir /var/www/$SITENAME/lib/tt -p
+   mkdir /var/www/$SITENAME/lib/local/tt -p
+
+put any local modified versions of the files into /var/www/$SITENAME/lib/local/tt
+
 4. copy the SQL file conf/database.sql to the server
 5. use `pwgen 10` to create passwords and put them in the copied sql file for
    the two user accounts at the start of the file

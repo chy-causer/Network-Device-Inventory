@@ -44,3 +44,6 @@
  * update via the web
  * local skinning not overwritten
 
+Defects
+ * new update system gives a balnk page if 'manifest' setting is missing from ini file
+ * new update system has no reset/recheck system

@@ -2,6 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
+our $VERSION = qw('1.0.0');
 
 use CGI;
 use Template;
@@ -35,6 +36,7 @@ my $dbpass           = $CONFIG->{'database'}->{db_pass};
 my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 
 #############################################################################
 #                                     main                                  #
@@ -44,7 +46,7 @@ my $q = CGI->new();
 print $q->header();
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => $htmltemplatepath, } );
+my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
 
 # print the stock header (banner and title)
 $tt->process(
@@ -150,7 +152,7 @@ __END__
 
 =head1 VERSION
 
-This documentation refers to  version 
+This documentation refers to version 1.0.0 
 
 =head1 USAGE
 

@@ -44,15 +44,15 @@ $(document).ready(function(){
 
 <div id="license">
     
-    <h3>Inventory version 1, Copyright (C) 2007 Guy Edwards</h3>
+    <h3>Inventory version 1.0.0, Copyright (C) 2007 Oxford University Computing Services</h3>
     
     <p>This program comes with ABSOLUTELY NO WARRANTY; for details 
     <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1"> view the GPL2 License</a>.
     This is free software, and you are welcome to redistribute it
     under certain conditions; View the license link above for details.</p>
 
-    <p>The University of Oxford disclaims all copyright interest in the program
-    `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, 
+    <p>The University of Oxford permits distribution of the program
+    `Inventory' written by Guy Edwards, under the GPL, as agreed by Dr. Stuart Lee, 
     Director of Oxford University Computer Services.</p>
 
     <p>Oliver Gorwits, who contributed sections of the hostgroups programming also
