@@ -18,7 +18,7 @@ use DBI;
 use DBD::Pg;
 
 sub internal_checkinput {
-    my $posts = @_;
+    my $posts = shift;
     my @message_store;    # need to put all these messages somewhere
 
     # dont wave bad inputs at the database
@@ -477,7 +477,7 @@ Inventory::Memberships - Realationships of hosts to hostgroups
 
 =head2 VERSION
 
-This document describes Inventory::Memberships version 0.0.1
+This document describes Inventory::Memberships version 1.0.0
 
 =head1 SYNOPSIS
 
