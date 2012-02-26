@@ -1,8 +1,8 @@
 [%-
 # $Author: guy $
-# $Date: 2012-02-10 15:39:37 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3538 $
-# $Id: inventory_sshkeys.tt 3538 2012-02-10 15:39:37Z guy $
+# $Date: 2012-02-22 11:20:05 +0000 (Wed, 22 Feb 2012) $
+# $Revision: 3567 $
+# $Id: inventory_sshkeys.tt 3567 2012-02-22 11:20:05Z guy $
 -%]
 
 <div>
@@ -40,6 +40,7 @@
             [% END %]
          </select>
         <input type="hidden" name="sshkey_id" value="[% sshkey.id | html_entity %]" />
+        <input type="hidden" name="action" value="edit" />
         <input type="submit" value="Submit Changes" />
       [% END %]
   [% END %]
@@ -78,6 +79,7 @@
                 <option value="[% host.id | html_entity %]" [% IF host.id == host_id %] selected="selected" [% END %]>[% host.name | html_entity %]</option>
             [% END %]
          </select>
+        <input type="hidden" name="action" value="create" />
       <input type="submit" value="Create Entry" /></p>
    </fieldset>
 </form>
