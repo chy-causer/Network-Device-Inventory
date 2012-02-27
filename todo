@@ -7,7 +7,8 @@
   
 1.1 Immediate requirements
 
- * Javascript input validation for the quickfrodo page to help people wrongly typing the frodo- name
+ * [defect] Javascript input validation for the quickdevice page to help people wrongly typing the frodo- name
+ * [defect] show which fields are optional/essential on the quickdevice page
  * Add a service level to support contracts
  * Show all devices under a support contract / not under a support contract 
  * Support contracts: cost and duration of contract, start and end date plus service level
@@ -33,8 +34,10 @@
 
 1.5 Add more functionality
 
- * "show me a host whose details haven't been checked in the last year"
- * "show me a random problem and hint how I might fix it"
+ * [request] "show me a host whose details haven't been checked in the last year"
+ * [request] "show me a random problem and hint how I might fix it"
+ * [request] add optional date field which holds the end-of-life date of the hardware model
+ * [request] ability to see all devices which are of a particular model type
  * add a change audit trail
  * add ability to view the change log
  * add geolocation data for locations
@@ -45,5 +48,5 @@
  * local skinning not overwritten
 
 Defects
- * new update system gives a balnk page if 'manifest' setting is missing from ini file
+ * new update system gives a blank page if 'manifest' setting is missing from ini file
  * new update system has no reset/recheck system
