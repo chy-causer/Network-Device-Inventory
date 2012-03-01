@@ -7,8 +7,8 @@ feed a network monitoring system.
 It was approved for release as open source code on the 10th February 2012
 
 At the time of public release the code is in the process of being
-'publicified' so may make references to private/in house systems and terms or be in a non
-working state where parts have been rmeoved. 
+'publicified' so may make references to private/in house systems and terms or
+be in a non working state where parts have been rmeoved. 
 
 It's intended to fix this as soon as possible, a working demonstration site is
 currently being configured.
@@ -17,17 +17,21 @@ currently being configured.
 
 The major steps currently involve:
 
- Make a database using the SQL in conf/*.sql
+=over 4
 
- Copy the perl modules into place on the webserver
+=item Make a database using the SQL in conf/*.sql
 
- Copy the perl scripts, templates, images and stylesheets into the wbeservers directory
+=item Copy the perl modules into place on the webserver
 
- Configure apache
+=item Copy the perl scripts, templates, images and stylesheets into the wbeservers directory
 
- Configure the sites .ini file 
+=item Configure apache
 
- Test
+=item Configure the sites .ini file 
+
+=item Test
+
+=back
 
 The INSTALL file contains a more complete guide to the current install process
 (warts and all) but it's intended that this process will be significantly
@@ -38,26 +42,23 @@ improved shortly.
 
 Currently uses
 
-Carp
-CGI
-Config
-DateTime
-DBD
-DBI
-Digest
-File
-Net
-NetAddr
-Regexp
-Socket
-Template;
+Carp,
+CGI,
+Config,
+DateTime,
+DBD,
+DBI,
+Digest,
+File,
+Net,
+NetAddr,
+Regexp,
+Socket,
+Template,
 URI
 
 
 =head1 FUTURE WORK
-
-By the end of February this should be installable and understandable outside of
-the original company it was written for.
 
 The todo file contains the full future roadmap in terms of improvements and
 new features.
@@ -80,9 +81,9 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-The University of Oxford disclaims all copyright interest in the program
+The University of Oxford agrees to the release under the GPL of in the program
 `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
 Oxford University Computer Services.
 
 Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
-also disclaims all copyright interest in the program.
+also agreed to the code release under the GPL.
