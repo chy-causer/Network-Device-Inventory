@@ -1,52 +1,155 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-10 16:17:11 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3540 $
-# $Id: todo 3540 2012-02-10 16:17:11Z guy $
--%]
-  
-1.1 Immediate requirements
+=pod
 
- * [defect] Javascript input validation for the quickdevice page to help people wrongly typing the frodo- name
- * [defect] show which fields are optional/essential on the quickdevice page
- * Add a service level to support contracts
- * Show all devices under a support contract / not under a support contract 
- * Support contracts: cost and duration of contract, start and end date plus service level
- * Introduce edit restrictions on the groups (frodos/ups and status) where names mustn't change
+=head1 INVENTORY - CURRENT ROADMAP
 
-1.2 Stop issues in the long term
+=head2
+1.1 IMMEDIATE REQUIREMENTS
 
- * On the photos page make it use a sha hash as the complete filename
- * script to check/update cached dns records overnight
- * dont let a ups be its own ups
+=over 4
 
-1.3 Add usability
+=item [defect] Javascript input validation for the quickdevice page to help give
+   people an immediate alert if they are typing the frodo- name instead of the
+   human-friendly name.
+ 
+=item [defect] Use visual clues to show the user which fields are
+   optional/essential on the quickdevice page.
 
- * Show a date picker jQuery widget on date fields
- * As the user types, show if the name is unique and available or not (tick or cross)
- * Make problem search run each night as a scheduled job
+=item [defect] Show a sane explanitor error message if the intended hostname
+   already exists If possible show this in realtime using javascript/ajax
+   rather than have to correct the user after they've hit submit.
+ 
+=item [defect] On the quickdevice page, show a more accurate helpful error
+   message if the hostname of a ups device being created already exists.
+ 
+=item [feature] Improve the photos page - add ability to delete an entry.
+ 
+=item [feature] Add a service level to support contracts.
+ 
+=item [feature] Show all devices under a support contract / show all not under a
+   support contract.
+ 
+=item [feature] Support contracts: cost and duration of contract, start and end
+   date plus service level.
+   
+=item [feature] add optional date field which holds the end-of-life date of the
+   hardware model
+ 
+=item [feature] ability to see all devices which are of a particular model type
+ 
+=item [feature] add a change audit trail
+ 
+=item [release] Write tests for each module
+ 
+=item [release] Improve install instructions
 
-1.4 Make releasable
+=item [release] Put license details in each file
 
- * Write tests for each module
- * Add install instructions
- * put license details in each file
+=back
 
-1.5 Add more functionality
+=head2
+1.2 LONGER TERM ISSUES
 
- * [request] "show me a host whose details haven't been checked in the last year"
- * [request] "show me a random problem and hint how I might fix it"
- * [request] add optional date field which holds the end-of-life date of the hardware model
- * [request] ability to see all devices which are of a particular model type
- * add a change audit trail
- * add ability to view the change log
- * add geolocation data for locations
+=over 4
 
-1.6 Controlled distribution
- * package integrity check (manifest plus sha256) versus files in that release
- * update via the web
- * local skinning not overwritten
+=item [defect] new update system gives a blank page if 'manifest' setting is
+   missing from ini file
 
-Defects
- * new update system gives a blank page if 'manifest' setting is missing from ini file
- * new update system has no reset/recheck system
+=item [defect] new update system has no reset/recheck system
+
+=item [defect] On the photos page make it use a sha hash as the complete filename
+
+=item [defect] dont let a ups be its own ups
+ 
+=item [feature] script to check/update cached dns records overnight
+
+=item [feature] Introduce edit restrictions on the groups (frodos/ups and status)
+      where names mustn't change
+
+=item [feature] JQuery - Show a date picker widget on date fields
+
+=item [feature] Ajax - As the user types, show if the name is unique and
+      available or not (tick or cross)
+
+=item [feature] Make problem search run each night as a scheduled job
+
+=item [release] Improve test coverage
+
+=back
+
+=head2
+1.3 ADD FUNCTIONALITY
+
+=over 4
+
+=item [feature] "show a host whose details haven't been checked in the last year"
+ 
+=item [feature] "show me a random problem and hint how I might fix it"
+ 
+=item [feature] add ability to view the change log from the web interface
+ 
+=item [feature] add geolocation data for locations
+
+=item [release] improve test coverage
+
+=item [release] add a manual
+
+=back
+
+=head2
+1.4 CONTROLLED UPDATE SYSTEM
+
+=over 4
+
+=item [release] Update system needs lots of work
+
+=over 4
+
+=item Package integrity check (manifest plus sha256) versus files in that
+      release
+     
+=item Ability to have local menu items
+     
+=item Ability to have local scripts
+     
+=item one button update check
+     
+=item ajax style async update
+     
+=item browsed pages are made not to break when updated (apache distress)
+
+=back
+
+=back
+
+=head1 FURTHER BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+Network Device Inventory - keep a database of devices to feed other systems
+(such as monitoring software). Copyright 2007 University of Oxford
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+The University of Oxford agrees to the release under the GPL of in the program
+`Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
+Oxford University Computer Services.
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
+also agreed to the code release under the GPL.
