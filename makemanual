@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Pod::LaTeX::Book;
+
+my $parser = Pod::LaTeX::Book->new ( );
+
+$parser->configure_from_file( 'manual.yaml' );
+
+$parser->parse();
