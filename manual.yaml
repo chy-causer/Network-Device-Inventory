@@ -1,0 +1,148 @@
+DocOptions:
+     Title:  Inventory Programming Manual
+     Author: Guy Edwards
+     Date: 2nd March, 2012
+     TexOut: manual/programming-manual.tex
+     AddPreamble: 1
+     UserPreamble: |
+       \documentclass{book}
+       
+       \usepackage{hyperref}
+       \usepackage{listings}
+       \usepackage{fancyvrb}
+
+       \usepackage{makeidx}
+
+       \author{Guy Edwards}
+       \title{Networks Team Inventory System}
+       \date{1st March 2012}
+       
+       \begin{document}
+
+       \maketitle
+       \tableofcontents
+
+     UserPostamble: |
+       \cleardoublepage
+       \addcontentsline{toc}{chapter}{\numberline{}Index}
+       \printindex
+       \end{document}
+
+DocStructure:
+     
+     - Section:
+         Level: part
+         Title: Modules
+     - Input:
+         FileOrPod: lib/modules/Inventory.pm
+         SkipFrom: INCOMPATIBILITIES
+     - Input:
+         FileOrPod: lib/modules/Inventory/Cnames.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Contacts.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Contracts.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Edithost.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Frodos.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Hostgroups.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Hosts.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Interfaces.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Introlemembers.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Introles.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Invoices.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Locations.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Manufacturers.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Memberships.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Models.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Op2devices.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Photos.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Servicegroups.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Sshkeys.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Status.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Suppliers.pm
+     - Input:
+         FileOrPod: lib/modules/Inventory/Ups.pm
+     
+     - Section:
+         Level: part
+         Title: Scripts
+
+     - Input:
+         FileOrPod: cgi-bin/about
+     - Input:
+         FileOrPod: cgi-bin/admin
+     - Input:
+         FileOrPod: cgi-bin/bashrc
+     - Input:
+         FileOrPod: cgi-bin/cnames
+     - Input:
+         FileOrPod: cgi-bin/contacts
+     - Input:
+         FileOrPod: cgi-bin/contracts
+     - Input:
+         FileOrPod: cgi-bin/edithost
+     - Input:
+         FileOrPod: cgi-bin/evil-frodo
+     - Input:
+         FileOrPod: cgi-bin/finance
+     - Input:
+         FileOrPod: cgi-bin/frodo
+     - Input:
+         FileOrPod: cgi-bin/hostgroups
+     - Input:
+         FileOrPod: cgi-bin/hosts
+     - Input:
+         FileOrPod: cgi-bin/index
+     - Input:
+         FileOrPod: cgi-bin/interfaces
+     - Input:
+         FileOrPod: cgi-bin/introlemembers
+     - Input:
+         FileOrPod: cgi-bin/introles
+     - Input:
+         FileOrPod: cgi-bin/invoices
+     - Input:
+         FileOrPod: cgi-bin/locations
+     - Input:
+         FileOrPod: cgi-bin/manufacturers
+     - Input:
+         FileOrPod: cgi-bin/memberships
+     - Input:
+         FileOrPod: cgi-bin/models
+     - Input:
+         FileOrPod: cgi-bin/photos
+     - Input:
+         FileOrPod: cgi-bin/problems_interfaces
+     - Input:
+         FileOrPod: cgi-bin/quickcnames
+     - Input:
+         FileOrPod: cgi-bin/servicegroups
+     - Input:
+         FileOrPod: cgi-bin/sshkeys
+     - Input:
+         FileOrPod: cgi-bin/status
+     - Input:
+         FileOrPod: cgi-bin/suppliers
+     - Input:
+         FileOrPod: cgi-bin/ups
+     - Input:
+         FileOrPod: cgi-bin/viewhost
+
