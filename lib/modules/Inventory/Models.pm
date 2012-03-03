@@ -265,6 +265,8 @@ sub get_models_waps {
 1;
 __END__
 
+=pod
+
 =head1 NAME
 
 Inventory::Models - Information on Models
