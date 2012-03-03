@@ -1,0 +1,7200 @@
+\documentclass{book}
+
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{fancyvrb}
+
+\usepackage{makeidx}
+
+\author{Guy Edwards}
+\title{Networks Team Inventory System}
+\date{1st March 2012}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\part{Modules}
+
+
+%%   POD:  lib/modules/Inventory.pm
+%%   File: ./lib/modules/Inventory.pm
+
+
+\section{SYNOPSIS}
+\label{_SYNOPSIS}
+\index{!SYNOPSIS}
+\hypertarget{_SYNOPSIS}{}
+
+
+
+use Inventory;
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{SUBROUTINES/METHODS}
+\label{_SUBROUTINES_METHODS}
+\index{!SUBROUTINES/METHODS}
+\hypertarget{_SUBROUTINES_METHODS}{}
+
+
+\subsection{dbconnect}
+\label{_dbconnect}
+\index{!dbconnect}
+\hypertarget{_dbconnect}{}
+
+
+\subsection{is\protect\_superuser}
+\label{_is_superuser}
+\index{!is\ superuser}
+\hypertarget{_is_superuser}{}
+
+
+\subsection{populate\protect\_query\protect\_fields}
+\label{_populate_query_fields}
+\index{!populate\ query\ fields}
+\hypertarget{_populate_query_fields}{}
+
+
+\subsection{acl\protect\_checker}
+\label{_acl_checker}
+\index{!acl\ checker}
+\hypertarget{_acl_checker}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ In the basic Inventory.pm the main abilities are:
+  - create a database connection
+  - restrict access to authorised users
+  - find out if they are a superuser
+  - get a hash of query string fields (_not_ post)
+\end{Verbatim}
+
+
+\subsection{Returns}
+\label{_Returns}
+\index{!Returns}
+\hypertarget{_Returns}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The authorised users sub simply ejects unauthorised users.
+ The query string fileds are returned as a hash
+\end{Verbatim}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+
+DBI, DBD::Pg
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Cnames.pm
+%%   File: ./lib/modules/Inventory/Cnames.pm
+
+
+\section{Inventory\discretionary{::}{Cnames}{::Cnames}}
+\label{_Inventory::Cnames}
+\index{!Inventory::Cnames}
+\hypertarget{_Inventory::Cnames}{}
+
+
+
+Information on Cnames
+
+
+\subsubsection{VERSION}
+\label{Inventory::Cnames_VERSION}
+\index{Inventory::Cnames!VERSION}
+\hypertarget{Inventory::Cnames_VERSION}{}
+
+
+
+This document describes Inventory::Cnames version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Cnames_SYNOPSIS}
+\index{Inventory::Cnames!SYNOPSIS}
+\hypertarget{Inventory::Cnames_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\footnotesize]
+  use Inventory::Cnames qw(create_cnames edit_cnames show_cnames_info);
+  # There are no special setup requirements
+\end{Verbatim}
+
+
+\subsection{PURPOSE}
+\label{Inventory::Cnames_PURPOSE}
+\index{Inventory::Cnames!PURPOSE}
+\hypertarget{Inventory::Cnames_PURPOSE}{}
+
+
+
+This module allows manipulation of the inventory database cnames table
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Cnames_DESCRIPTION}
+\index{Inventory::Cnames!DESCRIPTION}
+\hypertarget{Inventory::Cnames_DESCRIPTION}{}
+
+
+
+The module aims to hide the tasks of raw SQL queries to the database from wou when performing common tasks which involve the relationhips of manufacturers to models in the inventory table.
+
+
+
+At a very late stage the inventory database had the requirement added that the dns zone for the frodos and frodo ups's would be created from the inventory. This was a problem since the inventory relies on the dns... This set of subroutines hence deals with the slightly clunky solution which was a database table linking the host to it's dns and cnames that would be used to populate the dns
+
+
+
+The data returned from a query should be generous, as well as the ids of the hosts involved the names, statuses and similar are returned. Each subroutine should also give a descriptive success or failure message.
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Cnames_Main_Subroutines}
+\index{Inventory::Cnames!Main Subroutines}
+\hypertarget{Inventory::Cnames_Main_Subroutines}{}
+
+
+\paragraph*{create\protect\_cnames(\$dbh,\$hashref)}
+\label{Inventory::Cnames_create_cnames_dbh_hashref_}
+\index{Inventory::Cnames!create\ cnames(\$dbh,\$hashref)}
+\hypertarget{Inventory::Cnames_create_cnames_dbh_hashref_}{}
+
+
+
+\$dbh is the database handle for the Inventory Database
+
+
+
+This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g. \$message\{'SUCCESS'\} = 'Your changes were commited successfully';
+
+
+\paragraph*{edit\protect\_cnames(\$dbh,\$hashref) =head3 list\protect\_cnames\protect\_info(\$dbh,\$optional\protect\_manufacturersid)}
+\label{Inventory::Cnames_edit_cnames_dbh_hashref_head3_list_cnames_info_dbh_optional_manufacturersid_}
+\index{Inventory::Cnames!edit\ cnames(\$dbh,\$hashref) =head3 list\ cnames\ info(\$dbh,\$optional\ manufacturersid)}
+\hypertarget{Inventory::Cnames_edit_cnames_dbh_hashref_head3_list_cnames_info_dbh_optional_manufacturersid_}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Cnames_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Cnames!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Cnames_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Cnames_DEPENDENCIES}
+\index{Inventory::Cnames!DEPENDENCIES}
+\hypertarget{Inventory::Cnames_DEPENDENCIES}{}
+
+
+
+DBI; DBD::Pg; Inventory; Inventory::Hosts;
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Cnames_BUGS_AND_LIMITATIONS}
+\index{Inventory::Cnames!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Cnames_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Cnames_AUTHOR}
+\index{Inventory::Cnames!AUTHOR}
+\hypertarget{Inventory::Cnames_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Cnames_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Cnames!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Cnames_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Contacts.pm
+%%   File: ./lib/modules/Inventory/Contacts.pm
+
+
+\section{Inventory\discretionary{::}{Contacts}{::Contacts}}
+\label{_Inventory::Contacts}
+\index{!Inventory::Contacts}
+\hypertarget{_Inventory::Contacts}{}
+
+
+
+Manipulate Contacts
+
+
+\subsection{AUTHOR}
+\label{Inventory::Contacts_AUTHOR}
+\index{Inventory::Contacts!AUTHOR}
+\hypertarget{Inventory::Contacts_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Contacts_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Contacts!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Contacts_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Contracts.pm
+%%   File: ./lib/modules/Inventory/Contracts.pm
+
+
+\section{Inventory\discretionary{::}{Contracts}{::Contracts}}
+\label{_Inventory::Contracts}
+\index{!Inventory::Contracts}
+\hypertarget{_Inventory::Contracts}{}
+
+
+
+Manipulate Contracts
+
+
+\subsection{AUTHOR}
+\label{Inventory::Contracts_AUTHOR}
+\index{Inventory::Contracts!AUTHOR}
+\hypertarget{Inventory::Contracts_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Contracts_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Contracts!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Contracts_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Edithost.pm
+%%   File: ./lib/modules/Inventory/Edithost.pm
+
+
+\section{Inventory\discretionary{::}{Edithosts}{::Edithosts}}
+\label{_Inventory::Edithosts}
+\index{!Inventory::Edithosts}
+\hypertarget{_Inventory::Edithosts}{}
+
+
+
+Edit Hosts
+
+
+\subsection{AUTHOR}
+\label{Inventory::Edithosts_AUTHOR}
+\index{Inventory::Edithosts!AUTHOR}
+\hypertarget{Inventory::Edithosts_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Edithosts_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Edithosts!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Edithosts_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Frodos.pm
+%%   File: ./lib/modules/Inventory/Frodos.pm
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Hostgroups.pm
+%%   File: ./lib/modules/Inventory/Hostgroups.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Hosts.pm
+%%   File: ./lib/modules/Inventory/Hosts.pm
+
+
+\section{Inventory\discretionary{::}{Hosts}{::Hosts}}
+\label{_Inventory::Hosts}
+\index{!Inventory::Hosts}
+\hypertarget{_Inventory::Hosts}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory::Hosts_VERSION}
+\index{Inventory::Hosts!VERSION}
+\hypertarget{Inventory::Hosts_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Hosts_SYNOPSIS}
+\index{Inventory::Hosts!SYNOPSIS}
+\hypertarget{Inventory::Hosts_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory::Hosts;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Hosts_DESCRIPTION}
+\index{Inventory::Hosts!DESCRIPTION}
+\hypertarget{Inventory::Hosts_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Hosts_Main_Subroutines}
+\index{Inventory::Hosts!Main Subroutines}
+\hypertarget{Inventory::Hosts_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory::Hosts_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory::Hosts!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory::Hosts_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory::Hosts_SUBROUTINES_METHODS}
+\index{Inventory::Hosts!SUBROUTINES/METHODS}
+\hypertarget{Inventory::Hosts_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory::Hosts_DIAGNOSTICS}
+\index{Inventory::Hosts!DIAGNOSTICS}
+\hypertarget{Inventory::Hosts_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Hosts_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Hosts!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Hosts_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Hosts_DEPENDENCIES}
+\index{Inventory::Hosts!DEPENDENCIES}
+\hypertarget{Inventory::Hosts_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory::Hosts_INCOMPATIBILITIES}
+\index{Inventory::Hosts!INCOMPATIBILITIES}
+\hypertarget{Inventory::Hosts_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Hosts_BUGS_AND_LIMITATIONS}
+\index{Inventory::Hosts!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Hosts_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Hosts_AUTHOR}
+\index{Inventory::Hosts!AUTHOR}
+\hypertarget{Inventory::Hosts_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Hosts_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Hosts!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Hosts_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Interfaces.pm
+%%   File: ./lib/modules/Inventory/Interfaces.pm
+
+
+\section{Inventory\discretionary{::}{Interfaces}{::Interfaces}}
+\label{_Inventory::Interfaces}
+\index{!Inventory::Interfaces}
+\hypertarget{_Inventory::Interfaces}{}
+
+
+
+Networks team inventory module
+
+
+\subsection{VERSION}
+\label{Inventory::Interfaces_VERSION}
+\index{Inventory::Interfaces!VERSION}
+\hypertarget{Inventory::Interfaces_VERSION}{}
+
+
+
+This document describes Inventory::Interfaces version 1.0.2
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Interfaces_SYNOPSIS}
+\index{Inventory::Interfaces!SYNOPSIS}
+\hypertarget{Inventory::Interfaces_SYNOPSIS}{}
+
+
+
+use Inventory::Interfaces;
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Interfaces_DESCRIPTION}
+\index{Inventory::Interfaces!DESCRIPTION}
+\hypertarget{Inventory::Interfaces_DESCRIPTION}{}
+
+
+
+Module to handle the validation, addition, editing and retrieval of interface information in the inventory database
+
+
+\subsection{RETURNS}
+\label{Inventory::Interfaces_RETURNS}
+\index{Inventory::Interfaces!RETURNS}
+\hypertarget{Inventory::Interfaces_RETURNS}{}
+
+
+
+All returns from lists operations are arrays of hashes
+
+
+
+All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+
+
+\subsection{OPTIONS}
+\label{Inventory::Interfaces_OPTIONS}
+\index{Inventory::Interfaces!OPTIONS}
+\hypertarget{Inventory::Interfaces_OPTIONS}{}
+
+
+
+see the subroutines/methods section
+
+
+\subsection{USAGE}
+\label{Inventory::Interfaces_USAGE}
+\index{Inventory::Interfaces!USAGE}
+\hypertarget{Inventory::Interfaces_USAGE}{}
+
+
+
+edit an interface \%message = \%\{ Inventory::Interfaces::edit\_interfaces( \$dbh, $\backslash$\%POSTS ) \};
+
+
+
+create an interface \%message = \%\{ Inventory::Interfaces::create\_interfaces( \$dbh, $\backslash$\%POSTS ) \};
+
+
+
+list all the interfaces (array of hashes) my @interfaces = Inventory::Interfaces::get\_interfaces\_info(\$dbh);
+
+
+\subsection{REQUIRED ARGUEMENTS}
+\label{Inventory::Interfaces_REQUIRED_ARGUEMENTS}
+\index{Inventory::Interfaces!REQUIRED ARGUEMENTS}
+\hypertarget{Inventory::Interfaces_REQUIRED_ARGUEMENTS}{}
+
+
+
+All subroutines require the database handle be passed to them
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory::Interfaces_SUBROUTINES_METHODS}
+\index{Inventory::Interfaces!SUBROUTINES/METHODS}
+\hypertarget{Inventory::Interfaces_SUBROUTINES_METHODS}{}
+
+
+\subsubsection{create\protect\_interfaces( \%form\protect\_data )}
+\label{Inventory::Interfaces_create_interfaces_form_data_}
+\index{Inventory::Interfaces!create\ interfaces( \%form\ data )}
+\hypertarget{Inventory::Interfaces_create_interfaces_form_data_}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  create new entries in the interfaces table
+\end{Verbatim}
+
+
+\subsubsection{edit\protect\_interfaces( \%form\protect\_data )}
+\label{Inventory::Interfaces_edit_interfaces_form_data_}
+\index{Inventory::Interfaces!edit\ interfaces( \%form\ data )}
+\hypertarget{Inventory::Interfaces_edit_interfaces_form_data_}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  edit existing entries in the interfaces table
+\end{Verbatim}
+
+
+\subsubsection{get\protect\_interfaces\protect\_info}
+\label{Inventory::Interfaces_get_interfaces_info}
+\index{Inventory::Interfaces!get\ interfaces\ info}
+\hypertarget{Inventory::Interfaces_get_interfaces_info}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\footnotesize]
+  list existing entries in the interfaces table as an array of hashes
+
+  Call with no extra arguements to list all entries
+  get_interfaces_info( database handle)
+
+  Call with an interface id to get the details of one interface alone
+  get_interfaces_info( database handle, interface_id )
+
+  Call with a host id / ip address combination to retrieve the specific interface
+  get_interfaces_info( database handle, undef, host_id, ipv4/ipv6 address )
+\end{Verbatim}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory::Interfaces_DIAGNOSTICS}
+\index{Inventory::Interfaces!DIAGNOSTICS}
+\hypertarget{Inventory::Interfaces_DIAGNOSTICS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  Errors should be reported back to the user via the web interface
+\end{Verbatim}
+
+
+\subsection{CONFIGURATION}
+\label{Inventory::Interfaces_CONFIGURATION}
+\index{Inventory::Interfaces!CONFIGURATION}
+\hypertarget{Inventory::Interfaces_CONFIGURATION}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Interfaces_DEPENDENCIES}
+\index{Inventory::Interfaces!DEPENDENCIES}
+\hypertarget{Inventory::Interfaces_DEPENDENCIES}{}
+
+
+
+DBI, DBD::Pg, Regexp::Common, NetAddr::IP, Socket
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory::Interfaces_INCOMPATIBILITIES}
+\index{Inventory::Interfaces!INCOMPATIBILITIES}
+\hypertarget{Inventory::Interfaces_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Interfaces_BUGS_AND_LIMITATIONS}
+\index{Inventory::Interfaces!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Interfaces_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Interfaces_AUTHOR}
+\index{Inventory::Interfaces!AUTHOR}
+\hypertarget{Inventory::Interfaces_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Interfaces_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Interfaces!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Interfaces_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Introlemembers.pm
+%%   File: ./lib/modules/Inventory/Introlemembers.pm
+
+
+\section{Inventory\discretionary{::}{Memberships}{::Memberships}}
+\label{_Inventory::Memberships}
+\index{!Inventory::Memberships}
+\hypertarget{_Inventory::Memberships}{}
+
+
+
+Realationships of hosts to hostgroups
+
+
+\subsubsection{VERSION}
+\label{Inventory::Memberships_VERSION}
+\index{Inventory::Memberships!VERSION}
+\hypertarget{Inventory::Memberships_VERSION}{}
+
+
+
+This document describes Inventory::Memberships version 1.0.0
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Memberships_SYNOPSIS}
+\index{Inventory::Memberships!SYNOPSIS}
+\hypertarget{Inventory::Memberships_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory::Memberships;
+  # There are no special setup requirements
+\end{Verbatim}
+
+
+\subsection{PURPOSE}
+\label{Inventory::Memberships_PURPOSE}
+\index{Inventory::Memberships!PURPOSE}
+\hypertarget{Inventory::Memberships_PURPOSE}{}
+
+
+
+If you wish to investigate what groups a host is in: or conversly to discover what hosts are in a hostgroup, then this module assists in that process. A subroutine is procided for each of: creating, editing, listing all entries, and listing summary totals of the relationships.
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Memberships_DESCRIPTION}
+\index{Inventory::Memberships!DESCRIPTION}
+\hypertarget{Inventory::Memberships_DESCRIPTION}{}
+
+
+
+The module aims to hide the tasks of raw SQL queries to the dayabase from wou when performing common tasks which involve the relationhips of hosts to hostgroups in the inventory table.
+
+
+
+The data returned from a query should be generous, as well as the ids of the hosts involothe names, statuses and similar are returned. Each subroutine should also give a descriptive success or failure message.
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Memberships_Main_Subroutines}
+\index{Inventory::Memberships!Main Subroutines}
+\hypertarget{Inventory::Memberships_Main_Subroutines}{}
+
+
+\paragraph*{create\protect\_memberships(\$dbh,\$hashref)}
+\label{Inventory::Memberships_create_memberships_dbh_hashref_}
+\index{Inventory::Memberships!create\ memberships(\$dbh,\$hashref)}
+\hypertarget{Inventory::Memberships_create_memberships_dbh_hashref_}{}
+
+
+
+\$dbh is the database handle for the Inventory Database \$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your \%POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping: \$hash\{'hostgroup\_id'\} \$hash\{'host\_id'\} Other values can exist in the hash without conflict or other issues.
+
+
+
+This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g. \$message\{'SUCCESS'\} = 'Your changes were commited successfully';
+
+
+\paragraph*{edit\protect\_memberships(\$dbh,\$hashref)}
+\label{Inventory::Memberships_edit_memberships_dbh_hashref_}
+\index{Inventory::Memberships!edit\ memberships(\$dbh,\$hashref)}
+\hypertarget{Inventory::Memberships_edit_memberships_dbh_hashref_}{}
+
+
+
+The edit subroutine is very similar to the create in usage, although the purpose can only be to edit. You can't submit an edit on non existant entry to create one.
+
+
+
+\$dbh is the database handle for the Inventory Database \$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your \%POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
+
+
+
+\$hash\{'membership\_id'\} \$hash\{'hostgroup\_id'\} \$hash\{'host\_id'\}
+
+
+\paragraph*{get\protect\_memberships\protect\_info(\$dbh,\$optional\protect\_membershipid)}
+\label{Inventory::Memberships_get_memberships_info_dbh_optional_membershipid_}
+\index{Inventory::Memberships!get\ memberships\ info(\$dbh,\$optional\ membershipid)}
+\hypertarget{Inventory::Memberships_get_memberships_info_dbh_optional_membershipid_}{}
+
+
+
+The information subroutine returns the information for all entries in the form of an array with each array entry being a hash of the values returned for that row.
+
+
+
+Optionally a numerical unique id for the filed you are interested in can be supplied after the database handle. This will return only one specific result. Note that if you pass a (invalid) non numeric id the routine will default back to showing all entries, which might come as a bit of a shock the first time it happens. If you pass a id of the valid format but invalid to the database you'll get no results.
+
+
+
+Note that this specific subroutine does not return the hashed error/success messages of style returned by the the other subroutines in this module. This routine will return data or return null.
+
+
+\paragraph*{count\protect\_memberships(\$dbh,'group' OR 'host')}
+\label{Inventory::Memberships_count_memberships_dbh_group_OR_host_}
+\index{Inventory::Memberships!count\ memberships(\$dbh,'group' OR 'host')}
+\hypertarget{Inventory::Memberships_count_memberships_dbh_group_OR_host_}{}
+
+
+
+This subroutine is actually a wrapper to the call for all get\_memberships\_info, geared towards providing useful summaries of memberships per group or groups per host, depending on the method used to call it.
+
+
+
+If no database handle or arguemnt are given, the subroutine will exit with a hash error message as per the 'create' and 'edit' subroutines in this module.
+
+
+
+If 'group' is specified, the total hosts per group will be returned with totals per status. This gives a group centric summary of the host to hostgroups mappings in a hash of hashes . e.g. using the oxmails group as an example, but remmebering all groups will be returned: \$returned\_hash\{'oxmails'\}\{active\} = 3 \$returned\_hash\{'oxmails'\}\{inactive\} = 9 \$returned\_hash\{'oxmails'\}\{decommissioned\} = 2 \$returned\_hash\{'oxmails'\}\{instock\} = 5 \$returned\_hash\{'oxmails'\}\{\$hostgroup\_id'\} = 123;
+
+
+
+If 'host' is specified, the total group memberships per host will be returned. Eg. a host centric summary of the host to hostgroups mappings. The host centric summary isn't acutally used at the moment, so its not refined to any purpose. If you change it please document it here and discuss with other members of the group.
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Memberships_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Memberships!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Memberships_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Memberships_DEPENDENCIES}
+\index{Inventory::Memberships!DEPENDENCIES}
+\hypertarget{Inventory::Memberships_DEPENDENCIES}{}
+
+
+
+DBI; DBD::Pg; Inventory; Inventory::Hosts; Inventory::Hostgroups;
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Memberships_BUGS_AND_LIMITATIONS}
+\index{Inventory::Memberships!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Memberships_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Memberships_AUTHOR}
+\index{Inventory::Memberships!AUTHOR}
+\hypertarget{Inventory::Memberships_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Memberships_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Memberships!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Memberships_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Introles.pm
+%%   File: ./lib/modules/Inventory/Introles.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Invoices.pm
+%%   File: ./lib/modules/Inventory/Invoices.pm
+
+
+\section{Inventory\discretionary{::}{Invoices}{::Invoices}}
+\label{_Inventory::Invoices}
+\index{!Inventory::Invoices}
+\hypertarget{_Inventory::Invoices}{}
+
+
+
+Manipulate Invoices
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Invoices_BUGS_AND_LIMITATIONS}
+\index{Inventory::Invoices!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Invoices_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Invoices_AUTHOR}
+\index{Inventory::Invoices!AUTHOR}
+\hypertarget{Inventory::Invoices_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Invoices_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Invoices!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Invoices_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Locations.pm
+%%   File: ./lib/modules/Inventory/Locations.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Manufacturers.pm
+%%   File: ./lib/modules/Inventory/Manufacturers.pm
+
+
+\section{Inventory\discretionary{::}{Manufacturers}{::Manufacturers}}
+\label{_Inventory::Manufacturers}
+\index{!Inventory::Manufacturers}
+\hypertarget{_Inventory::Manufacturers}{}
+
+
+
+Information on Manufacturers
+
+
+\subsubsection{VERSION}
+\label{Inventory::Manufacturers_VERSION}
+\index{Inventory::Manufacturers!VERSION}
+\hypertarget{Inventory::Manufacturers_VERSION}{}
+
+
+
+This document describes Inventory::Manufacturers version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Manufacturers_SYNOPSIS}
+\index{Inventory::Manufacturers!SYNOPSIS}
+\hypertarget{Inventory::Manufacturers_SYNOPSIS}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+  use Inventory::Manufacturers qw(create_manufacturers edit_manufacturers show_manufacturers_info);
+  # There are no special setup requirements
+\end{lstlisting}
+
+
+\subsection{PURPOSE}
+\label{Inventory::Manufacturers_PURPOSE}
+\index{Inventory::Manufacturers!PURPOSE}
+\hypertarget{Inventory::Manufacturers_PURPOSE}{}
+
+
+
+If you wish to investigate what manufacturers exist in the database or want to investigate how popular each manufacturer is, then this module assists in that process. A subroutine is provided for each of: creating, editing, listing all entries, and listing summary totals of the relationships.
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Manufacturers_DESCRIPTION}
+\index{Inventory::Manufacturers!DESCRIPTION}
+\hypertarget{Inventory::Manufacturers_DESCRIPTION}{}
+
+
+
+The module aims to hide the tasks of raw SQL queries to the database from wou when performing common tasks which involve the relationhips of manufacturers to models in the inventory table.
+
+
+
+The data returned from a query should be generous, as well as the ids of the hosts involved the names, statuses and similar are returned. Each subroutine should also give a descriptive success or failure message.
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Manufacturers_Main_Subroutines}
+\index{Inventory::Manufacturers!Main Subroutines}
+\hypertarget{Inventory::Manufacturers_Main_Subroutines}{}
+
+
+\paragraph*{create\protect\_manufacturers(\$dbh,\$hashref)}
+\label{Inventory::Manufacturers_create_manufacturers_dbh_hashref_}
+\index{Inventory::Manufacturers!create\ manufacturers(\$dbh,\$hashref)}
+\hypertarget{Inventory::Manufacturers_create_manufacturers_dbh_hashref_}{}
+
+
+
+\$dbh is the database handle for the Inventory Database
+
+
+
+This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g. \$message\{'SUCCESS'\} = 'Your changes were commited successfully';
+
+
+\paragraph*{edit\protect\_manufacturers(\$dbh,\$hashref) =head3 list\protect\_manufacturers\protect\_info(\$dbh,\$optional\protect\_manufacturersid) =head3 create\protect\_manufacturers(\$dbh,\$hashref) =head3 count\protect\_hosts\protect\_permanufacturer(\$dbh) =head3 count\protect\_models\protect\_permanufacturer(\$dbh)}
+\label{Inventory::Manufacturers_edit_manufacturers_dbh_hashref_head3_list_manufacturers_info_dbh_optional_manufacturersid_head3_create_manufacturers_dbh_hashref_head3_count_hosts_permanufacturer_dbh_head3_count_models_permanufacturer_dbh_}
+\index{Inventory::Manufacturers!edit\ manufacturers(\$dbh,\$hashref) =head3 list\ manufacturers\ info(\$dbh,\$optional\ manufacturersid) =head3 create\ manufacturers(\$dbh,\$hashref) =head3 count\ hosts\ permanufacturer(\$dbh) =head3 count\ models\ permanufacturer(\$dbh)}
+\hypertarget{Inventory::Manufacturers_edit_manufacturers_dbh_hashref_head3_list_manufacturers_info_dbh_optional_manufacturersid_head3_create_manufacturers_dbh_hashref_head3_count_hosts_permanufacturer_dbh_head3_count_models_permanufacturer_dbh_}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Manufacturers_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Manufacturers!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Manufacturers_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Manufacturers_DEPENDENCIES}
+\index{Inventory::Manufacturers!DEPENDENCIES}
+\hypertarget{Inventory::Manufacturers_DEPENDENCIES}{}
+
+
+
+DBI; DBD::Pg; Inventory; Inventory::Hosts; Inventory::Models;
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Manufacturers_BUGS_AND_LIMITATIONS}
+\index{Inventory::Manufacturers!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Manufacturers_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Manufacturers_AUTHOR}
+\index{Inventory::Manufacturers!AUTHOR}
+\hypertarget{Inventory::Manufacturers_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Manufacturers_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Manufacturers!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Manufacturers_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Memberships.pm
+%%   File: ./lib/modules/Inventory/Memberships.pm
+
+
+\section{Inventory\discretionary{::}{Memberships}{::Memberships}}
+\label{_Inventory::Memberships}
+\index{!Inventory::Memberships}
+\hypertarget{_Inventory::Memberships}{}
+
+
+
+Realationships of hosts to hostgroups
+
+
+\subsubsection{VERSION}
+\label{Inventory::Memberships_VERSION}
+\index{Inventory::Memberships!VERSION}
+\hypertarget{Inventory::Memberships_VERSION}{}
+
+
+
+This document describes Inventory::Memberships version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Memberships_SYNOPSIS}
+\index{Inventory::Memberships!SYNOPSIS}
+\hypertarget{Inventory::Memberships_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory::Memberships;
+  # There are no special setup requirements
+\end{Verbatim}
+
+
+\subsection{PURPOSE}
+\label{Inventory::Memberships_PURPOSE}
+\index{Inventory::Memberships!PURPOSE}
+\hypertarget{Inventory::Memberships_PURPOSE}{}
+
+
+
+If you wish to investigate what groups a host is in: or conversly to discover what hosts are in a hostgroup, then this module assists in that process. A subroutine is procided for each of: creating, editing, listing all entries, and listing summary totals of the relationships.
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Memberships_DESCRIPTION}
+\index{Inventory::Memberships!DESCRIPTION}
+\hypertarget{Inventory::Memberships_DESCRIPTION}{}
+
+
+
+The module aims to hide the tasks of raw SQL queries to the dayabase from wou when performing common tasks which involve the relationhips of hosts to hostgroups in the inventory table.
+
+
+
+The data returned from a query should be generous, as well as the ids of the hosts involothe names, statuses and similar are returned. Each subroutine should also give a descriptive success or failure message.
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Memberships_Main_Subroutines}
+\index{Inventory::Memberships!Main Subroutines}
+\hypertarget{Inventory::Memberships_Main_Subroutines}{}
+
+
+\paragraph*{create\protect\_memberships(\$dbh,\$hashref)}
+\label{Inventory::Memberships_create_memberships_dbh_hashref_}
+\index{Inventory::Memberships!create\ memberships(\$dbh,\$hashref)}
+\hypertarget{Inventory::Memberships_create_memberships_dbh_hashref_}{}
+
+
+
+\$dbh is the database handle for the Inventory Database \$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your \%POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping: \$hash\{'hostgroup\_id'\} \$hash\{'host\_id'\} Other values can exist in the hash without conflict or other issues.
+
+
+
+This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g. \$message\{'SUCCESS'\} = 'Your changes were commited successfully';
+
+
+\paragraph*{edit\protect\_memberships(\$dbh,\$hashref)}
+\label{Inventory::Memberships_edit_memberships_dbh_hashref_}
+\index{Inventory::Memberships!edit\ memberships(\$dbh,\$hashref)}
+\hypertarget{Inventory::Memberships_edit_memberships_dbh_hashref_}{}
+
+
+
+The edit subroutine is very similar to the create in usage, although the purpose can only be to edit. You can't submit an edit on non existant entry to create one.
+
+
+
+\$dbh is the database handle for the Inventory Database \$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your \%POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
+
+
+
+\$hash\{'membership\_id'\} \$hash\{'hostgroup\_id'\} \$hash\{'host\_id'\}
+
+
+\paragraph*{get\protect\_memberships\protect\_info(\$dbh,\$optional\protect\_membershipid)}
+\label{Inventory::Memberships_get_memberships_info_dbh_optional_membershipid_}
+\index{Inventory::Memberships!get\ memberships\ info(\$dbh,\$optional\ membershipid)}
+\hypertarget{Inventory::Memberships_get_memberships_info_dbh_optional_membershipid_}{}
+
+
+
+The information subroutine returns the information for all entries in the form of an array with each array entry being a hash of the values returned for that row.
+
+
+
+Optionally a numerical unique id for the filed you are interested in can be supplied after the database handle. This will return only one specific result. Note that if you pass a (invalid) non numeric id the routine will default back to showing all entries, which might come as a bit of a shock the first time it happens. If you pass a id of the valid format but invalid to the database you'll get no results.
+
+
+
+Note that this specific subroutine does not return the hashed error/success messages of style returned by the the other subroutines in this module. This routine will return data or return null.
+
+
+\paragraph*{count\protect\_memberships(\$dbh,'group' OR 'host')}
+\label{Inventory::Memberships_count_memberships_dbh_group_OR_host_}
+\index{Inventory::Memberships!count\ memberships(\$dbh,'group' OR 'host')}
+\hypertarget{Inventory::Memberships_count_memberships_dbh_group_OR_host_}{}
+
+
+
+This subroutine is actually a wrapper to the call for all get\_memberships\_info, geared towards providing useful summaries of memberships per group or groups per host, depending on the method used to call it.
+
+
+
+If no database handle or arguemnt are given, the subroutine will exit with a hash error message as per the 'create' and 'edit' subroutines in this module.
+
+
+
+If 'group' is specified, the total hosts per group will be returned with totals per status. This gives a group centric summary of the host to hostgroups mappings in a hash of hashes . e.g. using the oxmails group as an example, but remmebering all groups will be returned: \$returned\_hash\{'oxmails'\}\{active\} = 3 \$returned\_hash\{'oxmails'\}\{inactive\} = 9 \$returned\_hash\{'oxmails'\}\{decommissioned\} = 2 \$returned\_hash\{'oxmails'\}\{instock\} = 5 \$returned\_hash\{'oxmails'\}\{\$hostgroup\_id'\} = 123;
+
+
+
+If 'host' is specified, the total group memberships per host will be returned. Eg. a host centric summary of the host to hostgroups mappings. The host centric summary isn't acutally used at the moment, so its not refined to any purpose. If you change it please document it here and discuss with other members of the group.
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Memberships_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Memberships!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Memberships_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Memberships_DEPENDENCIES}
+\index{Inventory::Memberships!DEPENDENCIES}
+\hypertarget{Inventory::Memberships_DEPENDENCIES}{}
+
+
+
+DBI; DBD::Pg; Inventory; Inventory::Hosts; Inventory::Hostgroups;
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Memberships_BUGS_AND_LIMITATIONS}
+\index{Inventory::Memberships!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Memberships_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+
+As mentioned in the relevant section, the host centric calling method of count\_memberships() is provided but not used at this time and so might need further development.
+
+
+\subsection{AUTHOR}
+\label{Inventory::Memberships_AUTHOR}
+\index{Inventory::Memberships!AUTHOR}
+\hypertarget{Inventory::Memberships_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Memberships_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Memberships!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Memberships_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Models.pm
+%%   File: ./lib/modules/Inventory/Models.pm
+
+
+\section{Inventory\discretionary{::}{Models}{::Models}}
+\label{_Inventory::Models}
+\index{!Inventory::Models}
+\hypertarget{_Inventory::Models}{}
+
+
+
+Information on Models
+
+
+\subsubsection{VERSION}
+\label{Inventory::Models_VERSION}
+\index{Inventory::Models!VERSION}
+\hypertarget{Inventory::Models_VERSION}{}
+
+
+
+This document describes Inventory::Models version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Models_SYNOPSIS}
+\index{Inventory::Models!SYNOPSIS}
+\hypertarget{Inventory::Models_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\scriptsize]
+  use Inventory::Models qw(create_models edit_models show_models_info count_hosts_permodel);
+  # There are no special setup requirements
+\end{Verbatim}
+
+
+\subsection{PURPOSE}
+\label{Inventory::Models_PURPOSE}
+\index{Inventory::Models!PURPOSE}
+\hypertarget{Inventory::Models_PURPOSE}{}
+
+
+
+If you wish to investigate what models exist in the database or want to investigate how popular each model is, then this module assists in that process. A subroutine is provided for each of: creating, editing, listing all entries, and listing summary totals of the relationships.
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Models_DESCRIPTION}
+\index{Inventory::Models!DESCRIPTION}
+\hypertarget{Inventory::Models_DESCRIPTION}{}
+
+
+
+The module aims to hide the tasks of raw SQL queries to the database from wou when performing common tasks which involve the relationhips of models to hosts in the inventory table.
+
+
+
+The data returned from a query should be generous, as well as the ids of the models involved the names, statuses and similar are available. Each subroutine should also give a descriptive success or failure message.
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Models_Main_Subroutines}
+\index{Inventory::Models!Main Subroutines}
+\hypertarget{Inventory::Models_Main_Subroutines}{}
+
+
+\paragraph*{create\protect\_models(\$dbh,\$hashref)}
+\label{Inventory::Models_create_models_dbh_hashref_}
+\index{Inventory::Models!create\ models(\$dbh,\$hashref)}
+\hypertarget{Inventory::Models_create_models_dbh_hashref_}{}
+
+
+
+\$dbh is the database handle for the Inventory Database
+
+
+
+This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g. \$message\{'SUCCESS'\} = 'Your changes were commited successfully';
+
+
+\paragraph*{edit\protect\_models(\$dbh,\$hashref) =head3 list\protect\_models\protect\_info(\$dbh,\$optional\protect\_manufacturersid) =head3 count\protect\_hosts\protect\_permodel(\$dbh)}
+\label{Inventory::Models_edit_models_dbh_hashref_head3_list_models_info_dbh_optional_manufacturersid_head3_count_hosts_permodel_dbh_}
+\index{Inventory::Models!edit\ models(\$dbh,\$hashref) =head3 list\ models\ info(\$dbh,\$optional\ manufacturersid) =head3 count\ hosts\ permodel(\$dbh)}
+\hypertarget{Inventory::Models_edit_models_dbh_hashref_head3_list_models_info_dbh_optional_manufacturersid_head3_count_hosts_permodel_dbh_}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Models_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Models!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Models_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Models_DEPENDENCIES}
+\index{Inventory::Models!DEPENDENCIES}
+\hypertarget{Inventory::Models_DEPENDENCIES}{}
+
+
+
+DBI; DBD::Pg; Inventory; Inventory::Hosts;
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory::Models_INCOMPATIBILITIES}
+\index{Inventory::Models!INCOMPATIBILITIES}
+\hypertarget{Inventory::Models_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Models_BUGS_AND_LIMITATIONS}
+\index{Inventory::Models!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Models_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory::Models_AUTHOR}
+\index{Inventory::Models!AUTHOR}
+\hypertarget{Inventory::Models_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Models_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Models!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Models_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Op2devices.pm
+%%   File: ./lib/modules/Inventory/Op2devices.pm
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Photos.pm
+%%   File: ./lib/modules/Inventory/Photos.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Servicegroups.pm
+%%   File: ./lib/modules/Inventory/Servicegroups.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Sshkeys.pm
+%%   File: ./lib/modules/Inventory/Sshkeys.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Status.pm
+%%   File: ./lib/modules/Inventory/Status.pm
+
+
+\section{Inventory}
+\label{_Inventory}
+\index{!Inventory}
+\hypertarget{_Inventory}{}
+
+
+
+Networks team inventory module
+
+
+\subsubsection{VERSION}
+\label{Inventory_VERSION}
+\index{Inventory!VERSION}
+\hypertarget{Inventory_VERSION}{}
+
+
+
+This document describes Inventory version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory_SYNOPSIS}
+\index{Inventory!SYNOPSIS}
+\hypertarget{Inventory_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory;
+\end{Verbatim}
+
+
+\subsection{DESCRIPTION}
+\label{Inventory_DESCRIPTION}
+\index{Inventory!DESCRIPTION}
+\hypertarget{Inventory_DESCRIPTION}{}
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory_Main_Subroutines}
+\index{Inventory!Main Subroutines}
+\hypertarget{Inventory_Main_Subroutines}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+ The main abilities are:
+  - create new types of entry in a table
+  - edit existing entries in a table
+  - list existing entries
+\end{Verbatim}
+
+
+\subsubsection{Returns All returns from lists are arrays of hashes}
+\label{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}
+\index{Inventory!Returns All returns from lists are arrays of hashes}
+\hypertarget{Inventory_Returns_All_returns_from_lists_are_arrays_of_hashes}{}
+
+
+\begin{lstlisting}[frame=lines,gobble=1]
+ All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+\end{lstlisting}
+
+
+\subsection{SUBROUTINES/METHODS}
+\label{Inventory_SUBROUTINES_METHODS}
+\index{Inventory!SUBROUTINES/METHODS}
+\hypertarget{Inventory_SUBROUTINES_METHODS}{}
+
+
+\subsection{DIAGNOSTICS}
+\label{Inventory_DIAGNOSTICS}
+\index{Inventory!DIAGNOSTICS}
+\hypertarget{Inventory_DIAGNOSTICS}{}
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory_DEPENDENCIES}
+\index{Inventory!DEPENDENCIES}
+\hypertarget{Inventory_DEPENDENCIES}{}
+
+
+
+Since I'm talking to a postgres database DBI DBD::Pg
+
+
+
+...and for sanity/consistency... Regexp::Common
+
+
+\subsection{INCOMPATIBILITIES}
+\label{Inventory_INCOMPATIBILITIES}
+\index{Inventory!INCOMPATIBILITIES}
+\hypertarget{Inventory_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory_BUGS_AND_LIMITATIONS}
+\index{Inventory!BUGS AND LIMITATIONS}
+\hypertarget{Inventory_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{AUTHOR}
+\label{Inventory_AUTHOR}
+\index{Inventory!AUTHOR}
+\hypertarget{Inventory_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory_LICENSE_AND_COPYRIGHT}
+\index{Inventory!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Suppliers.pm
+%%   File: ./lib/modules/Inventory/Suppliers.pm
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  lib/modules/Inventory/Ups.pm
+%%   File: ./lib/modules/Inventory/Ups.pm
+
+
+\section{Inventory\discretionary{::}{Memberships}{::Memberships}}
+\label{_Inventory::Memberships}
+\index{!Inventory::Memberships}
+\hypertarget{_Inventory::Memberships}{}
+
+
+
+Realationships of hosts to hostgroups
+
+
+\subsubsection{VERSION}
+\label{Inventory::Memberships_VERSION}
+\index{Inventory::Memberships!VERSION}
+\hypertarget{Inventory::Memberships_VERSION}{}
+
+
+
+This document describes Inventory::Memberships version 0.0.1
+
+
+\subsection{SYNOPSIS}
+\label{Inventory::Memberships_SYNOPSIS}
+\index{Inventory::Memberships!SYNOPSIS}
+\hypertarget{Inventory::Memberships_SYNOPSIS}{}
+
+
+\begin{Verbatim}[fontfamily=courier,gobble=1,frame=lines,fontsize=\small]
+  use Inventory::Memberships;
+  # There are no special setup requirements
+\end{Verbatim}
+
+
+\subsection{PURPOSE}
+\label{Inventory::Memberships_PURPOSE}
+\index{Inventory::Memberships!PURPOSE}
+\hypertarget{Inventory::Memberships_PURPOSE}{}
+
+
+
+If you wish to investigate what groups a host is in: or conversly to discover what hosts are in a hostgroup, then this module assists in that process. A subroutine is procided for each of: creating, editing, listing all entries, and listing summary totals of the relationships.
+
+
+\subsection{DESCRIPTION}
+\label{Inventory::Memberships_DESCRIPTION}
+\index{Inventory::Memberships!DESCRIPTION}
+\hypertarget{Inventory::Memberships_DESCRIPTION}{}
+
+
+
+The module aims to hide the tasks of raw SQL queries to the dayabase from wou when performing common tasks which involve the relationhips of hosts to hostgroups in the inventory table.
+
+
+
+The data returned from a query should be generous, as well as the ids of the hosts involothe names, statuses and similar are returned. Each subroutine should also give a descriptive success or failure message.
+
+
+\subsubsection{Main Subroutines}
+\label{Inventory::Memberships_Main_Subroutines}
+\index{Inventory::Memberships!Main Subroutines}
+\hypertarget{Inventory::Memberships_Main_Subroutines}{}
+
+
+\paragraph*{create\protect\_memberships(\$dbh,\$hashref)}
+\label{Inventory::Memberships_create_memberships_dbh_hashref_}
+\index{Inventory::Memberships!create\ memberships(\$dbh,\$hashref)}
+\hypertarget{Inventory::Memberships_create_memberships_dbh_hashref_}{}
+
+
+
+\$dbh is the database handle for the Inventory Database \$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your \%POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping: \$hash\{'hostgroup\_id'\} \$hash\{'host\_id'\} Other values can exist in the hash without conflict or other issues.
+
+
+
+This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g. \$message\{'SUCCESS'\} = 'Your UPS changes were commited successfully';
+
+
+\paragraph*{edit\protect\_memberships(\$dbh,\$hashref)}
+\label{Inventory::Memberships_edit_memberships_dbh_hashref_}
+\index{Inventory::Memberships!edit\ memberships(\$dbh,\$hashref)}
+\hypertarget{Inventory::Memberships_edit_memberships_dbh_hashref_}{}
+
+
+
+The edit subroutine is very similar to the create in usage, although the purpose can only be to edit. You can't submit an edit on non existant entry to create one.
+
+
+
+\$dbh is the database handle for the Inventory Database \$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your \%POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
+
+
+
+\$hash\{'membership\_id'\} \$hash\{'hostgroup\_id'\} \$hash\{'host\_id'\}
+
+
+\paragraph*{get\protect\_memberships\protect\_info(\$dbh,\$optional\protect\_membershipid)}
+\label{Inventory::Memberships_get_memberships_info_dbh_optional_membershipid_}
+\index{Inventory::Memberships!get\ memberships\ info(\$dbh,\$optional\ membershipid)}
+\hypertarget{Inventory::Memberships_get_memberships_info_dbh_optional_membershipid_}{}
+
+
+
+The information subroutine returns the information for all entries in the form of an array with each array entry being a hash of the values returned for that row.
+
+
+
+Optionally a numerical unique id for the filed you are interested in can be supplied after the database handle. This will return only one specific result. Note that if you pass a (invalid) non numeric id the routine will default back to showing all entries, which might come as a bit of a shock the first time it happens. If you pass a id of the valid format but invalid to the database you'll get no results.
+
+
+
+Note that this specific subroutine does not return the hashed error/success messages of style returned by the the other subroutines in this module. This routine will return data or return null.
+
+
+\paragraph*{count\protect\_memberships(\$dbh,'group' OR 'host')}
+\label{Inventory::Memberships_count_memberships_dbh_group_OR_host_}
+\index{Inventory::Memberships!count\ memberships(\$dbh,'group' OR 'host')}
+\hypertarget{Inventory::Memberships_count_memberships_dbh_group_OR_host_}{}
+
+
+
+This subroutine is actually a wrapper to the call for all get\_memberships\_info, geared towards providing useful summaries of memberships per group or groups per host, depending on the method used to call it.
+
+
+
+If no database handle or arguemnt are given, the subroutine will exit with a hash error message as per the 'create' and 'edit' subroutines in this module.
+
+
+
+If 'group' is specified, the total hosts per group will be returned with totals per status. This gives a group centric summary of the host to hostgroups mappings in a hash of hashes . e.g. using the oxmails group as an example, but remmebering all groups will be returned: \$returned\_hash\{'oxmails'\}\{active\} = 3 \$returned\_hash\{'oxmails'\}\{inactive\} = 9 \$returned\_hash\{'oxmails'\}\{decommissioned\} = 2 \$returned\_hash\{'oxmails'\}\{instock\} = 5 \$returned\_hash\{'oxmails'\}\{\$hostgroup\_id'\} = 123;
+
+
+
+If 'host' is specified, the total group memberships per host will be returned. Eg. a host centric summary of the host to hostgroups mappings. The host centric summary isn't acutally used at the moment, so its not refined to any purpose. If you change it please document it here and discuss with other members of the group.
+
+
+\subsection{CONFIGURATION AND ENVIRONMENT}
+\label{Inventory::Memberships_CONFIGURATION_AND_ENVIRONMENT}
+\index{Inventory::Memberships!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{Inventory::Memberships_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+
+
+\subsection{DEPENDENCIES}
+\label{Inventory::Memberships_DEPENDENCIES}
+\index{Inventory::Memberships!DEPENDENCIES}
+\hypertarget{Inventory::Memberships_DEPENDENCIES}{}
+
+
+
+DBI; DBD::Pg; Inventory; Inventory::Hosts; Inventory::Hostgroups;
+
+
+\subsection{BUGS AND LIMITATIONS}
+\label{Inventory::Memberships_BUGS_AND_LIMITATIONS}
+\index{Inventory::Memberships!BUGS AND LIMITATIONS}
+\hypertarget{Inventory::Memberships_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+
+As mentioned in the relevant section, the host centric calling method of count\_memberships() is provided but not used at this time and so might need further development.
+
+
+\subsection{AUTHOR}
+\label{Inventory::Memberships_AUTHOR}
+\index{Inventory::Memberships!AUTHOR}
+\hypertarget{Inventory::Memberships_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\subsection{LICENSE AND COPYRIGHT}
+\label{Inventory::Memberships_LICENSE_AND_COPYRIGHT}
+\index{Inventory::Memberships!LICENSE AND COPYRIGHT}
+\hypertarget{Inventory::Memberships_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+
+\part{Scripts}
+
+
+%%   POD:  cgi-bin/about
+%%   File: ./cgi-bin/about
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/admin
+%%   File: ./cgi-bin/admin
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/bashrc
+%%   File: ./cgi-bin/bashrc
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+configuration via /srv/www/\$HOSTNAME/lib/inventory.ini
+
+
+
+where \$HOSTNMAE is the name of the web host the page is being served from (e.g. 'comms')
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/cnames
+%%   File: ./cgi-bin/cnames
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+It was never intended that the inventory would be a dns configuration tool
+
+
+
+Sadly at the very end of the inventory implementation it became apparent that the DNS used the exiting database to generate the frodo zones. The Inventory was designed to rely upon DNS. This page was designed to break the cuircular dependancy but it will never be anything other than an afterthought
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages should be reported to the user via the web interface
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+via /srv/www/\$HOSTNAME/lib/inventory.ini
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/contacts
+%%   File: ./cgi-bin/contacts
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Lets the user view and edit the list of hardware contacts that the inventory database knows about
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/contracts
+%%   File: ./cgi-bin/contracts
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Lets the user view and edit the list of hardware contracts that the inventory database knows about
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/edithost
+%%   File: ./cgi-bin/edithost
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+The page which allows someone to lookup all details for certain hosts, using various possible searchterms
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+/srv/www/\$HOSTNAME/lib/inventory.ini
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{EXIT STATUS}
+\label{_EXIT_STATUS}
+\index{!EXIT STATUS}
+\hypertarget{_EXIT_STATUS}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/evil-frodo
+%%   File: ./cgi-bin/evil-frodo
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Main frodo project overview that ITSS will see
+
+
+
+This generates the frodo project overview page hosted on evil
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+/home/networks/inventory.ini
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/finance
+%%   File: ./cgi-bin/finance
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Lets the user view and edit the list of hardware invoices that the inventory database knows about
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/frodo
+%%   File: ./cgi-bin/frodo
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Creates the frodo overview page for the inventory, with links to various tools
+
+
+
+Note that this is subtly different to the evil-frodo page. It may be possible to combine the two sets of code at some point.
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/hostgroups
+%%   File: ./cgi-bin/hostgroups
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/hosts
+%%   File: ./cgi-bin/hosts
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/index
+%%   File: ./cgi-bin/index
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/interfaces
+%%   File: ./cgi-bin/interfaces
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+(c) University of Oxford
+
+
+
+\_\_END\_\_
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/introlemembers
+%%   File: ./cgi-bin/introlemembers
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/introles
+%%   File: ./cgi-bin/introles
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/invoices
+%%   File: ./cgi-bin/invoices
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Lets the user view and edit the list of hardware invoices that the inventory database knows about
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/locations
+%%   File: ./cgi-bin/locations
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/manufacturers
+%%   File: ./cgi-bin/manufacturers
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/memberships
+%%   File: ./cgi-bin/memberships
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/models
+%%   File: ./cgi-bin/models
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Lets the user view and edit the list of hardware models that the inventory database knows about
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/photos
+%%   File: ./cgi-bin/photos
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/problems_interfaces
+%%   File: ./cgi-bin/problems_interfaces
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to production version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/quickcnames
+%%   File: ./cgi-bin/quickcnames
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+It was never intended that the inventory would be a dns configuration tool
+
+
+
+Sadly at the very end of the inventory implementation it became apparent that the DNS used the exiting database to generate the frodo zones. The Inventory was designed to rely upon DNS. This page was designed to break the cuircular dependancy but it will never be anything other than an afterthought
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages should be reported to the user via the web interface
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+via /srv/www/\$HOSTNAME/lib/inventory.ini
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/servicegroups
+%%   File: ./cgi-bin/servicegroups
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/sshkeys
+%%   File: ./cgi-bin/sshkeys
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/status
+%%   File: ./cgi-bin/status
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/suppliers
+%%   File: ./cgi-bin/suppliers
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+Lets the user view and edit the list of hardware suppliers that the inventory database knows about
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/ups
+%%   File: ./cgi-bin/ups
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION AND ENVIRONMENT}
+\label{_CONFIGURATION_AND_ENVIRONMENT}
+\index{!CONFIGURATION AND ENVIRONMENT}
+\hypertarget{_CONFIGURATION_AND_ENVIRONMENT}{}
+
+
+
+Configuration files used?
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+
+%%   POD:  cgi-bin/viewhost
+%%   File: ./cgi-bin/viewhost
+
+
+\section{VERSION}
+\label{_VERSION}
+\index{!VERSION}
+\hypertarget{_VERSION}{}
+
+
+
+This documentation refers to version 1.0.0
+
+
+\section{USAGE}
+\label{_USAGE}
+\index{!USAGE}
+\hypertarget{_USAGE}{}
+
+
+\section{REQUIRED ARGUMENTS}
+\label{_REQUIRED_ARGUMENTS}
+\index{!REQUIRED ARGUMENTS}
+\hypertarget{_REQUIRED_ARGUMENTS}{}
+
+
+\section{OPTIONS}
+\label{_OPTIONS}
+\index{!OPTIONS}
+\hypertarget{_OPTIONS}{}
+
+
+\section{DESCRIPTION}
+\label{_DESCRIPTION}
+\index{!DESCRIPTION}
+\hypertarget{_DESCRIPTION}{}
+
+
+
+The page which allows someone to lookup all details for certain hosts, using various possible searchterms
+
+
+\section{DIAGNOSTICS}
+\label{_DIAGNOSTICS}
+\index{!DIAGNOSTICS}
+\hypertarget{_DIAGNOSTICS}{}
+
+
+
+error messages
+
+
+\section{CONFIGURATION}
+\label{_CONFIGURATION}
+\index{!CONFIGURATION}
+\hypertarget{_CONFIGURATION}{}
+
+
+
+/srv/www/\$HOSTNAME/lib/inventory.ini
+
+
+\section{DEPENDENCIES}
+\label{_DEPENDENCIES}
+\index{!DEPENDENCIES}
+\hypertarget{_DEPENDENCIES}{}
+
+
+\section{EXIT STATUS}
+\label{_EXIT_STATUS}
+\index{!EXIT STATUS}
+\hypertarget{_EXIT_STATUS}{}
+
+
+\section{INCOMPATIBILITIES}
+\label{_INCOMPATIBILITIES}
+\index{!INCOMPATIBILITIES}
+\hypertarget{_INCOMPATIBILITIES}{}
+
+
+
+none known
+
+
+\section{BUGS AND LIMITATIONS}
+\label{_BUGS_AND_LIMITATIONS}
+\index{!BUGS AND LIMITATIONS}
+\hypertarget{_BUGS_AND_LIMITATIONS}{}
+
+
+
+Report any found to $<$guyjohnedwards@gmail.com$>$
+
+
+\section{AUTHOR}
+\label{_AUTHOR}
+\index{!AUTHOR}
+\hypertarget{_AUTHOR}{}
+
+
+
+Guy Edwards, maintained by $<$guyjohnedwards@gmail.com$>$
+
+
+\section{LICENSE AND COPYRIGHT}
+\label{_LICENSE_AND_COPYRIGHT}
+\index{!LICENSE AND COPYRIGHT}
+\hypertarget{_LICENSE_AND_COPYRIGHT}{}
+
+
+
+Network Device Inventory - keep a database of devices to feed other systems (such as monitoring software). Copyright 2007 University of Oxford
+
+
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+The University of Oxford disclaims all copyright interest in the program `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of Oxford University Computer Services.
+
+
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming also disclaims all copyright interest in the program.
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{\numberline{}Index}
+\printindex
+\end{document}
