@@ -1,103 +1,108 @@
 #!/usr/bin/perl
 #
 # Name: Cnames.pm.t
-# Creator: auto
-# Created: 2009-06-11
+# Created: 2012-02-27
+# Author: Guy Edwards
+# Description: Tests specific to Cnames.pm
 
-# Description: Auto generated basic uncustomised test file
-#
-# $Id: Cnames.pm.t 3523 2012-02-06 12:23:54Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 12:23:54 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3523 $
-# $uid: sB2wYFK8PcmR6yWfnnD06wgF5ySSAy6F8I_0eWhUjSS7y $
-#
- use strict;
- use warnings FATAL => 'all';
+use strict;
+use warnings FATAL => 'all';
 
- use Test::More 'no_plan'; # replace with tests => n when ready
- use Test::GlassBox::Heavy qw(load_subs);
- use Test::Pod;
-use Test::Pod::Coverage;
-use Test::Pod::Coverage;
+###############################################
+#                    config                   #
+###############################################
 
+use Test::More 'no_plan'; # replace with tests => n when ready
 
- ###############################################
- #                    config                   #
- ###############################################
- my $testfile=$0;
- $testfile=~ s/\.t$//;
+###############################################
+#                    tests                    #
+###############################################
 
- # load_subs( $testfile, 'testing_namespace' );
- ###############################################
- #                    tests                    #
- ###############################################
-
-my $result1   = `/usr/bin/perl -c -T $testfile 2>&1`;
-chomp $result1;
-my $expected1 = "$testfile syntax OK";
 is( $result1,
  $expected1,
  'Script passes a basic perl -c -T'
 );
 
+# host_id needs to be a known value of a live host
 #
-# $result  = testing_namespace::internal_checkinput();
-# $exected = "";
-# is( $result,
-# $expected,
-# 'Testing the subroutine internal_checkinput with 0 arguements'
-# );
+my %testentry = (
+     host_id   => '191',
+     shortname => 'inventorytestcreate-123',
+     dnsname   => 'inventorytestcreate',
+);
 
-#
-# $result  = testing_namespace::create_cnames();
-# $exected = "";
-# is( $result,
-# $expected,
-# 'Testing the subroutine create_cnames with 0 arguements'
-# );
+my %testentry2 = (
+     host_id   => '162',
+     shortname => 'inventorytestcreate-234',
+     dnsname   => 'inventorytestcreate',
+);
 
-#
-# $result  = testing_namespace::create_cnames( fooarg);
-# $exected = "";
-# is( $result,
-# $expected,
-# 'Testing the subroutine create_cnames with 1 arguements'
-# );
 
-#
-# $result  = testing_namespace::edit_cnames();
-# $exected = "";
-# is( $result,
-# $expected,
-# 'Testing the subroutine edit_cnames with 0 arguements'
-# );
+my %testedit = (
+   cname_id => ,
+   host_id => '191',
+   shortname => 'inventorytestedit-123',
+   dnsname => 'inventorytestedit',
+);
 
-#
-# $result  = testing_namespace::edit_cnames( fooarg);
-# $exected = "";
-# is( $result,
-# $expected,
-# 'Testing the subroutine edit_cnames with 1 arguements'
-# );
 
- Test::Pod::pod_file_ok( $testfile, 'Valid POD file' );
+# 1. Test creation of a record
+Inventory::Cnames::create_cnames( $dbh, %testentry );
+my @results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
 
-# pod_coverage_ok( 'Foo::Bar', 'Foo::Bar is covered' );
+is( $results[0]{shortname}, $testentry{shortname}, 
+                    'create_cnames shortname creation ok' );
+is( $results[0]{host_id},   $testentry{host_id},   
+                    'create_cnames host_id creation ok' );
+is( $results[0]{dnsname}, $testentry{dnsname}, 
+                    'create_cnames dnsname creation ok' );
 
-# $result=`perlcritic -4 /home/networks/subversion/networks/src/local/www/inventory/lib/modules/Inventory/Cnames.pm`
-# chomp /home/networks/subversion/networks/src/local/www/inventory/lib/modules/Inventory/Cnames.pm
-# $exected = "/home/networks/subversion/networks/src/local/www/inventory/lib/modules/Inventory/Cnames.pm source OK";
-# is( $result,
-# $expected,
-# 'The script passes percritic level 4 without issue'
-# );
+# 2. Test editing that record
+Inventory::Cnames::edit_cnames ($dbh, %testedit);
+my @edit_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
 
-# $result=`perlcritic -5 /home/networks/subversion/networks/src/local/www/inventory/lib/modules/Inventory/Cnames.pm`
-# chomp /home/networks/subversion/networks/src/local/www/inventory/lib/modules/Inventory/Cnames.pm
-# $exected = "/home/networks/subversion/networks/src/local/www/inventory/lib/modules/Inventory/Cnames.pm source OK";
-# is( $result,
-# $expected,
-# 'The script passes percritic level 5 without issue'
-# );
+is( $edit_results[0]{shortname}, $testedit{shortname}, 
+                    'edit_cnames shortname edit ok' );
+is( $edit_results[0]{host_id},   $testedit{host_id},   
+                    'edit_cnames host_id edit ok' );
+is( $edit_results[0]{dnsname}, $testedit{dnsname}, 
+                    'edit_cnames dnsname edit ok' );
+
+# 3. Test deleting that record
+Inventory::cnames::delete_cname( $dbh, $cname_id );
+my @edit_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
+is(scalar @edit_results, 0, 'delete_cname entry deletion ok')
+
+# 4. Test creation via shortname route 
+Inventory::Cnames::create_shortcname ( $dbh, %testentry );
+my @short_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ); };
+
+is( $short_results[0]{shortname}, $testentry{shortname}, 
+                    'create_shortcnames shortname creation ok' );
+is( $short_results[0]{host_id},   $testentry{host_id},   
+                    'create_shortcnames host_id creation ok' );
+is( $short_results[0]{dnsname}, $testentry{dnsname}, 
+                    'create_shortcnames dnsname creation ok' );
+
+# 5. test editing via shortname route
+Inventory::Cnames::edit_shortcnames($dbh, %testedit);
+my @shortedit_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
+
+is( $shortedit_results[0]{shortname}, $testedit{shortname},
+                    'edit_shortcnames shortname edit ok' );
+is( $shortedit_results[0]{host_id},   $testedit{host_id},  
+                    'edit_shortcnames host_id edit ok' );
+is( $shortedit_results[0]{dnsname}, $testedit{dnsname},
+                    'edit_shortcnames dnsname edit ok' );
+Inventory::Cnames::get_cnames_info( $dbh, $host_id );
+
+Inventory::cnames::delete_cname( $dbh, $cname_id );
+my @edit_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
+is(scalar @edit_results, 0, 'delete_cname operation ok')
+
+
+# 6. Test listing all cnames works
+my @all_results = get_cnames_info( $dbh );
+is(scalar @all_results, > 1, 'Listed all results ok');
+
 
