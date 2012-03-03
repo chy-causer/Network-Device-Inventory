@@ -165,10 +165,14 @@ use Inventory;
   - get a hash of query string fields (_not_ post)
 
 =head2 Returns
+
  The authorised users sub simply ejects unauthorised users.
  The query string fileds are returned as a hash
+
 =head1 REQUIRED ARGUMENTS
+
 =head1 OPTIONS
+
 =head1 DIAGNOSTICS
 
 =head1 CONFIGURATION
