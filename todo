@@ -59,7 +59,9 @@
 =item [defect] On the photos page make it use a sha hash as the complete filename
 
 =item [defect] dont let a ups be its own ups
- 
+
+=item [defect] IPv6 name resolution, e.g. add a IPv6 interface that rsolves to a host and the inventory will read ' unresolved'
+
 =item [feature] script to check/update cached dns records overnight
 
 =item [feature] Introduce edit restrictions on the groups (frodos/ups and status)
