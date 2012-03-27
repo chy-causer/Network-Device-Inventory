@@ -1,0 +1,16 @@
+=pod
+
+=head1 User Interface
+
+=over 4
+
+=item Client side input validation for the quickdevice page to help give people
+an immediate alert if they are typing the frodo- name instead of the
+human-friendly name.
+ 
+=item Visual clues to show the user which fields are optional/essential on the
+quickdevice page.
+
+=item Remove visual clues for empty fields once the field is filled in on the
+quickdevice page
+
