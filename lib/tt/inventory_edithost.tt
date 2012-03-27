@@ -41,97 +41,6 @@
     <h3>Quick Edit [% lookup | html_entity %] [% '(' _ host.id _ ')' IF development %]</h3>
 [% END %]
 
-<script type="text/javascript">
-<!--
-  
-  // an oxfordism
-
-function validatefn(fieldname) {
-
-    var x=document.forms["edithost"]["arec_x"].value;
-    if ( x.match(/^[Ff]rodo-/ )){
-        document.forms["edithost"]["arec_x"].style.borderColor="red";
-        document.forms["edithost"]["arec_x"].style.borderWidth="2px";
-        document.forms["edithost"]["arec_x"].style.color="red";
-        document.getElementById('fn-warning').style.fontWeight='bold';
-        document.getElementById('fn-essential').style.display='';
-        document.getElementById('submit').disabled = 1;
-        return false;
-    }
-    else if (x.length > 0 ){
-        document.getElementById('fn-essential').style.display='none';
-        document.forms["edithost"]["arec_x"].style.borderColor="";
-        document.forms["edithost"]["arec_x"].style.borderWidth="";
-        document.forms["edithost"]["arec_x"].style.color="";
-        document.getElementById('fn-warning').style.fontWeight='';
-        document.getElementById('submit').disabled = 0;
-    }
-    else {
-        document.getElementById('fn-essential').style.display='';
-        document.forms["edithost"]["arec_x"].style.borderColor="";
-        document.forms["edithost"]["arec_x"].style.borderWidth="";
-        document.forms["edithost"]["arec_x"].style.color="";
-        document.getElementById('fn-warning').style.fontWeight='';
-        document.getElementById('submit').disabled = 0;
-    }
-
-}
-
-function validateip(fieldname) {
-
-    var x=document.forms["edithost"]["interface_x_ip"].value;
-    if ( x.length < 1 ){
-        document.forms["edithost"]["interface_x_ip"].style.borderColor="red";
-        document.forms["edithost"]["interface_x_ip"].style.borderWidth="2px";
-        document.forms["edithost"]["interface_x_ip"].style.color="red";
-        document.getElementById('ip-essential').style.display='';
-        document.getElementById('submit').disabled = 1;
-    }
-    else {
-        document.getElementById('ip-essential').style.display='none';
-        document.forms["edithost"]["interface_x_ip"].style.borderColor="";
-        document.forms["edithost"]["interface_x_ip"].style.borderWidth="";
-        document.forms["edithost"]["interface_x_ip"].style.color="";
-        document.getElementById('submit').disabled = 0;
-    }
-
-}
-
-function validatedropdown(fieldname)  {
-
-    // css names
-    var id        = fieldname + '_id';
-    var alt       = fieldname + '_x';
-    var warning   = fieldname + '-warning';
-    var essential = fieldname + '-essential';
-
-    var x=document.forms["edithost"][id].value;
-    var y=''; // not all dropdowns have an alternative option
-
-    if( document.forms["edithost"][alt] != null ){
-        y=document.forms["edithost"][alt].value;
-    }
-    
-    if ( x.length < 1 && y.length < 1 ) {
-        document.forms["edithost"][id].style.borderColor ="red";
-        document.forms["edithost"][id].style.borderWidth ="2px";
-        document.forms["edithost"][id].style.color       ="red";
-        document.getElementById(essential).style.display ='';
-        document.getElementById('submit').disabled = 1;
-    }
-
-    else {
-        document.getElementById(essential).style.display ='none';
-        document.forms["edithost"][id].style.borderColor ="";
-        document.forms["edithost"][id].style.borderWidth ="";
-        document.forms["edithost"][id].style.color       ="";
-        document.getElementById('submit').disabled = 0;
-    }
-
-}
-
-//-->
-</script>
 
 <form id="edithost" method="POST" action="edithost" >
 <input type="hidden" name="script_mode" value="[% script_mode | html_entity %]" />
@@ -177,9 +86,11 @@ function validatedropdown(fieldname)  {
   <tr id="fn">
     <th>Friendly Name</th>
       <td>
-        <input type="text" size="25" name="arec_x" value="" onchange="return validatefn()" />
-        <span id="fn-essential" class="essential-text"> &#42; required</span>
-        <span id="fn-warning">(e.g. begbroke-iat,  <em>not frodo-xxx</em>)</span></td>
+        <input type="text" size="25" name="arec_x" value="" onchange="validatefn();nameexists();" />
+        <span id="fn-essential" class="essential-text"> &#42; required <br /></span>
+        <span id="fn-check">No name check performed yet <br /></span>
+        <span id="fn-warning">(e.g. begbroke-iat,  <em>not frodo-xxx</em>)</span>
+      </td>
   </tr>
 
 [% ELSE %]
@@ -429,3 +340,141 @@ function validatedropdown(fieldname)  {
 </form>
 
 </div>
+
+<script type="text/javascript">
+<!--
+  
+  // an oxfordism
+
+function validatefn(fieldname) {
+
+    var x=document.forms["edithost"]["arec_x"].value;
+    if ( x.match(/^[Ff]rodo-/ )){
+        document.forms["edithost"]["arec_x"].style.borderColor="red";
+        document.forms["edithost"]["arec_x"].style.borderWidth="2px";
+        document.forms["edithost"]["arec_x"].style.color="red";
+        document.getElementById('fn-warning').style.fontWeight='bold';
+        document.getElementById('fn-essential').style.display='';
+        document.getElementById('submit').disabled = 1;
+        return false;
+    }
+    else if (x.length > 0 ){
+        document.getElementById('fn-essential').style.display='none';
+        document.forms["edithost"]["arec_x"].style.borderColor="";
+        document.forms["edithost"]["arec_x"].style.borderWidth="";
+        document.forms["edithost"]["arec_x"].style.color="";
+        document.getElementById('fn-warning').style.fontWeight='';
+        document.getElementById('submit').disabled = 0;
+    }
+    else {
+        document.getElementById('fn-essential').style.display='';
+        document.forms["edithost"]["arec_x"].style.borderColor="";
+        document.forms["edithost"]["arec_x"].style.borderWidth="";
+        document.forms["edithost"]["arec_x"].style.color="";
+        document.getElementById('fn-warning').style.fontWeight='';
+        document.getElementById('submit').disabled = 0;
+    }
+
+}
+
+function validateip(fieldname) {
+
+    var x=document.forms["edithost"]["interface_x_ip"].value;
+    if ( x.length < 1 ){
+        document.forms["edithost"]["interface_x_ip"].style.borderColor="red";
+        document.forms["edithost"]["interface_x_ip"].style.borderWidth="2px";
+        document.forms["edithost"]["interface_x_ip"].style.color="red";
+        document.getElementById('ip-essential').style.display='';
+        document.getElementById('submit').disabled = 1;
+    }
+    else {
+        document.getElementById('ip-essential').style.display='none';
+        document.forms["edithost"]["interface_x_ip"].style.borderColor="";
+        document.forms["edithost"]["interface_x_ip"].style.borderWidth="";
+        document.forms["edithost"]["interface_x_ip"].style.color="";
+        document.getElementById('submit').disabled = 0;
+    }
+
+}
+
+function validatedropdown(fieldname)  {
+
+    // css names
+    var id        = fieldname + '_id';
+    var alt       = fieldname + '_x';
+    var warning   = fieldname + '-warning';
+    var essential = fieldname + '-essential';
+
+    var x=document.forms["edithost"][id].value;
+    var y=''; // not all dropdowns have an alternative option
+
+    if( document.forms["edithost"][alt] != null ){
+        y=document.forms["edithost"][alt].value;
+    }
+    
+    if ( x.length < 1 && y.length < 1 ) {
+        document.forms["edithost"][id].style.borderColor ="red";
+        document.forms["edithost"][id].style.borderWidth ="2px";
+        document.forms["edithost"][id].style.color       ="red";
+        document.getElementById(essential).style.display ='';
+        document.getElementById('submit').disabled = 1;
+    }
+
+    else {
+        document.getElementById(essential).style.display ='none';
+        document.forms["edithost"][id].style.borderColor ="";
+        document.forms["edithost"][id].style.borderWidth ="";
+        document.forms["edithost"][id].style.color       ="";
+        document.getElementById('submit').disabled = 0;
+    }
+
+}
+
+function nameexists(){
+   
+    var ajax_load="Ajax loading...";
+    var hostname=document.forms["edithost"]["arec_x"].value;
+    
+    if( hostname==null ) {
+        // they are just blanking the entry
+        document.forms["edithost"]["arec_x"].style.borderColor ="";
+        document.forms["edithost"]["arec_x"].style.borderWidth ="";
+        document.forms["edithost"]["arec_x"].style.color       ="";
+        document.forms["edithost"]["fn-check"].style.color     ="";
+        return;
+    }
+
+    var loadUrl="https://overlord.oucs.ox.ac.uk/inventory/hostname-check?hostname=" + hostname;
+    $("#fn-check").html(ajax_load);  
+    $.get(  
+        loadUrl, {},  
+        function(responseText){  
+           regexp_zero=/^0$/;
+           regexp_digit=/^[0-9]*$/;
+    
+           if( regexp_zero.test( responseText) ){
+               $("#fn-check").html( 'This name is free' );  
+               document.forms["edithost"]["arec_x"].style.borderColor ="green";
+               document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
+               document.forms["edithost"]["arec_x"].style.color       ="black";
+               document.forms["edithost"]["fn-check"].style.color     ="green";
+           }
+           else if( regexp_digit.test( responseText) ) {
+               $("#fn-check").html( 'This name is <a style="text-decoration:underline;" href="viewhost?host_id=' +responseText +'">taken</a>' );  
+               document.forms["edithost"]["arec_x"].style.borderColor ="red";
+               document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
+               document.forms["edithost"]["arec_x"].style.color       ="red";
+               document.forms["edithost"]["fn-check"].style.color     ="red";
+           }
+           else {
+               // alert("Debug: something unexpected " + responseText );
+           }
+           
+        },  
+        "html"  
+    );  
+
+}
+
+//-->
+</script>

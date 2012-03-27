@@ -266,6 +266,8 @@ $tt->process(
         models       => \@models,
         frodo_models => \@frodo_models,
         status       => \@status,
+        
+        baseurl    => $BASEURL,
     }
 );
 $tt->process('inventory_footer.tt');

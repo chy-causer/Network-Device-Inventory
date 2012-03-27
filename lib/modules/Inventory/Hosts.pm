@@ -366,7 +366,7 @@ sub get_hosts_info_by_name {
     return if !defined $dbh;
     return if !defined $host_name;
 
-    my $sth = $dbh->prepare('SELECT * FROM hosts WHERE name = ?');
+    my $sth = $dbh->prepare('SELECT * FROM hosts WHERE name ILIKE ?');
     return unless $sth->execute($host_name);
 
     my @return_array;

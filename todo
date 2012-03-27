@@ -9,8 +9,8 @@
 
 =item [feature] add a change audit trail
 
-=item [feature] add optional date field which holds the end-of-life date of the
-   hardware model
+=item [feature] add optional date field which holds the end-of-life date of
+   the hardware model
   
 =item [feature] Add a service level to support contracts.
  
@@ -37,11 +37,16 @@ accidentally enabled when only one essential field is filled in
    is it possible for the previously entered information to be 'sticky' and
    maintained ?
 
-=item [defect] There is a Make/Model defined of Cisco WS-C4948-E-F. On the list of 
-  models at [url of our live inventory site]  which seems to list the model names alphabetically,
-  WS-C4948-E-F is at the top when adding device type frodo, the drop down list of models 
-  doesn't include WS-C4948-E-F
+=item [defect] There is a Make/Model defined of Cisco WS-C4948-E-F. On the
+  list of models at [url of our live inventory site]  which seems to list
+  the model names alphabetically, WS-C4948-E-F is at the top when adding
+  device type frodo, the drop down list of models doesn't include 
+  WS-C4948-E-F
   [action: add WS-C4948-E-F to the list of possible FroDo devices]
+
+=item [defect] excessive apache logs complaining that Argument "" isn't 
+  numeric in addition (+) at /srv/www/overlord/lib/tt/inventory_sshkeys.tt
+  line 118
 
 =item [release] Write tests for each module
  
