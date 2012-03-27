@@ -13,14 +13,14 @@
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-           ERROR: [% message.$notification  | html_entity %]
+           ERROR: [% message.$notification | html_entity %]
       </p>
    </div>
 </div>
       [% ELSIF notification == "SUCCESS" %]
         <p class="input-success">SUCCESS: [% message.$notification  | html_entity %]</p>
       [% ELSIF notification != "FATAL" %]
-        <p class="debug">Programming Error: Key: [% notification  | html_entity %] Value: [% message.$notification  | html_entity %]</p>
+        <p class="debug">Programming Error: Key: [% notification | html_entity %] Value: [% message.$notification  | html_entity %]</p>
       [% END %]
     [% END %]
   [% END %]
@@ -41,8 +41,101 @@
     <h3>Quick Edit [% lookup | html_entity %] [% '(' _ host.id _ ')' IF development %]</h3>
 [% END %]
 
-<form id="edithost" method="POST" action="edithost">
-<input type="hidden" name="script_mode" value="[% script_mode %]" />
+<script type="text/javascript">
+<!--
+  
+  // an oxfordism
+
+function validatefn(fieldname) {
+
+    var x=document.forms["edithost"]["arec_x"].value;
+    if ( x.match(/^[Ff]rodo-/ )){
+        document.forms["edithost"]["arec_x"].style.borderColor="red";
+        document.forms["edithost"]["arec_x"].style.borderWidth="2px";
+        document.forms["edithost"]["arec_x"].style.color="red";
+        document.getElementById('fn-warning').style.fontWeight='bold';
+        document.getElementById('fn-essential').style.display='';
+        document.getElementById('submit').disabled = 1;
+        return false;
+    }
+    else if (x.length > 0 ){
+        document.getElementById('fn-essential').style.display='none';
+        document.forms["edithost"]["arec_x"].style.borderColor="";
+        document.forms["edithost"]["arec_x"].style.borderWidth="";
+        document.forms["edithost"]["arec_x"].style.color="";
+        document.getElementById('fn-warning').style.fontWeight='';
+        document.getElementById('submit').disabled = 0;
+    }
+    else {
+        document.getElementById('fn-essential').style.display='';
+        document.forms["edithost"]["arec_x"].style.borderColor="";
+        document.forms["edithost"]["arec_x"].style.borderWidth="";
+        document.forms["edithost"]["arec_x"].style.color="";
+        document.getElementById('fn-warning').style.fontWeight='';
+        document.getElementById('submit').disabled = 0;
+    }
+
+}
+
+function validateip(fieldname) {
+
+    var x=document.forms["edithost"]["interface_x_ip"].value;
+    if ( x.length < 1 ){
+        document.forms["edithost"]["interface_x_ip"].style.borderColor="red";
+        document.forms["edithost"]["interface_x_ip"].style.borderWidth="2px";
+        document.forms["edithost"]["interface_x_ip"].style.color="red";
+        document.getElementById('ip-essential').style.display='';
+        document.getElementById('submit').disabled = 1;
+    }
+    else {
+        document.getElementById('ip-essential').style.display='none';
+        document.forms["edithost"]["interface_x_ip"].style.borderColor="";
+        document.forms["edithost"]["interface_x_ip"].style.borderWidth="";
+        document.forms["edithost"]["interface_x_ip"].style.color="";
+        document.getElementById('submit').disabled = 0;
+    }
+
+}
+
+function validatedropdown(fieldname)  {
+
+    // css names
+    var id        = fieldname + '_id';
+    var alt       = fieldname + '_x';
+    var warning   = fieldname + '-warning';
+    var essential = fieldname + '-essential';
+
+    var x=document.forms["edithost"][id].value;
+    var y=''; // not all dropdowns have an alternative option
+
+    if( document.forms["edithost"][alt] != null ){
+        y=document.forms["edithost"][alt].value;
+    }
+    
+    if ( x.length < 1 && y.length < 1 ) {
+        document.forms["edithost"][id].style.borderColor ="red";
+        document.forms["edithost"][id].style.borderWidth ="2px";
+        document.forms["edithost"][id].style.color       ="red";
+        document.getElementById(essential).style.display ='';
+        document.getElementById('submit').disabled = 1;
+    }
+
+    else {
+        document.getElementById(essential).style.display ='none';
+        document.forms["edithost"][id].style.borderColor ="";
+        document.forms["edithost"][id].style.borderWidth ="";
+        document.forms["edithost"][id].style.color       ="";
+        document.getElementById('submit').disabled = 0;
+    }
+
+}
+
+//-->
+</script>
+
+<form id="edithost" method="POST" action="edithost" >
+<input type="hidden" name="script_mode" value="[% script_mode | html_entity %]" />
+
 <table>
 
 [% IF quickdevice %]
@@ -75,20 +168,27 @@
 
   <tr>
     <th>IP Address</th>
-      <td><input type="text" size="25" name="interface_x_ip" value="" /></td>
-      <input type="hidden" name="interface_x_isprimary" value="true" />
+      <td><input type="text" size="25" name="interface_x_ip" value="" onchange="return validateip()" />
+        <input type="hidden" name="interface_x_isprimary" value="true" />
+        <span id="ip-essential" class="essential-text"> &#42; required</span>
+      </td>
   </tr>
 
   <tr id="fn">
     <th>Friendly Name</th>
-      <td><input type="text" size="25" name="arec_x" value="" /> (e.g. begbroke-iat,  <em>not frodo-xxx</em>)</td>
+      <td>
+        <input type="text" size="25" name="arec_x" value="" onchange="return validatefn()" />
+        <span id="fn-essential" class="essential-text"> &#42; required</span>
+        <span id="fn-warning">(e.g. begbroke-iat,  <em>not frodo-xxx</em>)</span></td>
   </tr>
 
 [% ELSE %]
 
   <tr>
     <th>Name</th>
-      <td><input type="text" size="45" name="host_name" value="[% host.name | html_entity %]" /> (e.g. &quot;server-name&quot;, must be unique)</td>
+      <td><input type="text" size="45" name="host_name" value="[% host.name | html_entity %]" />
+       <span class="essential-text"> &#42; required</span>
+      (e.g. &quot;server-name&quot;, must be unique)</td>
   </tr>
 
 [% END %]
@@ -101,19 +201,21 @@
   <tr>
     <th>Status</th>
       <td>
-       <select name="status_id">
+       <select name="status_id" onchange="return validatedropdown('status')">
+        <option value="">-- pick a status --</option>
         [% FOR state IN status %]
           <option value="[% state.id | html_entity %]" [% 'selected="selected"' IF state.id == host.status_id %]>
                 [% state.state  | html_entity %] ([% state.description | html_entity %])</option>
         [% END %]
        </select>
+       <span id="status-essential" class="essential-text"> &#42; must make a selection</span>
      </td>
   </tr>
   
   <tr id="mod">
     <th>Model</th>
       <td>
-       <select name="model_id">
+       <select name="model_id" onchange="return validatedropdown('model')">
         <option value="">-- pick a model --</option>
         [% IF quickdevice %]
             [% FOR model IN frodo_models %]
@@ -127,6 +229,7 @@
             [% END %]
         [% END %]
        </select>
+       <span id="model-essential" class="essential-text"> &#42; must make a selection</span>
      </td>
   </tr>
   
@@ -138,7 +241,7 @@
   <tr>
     <th>Location</th>
       <td>
-       <select name="location_id">
+       <select name="location_id" onchange="return validatedropdown('location')">
           <option value="">-- pick a location --</option>
         [% FOR location IN locations %]
           <option value="[% location.id | html_entity %]" [% 'selected="selected"' IF location.id == host.location_id %]>
@@ -146,8 +249,9 @@
         [% END %]
        </select>
        <div class="alternate-option">
-       or link to a new site called: <input type="text" size="45" name="location_x" value="" />
+       <strong>or</strong> link to a new site called: <input type="text" size="45" name="location_x" value="" onchange="return validatedropdown('location')"/>
        </div>
+       <span id="location-essential" class="essential-text"> &#42; must pick one</span>
      </td>
   </tr>
 
@@ -316,11 +420,11 @@
 </table>
 <input type="hidden" name="host_id" value="[% host.id | html_entity %]" />
 [% IF edithost %]
-    <input type="submit" value="Submit Changes" />
+    <input type="submit" id="submit" value="Submit Changes" />
 [% ELSIF quickadd %]
-    <input type="submit" value="Create Host" />
+    <input type="submit" id="submit" value="Create Host" />
 [% ELSIF quickdevice %]
-    <input type="submit" value="Create Device" />
+    <input type="submit" id="submit" value="Create Device" disabled="disabled" />
 [% END %]
 </form>
 
