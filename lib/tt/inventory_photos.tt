@@ -48,7 +48,9 @@
        <td>Must be alphanumeric and unique</td>
       </tr>
       <tr>
-        <td><input type="hidden" name="photo_id" value="[% photo.id | html_entity %]" /></td>
+        <td>
+        <input type="hidden" name="action" value="edit" /> 
+        <input type="hidden" name="photo_id" value="[% photo.id | html_entity %]" /></td>
         <td><input type="submit" value="Submit Changes" /></td>
         <td></td>
       </tr>
@@ -61,10 +63,25 @@
   </table>
   </fieldset>
 </form>
+
+[% ELSIF delete %]
+
+  [% FOR photo IN photos %]
+      [% IF delete == photo.id %]
+<form action="photos" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry that links &quot;[% photo.url | html_entity %]&quot; to [% host.name | html_entity %]?
+ <br />The photo image itself wont be harmed.
+ <input type="hidden" name="photo_id" value="[% photo.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="photo">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
 [% END %]
 
 [% IF hosts.size < 1 %]
-   <p class="input-warning">It's not possible to add new photos of hosts until you've created some hosts on the <a href="hosts">host input page</a>.</p>
+   <p class="input-warning">It&quot;s not possible to add new photos of hosts until you&quot;ve created some hosts on the <a href="hosts">host input page</a>.</p>
 [% ELSE %]
 <form enctype="multipart/form-data" action="" method="post">
   <fieldset><legend>Record a new photo</legend>
@@ -95,7 +112,9 @@
 
     <tr>
       <td></td>
-      <td><input type="submit" value="Create Entry" /></td>
+      <td>
+        <input type="hidden" name="action" value="create" /> 
+        <input type="submit" value="Create Entry" /></td>
       <td></td>
     </tr>
 
@@ -113,13 +132,15 @@ $(document).ready(function(){
 ); 
 </script>
 
+<form action="photos" method="get">
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 <table id="allresults">
   <thead>
   <tr>
+    <th></th>
     <th>Host</th>
     <th>Photos url</th>
     <th>Preview</th>
-    <th>Options</th>
   </tr>
   </thead>
 
@@ -143,14 +164,15 @@ $(document).ready(function(){
     [% END %]
 
     [% counter = counter +1 %]
+      <td><input type="radio" name="photo_id" value="[% photo.id  | html_entity %]" /></td>
       <td>[% photo.host_name | html_entity %]</td>
       <td>[% photo.url | html_entity %]</td>
       <td><a href="[% photo.url | html_entity %]"><img src="[% photo.url | html_entity %]" [% IF photo.state=="ACTIVE" %] height="40" width="40" [% ELSE %] height="20" width="20" [% END %] alt="Photo of [% photo.host_name | html_entity %]"/></a></td>
-      <td><a href="photos?photo_id=[% photo.id | html_entity %]">edit this photo</a> / <a href="hosts?host_id=[% photo.host_id | html_entity %]">edit this host</a></td>
   </tr>
   [% END %]
   </tbody>
 </table>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">

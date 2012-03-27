@@ -6,6 +6,7 @@ our $VERSION = qw('0.0.1');
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_photos
+  delete_photos
   edit_photos
   get_photos_info
   upload_photos
@@ -236,7 +237,35 @@ sub upload_photos {
     return \%message;
 }
 
+sub delete_photos {
+
+    # delete a single photo
+
+    my ( $dbh, $id ) = @_;
+    my %message;
+
+    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
+
+        # could be an error we've made or someone trying to be clever with
+        # altering the submission.
+        $message{'ERROR'} =
+          'Programming Error: Possible issue with the submission form';
+        return \%message;
+    }
+
+    my $sth = $dbh->prepare('DELETE FROM photos WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        $message{'ERROR'} =
+          'Internal Error: The photo url entry could not be deleted';
+        return \%message;
+    }
+
+    $message{'SUCCESS'} = 'The specified photo url entry was deleted';
+    return \%message;
+}
+
 1;
+
 __END__
 
 =head1 NAME

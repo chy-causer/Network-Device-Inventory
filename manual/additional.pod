@@ -11,6 +11,8 @@ human-friendly name.
 =item Visual clues to show the user which fields are optional/essential on the
 quickdevice page.
 
-=item Remove visual clues for empty fields once the field is filled in on the
-quickdevice page
+=item On the quickdevice page, visual clues highlight required empty fields
 
+=item Not all pages have a delete option - hardware shouldn't be
+deleted but should be decomissioned so you can report on your hardware
+turnover. However the following pages have delete functions photos, invoices

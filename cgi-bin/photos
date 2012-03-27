@@ -75,24 +75,33 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
 }
 
-my $edit;
-
-if ( exists $gets{'photo_id'} && $gets{'photo_id'} !~ m/\D/x ) {
-    $edit = $gets{'photo_id'};
+my ($edit, $delete);
+if ( $gets{'photo_id'} && $gets{'photo_id'} !~ m/\D/x ) {
+    if ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $delete = $gets{'photo_id'};
+    }
+    else {
+        $edit = $gets{'photo_id'};
+    }
 }
 
 my %message;    # communicate success or failure, sink or swim
 
-# are we editing an existing entry?
-if ( $POSTS{'photo_id'} ) {
-    %message = %{ Inventory::Photos::edit_photos( $dbh, \%POSTS ) };
+# are we editing/deleting an existing entry?
+if ( exists $POSTS{'action'} ) {
+    if ( $POSTS{'action'} eq 'delete' ) {
+        %message =
+          %{ Inventory::Photos::delete_photos( $dbh, $POSTS{'photo_id'} ) };
+    }
+    elsif ( $POSTS{'action'} eq 'edit' ) {
+        %message = %{ Inventory::Photos::edit_photos( $dbh, \%POSTS ) };
+    }
+    elsif ( $POSTS{'action'} eq 'create' ) {
+        %message = %{ Inventory::Photos::create_photos( $dbh, \%POSTS ) };
+    }
 }
-elsif ( $POSTS{'photo_url'} ) {
 
-    # are we creating a new entry?
-    %message = %{ Inventory::Photos::create_photos( $dbh, \%POSTS ) };
-}
-elsif ( $POSTS{'photo_upload'} && $POSTS{'host_id'} ) {
+if ( $POSTS{'photo_upload'} && $POSTS{'host_id'} ) {
 
     # minor logic to improve error messages
     if ( $POSTS{'host_id'} !~ m/\D/x ) {
@@ -130,6 +139,7 @@ $tt->process(
         hosts   => \@hosts,
         message => \%message,
         edit    => $edit,
+        delete  => $delete,
         host_id => $gets{'host_id'},
     }
 );
