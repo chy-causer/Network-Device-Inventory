@@ -44,10 +44,6 @@ accidentally enabled when only one essential field is filled in
   WS-C4948-E-F
   [action: add WS-C4948-E-F to the list of possible FroDo devices]
 
-=item [defect] excessive apache logs complaining that Argument "" isn't 
-  numeric in addition (+) at /srv/www/overlord/lib/tt/inventory_sshkeys.tt
-  line 118
-
 =item [release] Write tests for each module
  
 =item [release] Improve install instructions

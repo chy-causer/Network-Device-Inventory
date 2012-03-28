@@ -114,9 +114,6 @@ $(document).ready(function(){
   <tbody>
   [% counter=0 %]
   [% FOR sshkey IN sshkeys %]
-    [% id = manufacturer.id %]
-    [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
-    
     [% NEXT IF sshkey.state != 'ACTIVE' %]
 
     [% IF sshkey.state=='INACTIVE' %]
