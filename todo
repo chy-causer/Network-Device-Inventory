@@ -37,13 +37,6 @@ accidentally enabled when only one essential field is filled in
    is it possible for the previously entered information to be 'sticky' and
    maintained ?
 
-=item [defect] There is a Make/Model defined of Cisco WS-C4948-E-F. On the
-  list of models at [url of our live inventory site]  which seems to list
-  the model names alphabetically, WS-C4948-E-F is at the top when adding
-  device type frodo, the drop down list of models doesn't include 
-  WS-C4948-E-F
-  [action: add WS-C4948-E-F to the list of possible FroDo devices]
-
 =item [release] Write tests for each module
  
 =item [release] Improve install instructions

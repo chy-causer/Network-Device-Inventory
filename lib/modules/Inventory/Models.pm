@@ -214,6 +214,7 @@ sub get_frodo_models {
                 OR models.name LIKE \'%3560%\'
                 OR models.name LIKE \'%224%\'
                 OR models.name LIKE \'%2960%\'
+                OR models.name LIKE \'%4948%\'
             )
            ) OR (
             manufacturers.name =?

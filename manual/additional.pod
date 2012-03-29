@@ -16,3 +16,7 @@ quickdevice page.
 =item Not all pages have a delete option - hardware shouldn't be
 deleted but should be decomissioned so you can report on your hardware
 turnover. However the following pages have delete functions photos, invoices
+
+=item The list of models in the froddo addition page is restricted to only the
+list of models used bby the frodo project currently, 3750, 3560, 224, 2960,
+4948.
