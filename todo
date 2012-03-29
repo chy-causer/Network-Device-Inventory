@@ -22,21 +22,12 @@
    
 =item [feature] ability to see all devices which are of a particular model type
  
-=item [defect] on the quick device addition page the submit button is
-accidentally enabled when only one essential field is filled in
-
-=item [defect] Show a sane explanitor error message if the intended hostname
-   already exists If possible show this in realtime using javascript/ajax
-   rather than have to correct the user after they've hit submit.
- 
+=item [defect] From the server side show a sane explanitor error message if
+the intended hostname already exists.
+   
 =item [defect] On the quickdevice page, show a more accurate helpful error
-   message if the hostname of a ups device being created already exists.
+message if the hostname of a ups device being created already exists.
  
-=item [defect] when adding a new device, if any of the required fields are
-   missing, an error message is returned and you are presented with a blank form
-   is it possible for the previously entered information to be 'sticky' and
-   maintained ?
-
 =item [release] Write tests for each module
  
 =item [release] Improve install instructions
@@ -50,6 +41,9 @@ accidentally enabled when only one essential field is filled in
 1.2 LONGER TERM ISSUES
 
 =over 4
+
+=item [defect] on the quick device addition page the submit button is
+accidentally enabled when only one essential field is filled in
 
 =item [defect] new update system gives a blank page if 'manifest' setting is
    missing from ini file

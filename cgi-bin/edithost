@@ -111,8 +111,14 @@ my %hostname_mapping = (
 );
 
 # form submission triggers a whole update of all data
-if ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
 
+if ( ($POSTS{'device_type'}) and (not defined $POSTS{'arec_x'} or length $POSTS{'arec_x'} < 1) ) {
+        my %message;
+        $message{'ERROR'} = 'No name was provided';
+        push @message_store, \%message;
+}
+elsif ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
+    
     # need to set host_name, cname_x and interface_x_role for the user
     # if they are doing quickadd on a templated device
     if (    $POSTS{'script_mode'}
@@ -267,9 +273,12 @@ $tt->process(
         frodo_models => \@frodo_models,
         status       => \@status,
         
-        baseurl    => $BASEURL,
+        baseurl      => $BASEURL,
+
+        posts        => \%POSTS,
     }
-);
+) || die "Programming Error: Couldn't load the page template due to ". $tt->error() ."\n";
+
 $tt->process('inventory_footer.tt');
 
 ###########################################################################

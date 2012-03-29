@@ -20,3 +20,12 @@ turnover. However the following pages have delete functions photos, invoices
 =item The list of models in the froddo addition page is restricted to only the
 list of models used bby the frodo project currently, 3750, 3560, 224, 2960,
 4948.
+
+=item When adding a new device, if any of the required fields are missing, an
+error message is returned. You are not presented  with a blank form but with
+the previously entered information re-filled in ( 'sticky' )
+
+=item If a hostname a user is entering for a new host already exists in the
+datase the user will be warned in realtime (implementation is ajax) with a
+helpful error message. This is a case insensitive check.
+

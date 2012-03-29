@@ -42,33 +42,38 @@
 [% END %]
 
 
-<form id="edithost" method="POST" action="edithost" >
+<form id="edithost" method="POST" action="[% IF quickdevice %]quickdevice[% ELSE %]edithost[% END %]" >
 <input type="hidden" name="script_mode" value="[% script_mode | html_entity %]" />
 
 <table>
 
-[% IF quickdevice %]
-
+[%- IF quickdevice -%]
   <tr>
     <th>Device Type</th>
     <td>
-    <input type="radio" name="device_type" value="frodo" checked
+    <input type="radio" name="device_type" value="frodo"
+    [%- IF NOT posts.exists('device_type') %] checked="checked" 
+    [%- ELSIF posts.device_type=="frodo" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='';
                  document.getElementById('mod').style.display='';
                  document.getElementById('ups').style.display=''">Frodo<br />
     <input type="radio" name="device_type" value="secdist"
+    [%- IF posts.exists('device_type') AND posts.device_type=="secdist" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
                  document.getElementById('ups').style.display=''">Secure Distributor Switch<br />
     <input type="radio" name="device_type" value="secpoe"
+    [%- IF posts.exists('device_type') AND posts.device_type=="secpoe" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
                  document.getElementById('ups').style.display=''">Secure PoE Switch<br />
     <input type="radio" name="device_type" value="secups"
+    [%- IF posts.exists('device_type') AND posts.device_type=="secups" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
                  document.getElementById('ups').style.display='none'">Secure UPS<br />
     <input type="radio" name="device_type" value="secvg"
+    [%- IF posts.exists('device_type') AND posts.device_type=="secvg" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='none';
                  document.getElementById('ups').style.display=''">Cisco VG224<br />
@@ -77,7 +82,7 @@
 
   <tr>
     <th>IP Address</th>
-      <td><input type="text" size="25" name="interface_x_ip" value="" onchange="return validateip()" />
+      <td><input type="text" size="25" name="interface_x_ip" value="[%- IF posts.exists('interface_x_ip') -%][%- posts.interface_x_ip | html_entity -%][%- END -%]" onchange="return validateip()" />
         <input type="hidden" name="interface_x_isprimary" value="true" />
         <span id="ip-essential" class="essential-text"> &#42; required</span>
       </td>
@@ -86,7 +91,7 @@
   <tr id="fn">
     <th>Friendly Name</th>
       <td>
-        <input type="text" size="25" name="arec_x" value="" onchange="validatefn();nameexists();" />
+        <input type="text" size="25" name="arec_x" value="[%- IF posts.exists('arec_x') -%][%- posts.arec_x | html_entity -%][%- END -%]" onchange="validatefn();nameexists();" />
         <span id="fn-essential" class="essential-text"> &#42; required <br /></span>
         <span id="fn-check">No name check performed yet <br /></span>
         <span id="fn-warning">(e.g. begbroke-iat,  <em>not frodo-xxx</em>)</span>
@@ -97,7 +102,7 @@
 
   <tr>
     <th>Name</th>
-      <td><input type="text" size="45" name="host_name" value="[% host.name | html_entity %]" />
+      <td><input type="text" size="45" name="host_name" value="[%- IF posts.exists('host_name') -%][%- posts.host_name | html_entity -%][% ELSIF host.exists('name') %][% host.name | html_entity %][%- END -%]" />
        <span class="essential-text"> &#42; required</span>
       (e.g. &quot;server-name&quot;, must be unique)</td>
   </tr>
@@ -106,7 +111,11 @@
 
   <tr>
     <th>Description</th>
-      <td><input type="text" size="45" name="host_description" value="[% host.description | html_entity %]" /></td>
+      <td><input type="text" size="45" name="host_description" value="[%- IF posts.exists('host_description') -%]
+                                                                         [%- posts.host_description | html_entity -%]
+                                                                      [%- ELSIF host.exists('description') -%]
+                                                                         [%- host.description | html_entity -%]
+                                                                      [%- END -%]" /></td>
   </tr>
 
   <tr>
@@ -115,7 +124,7 @@
        <select name="status_id" onchange="return validatedropdown('status')">
         <option value="">-- pick a status --</option>
         [% FOR state IN status %]
-          <option value="[% state.id | html_entity %]" [% 'selected="selected"' IF state.id == host.status_id %]>
+          <option value="[% state.id | html_entity %]" [% IF state.id == host.status_id OR posts.status_id==state.id %] selected="selected" [% END %]>
                 [% state.state  | html_entity %] ([% state.description | html_entity %])</option>
         [% END %]
        </select>
@@ -130,12 +139,12 @@
         <option value="">-- pick a model --</option>
         [% IF quickdevice %]
             [% FOR model IN frodo_models %]
-            <option value="[% model.id | html_entity %]" [% 'selected="selected"' IF model.id == host.model_id %]>
+            <option value="[% model.id | html_entity %]" [% IF model.id == host.model_id OR posts.model_id==model.id %] selected="selected" [% END %]>
                     [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])</option>
             [% END %]
         [% ELSE %]
             [% FOR model IN models %]
-            <option value="[% model.id | html_entity %]" [% 'selected="selected"' IF model.id == host.model_id %]>
+            <option value="[% model.id | html_entity %]" [% IF model.id == host.model_id OR posts.model_id==model.id %] selected="selected" [% END %]>
                     [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])</option>
             [% END %]
         [% END %]
@@ -146,7 +155,7 @@
   
   <tr>
     <th>Serial Number</th>
-      <td><input type="text" size="25" name="host_serial" value="[% host.serial | html_entity %]" /></td>
+      <td><input type="text" size="25" name="host_serial" value="[% IF host.exists('serial') %] [% hosts.serial | html_entity %][%- ELSIF posts.exists('host_serial') -%][%- posts.host_serial | html_entity -%][%- END -%]" /></td>
   </tr>
    
   <tr>
@@ -155,8 +164,7 @@
        <select name="location_id" onchange="return validatedropdown('location')">
           <option value="">-- pick a location --</option>
         [% FOR location IN locations %]
-          <option value="[% location.id | html_entity %]" [% 'selected="selected"' IF location.id == host.location_id %]>
-                [% location.name | html_entity %] </option>
+          <option value="[% location.id | html_entity %]" [% IF location.id == host.location_id OR posts.location_id == location.id %] selected="selected" [% END %]>[% location.name | html_entity %] </option>
         [% END %]
        </select>
        <div class="alternate-option">
@@ -173,7 +181,7 @@
         <select name="ups_id_[% thisups.link_id %]"> [%# hosts_to_upshost.id %]
             <option value="">-- remove this ups --</option>
             [% FOR device IN ups.sort('name') %]
-            <option value="[% device.ups_id | html_entity %]" [% 'selected="selected"' IF device.ups_id == thisups.ups_id %]>
+            <option value="[% device.ups_id | html_entity %]" [% IF device.ups_id == thisups.ups_id %] selected="selected" [% END %]>
                     [% device.ups_name | html_entity %] [% '(' _ device.ups_description _ ')' IF device.ups_description %]</option>
             [% END %]
         </select>
@@ -184,8 +192,8 @@
         <select name="ups_id_x">
             <option value="" selected="selected">-- add supporting ups ? --</option>
             [% FOR device IN ups.sort('name') %]
-            <option value="[% device.ups_id | html_entity %]">
-                    [% device.ups_name | html_entity %] [% '(' _ device.ups_description _ ')' IF device.ups_description %]</option>
+            <option value="[% device.ups_id | html_entity %]" [% IF device.ups_id == thisups.ups_id OR posts.ups_id_x == device.ups_id %] selected="selected" [% END %]>
+                    [% device.ups_name | html_entity %] [% IF device.ups_description %][% device.ups_description | html_entity %][% END %]</option>
             [% END %]
         </select>
        <div class="alternate-option">
@@ -197,13 +205,13 @@
                 [% END %]
             </select>
         [% IF NOT quickdevice %]
-            named: <input type="text" size="25" maxlength="53" name="ups_x" value="" />
+            named: <input type="text" size="25" maxlength="53" name="ups_x" value="[% IF posts.exists('ups_x') %][% posts.ups_x | html_entity %][% END %]" />
         [% ELSE %]
             <input type="hidden" name="ups_x" value="MAGIC_FRODO_UPS_NAME_COOKIE" />
         [% END %]
         <br />
-        with description: <input type="text" size="25" name="ups_x_description" value="" />
-        and IP: <input type="text" size="25" maxlength="53" name="ups_x_ip" value="" />
+        with description: <input type="text" size="25" name="ups_x_description" value="[% IF posts.exists('ups_x_description') %][% posts.ups_x_description | html_entity %][% END %]" />
+        and IP: <input type="text" size="25" maxlength="53" name="ups_x_ip" value="[% IF posts.exists('ups_x_ip') %][% posts.ups_x_ip | html_entity %][% END %]" />
         </div>
        [% END %]
      </td>
@@ -317,9 +325,11 @@
     <th>Link to Invoice (optional)</th>
       <td>
        <select name="invoice_id">
-        <option value="">-- pick a invoice --</option>
+        <option value="">-- pick an invoice --</option>
             [% FOR invoice IN invoices %]
-            <option value="[% invoice.id | html_entity %]" [% 'selected="selected"' IF invoice.id == host.invoice_id %]>
+            <option value="[% invoice.id | html_entity %]" [%- IF invoice.id == host.invoice_id OR invoice.id == posts.invoice_id -%]
+                                                           selected="selected"
+                                                           [%- END %]>
                     [% invoice.name | html_entity %] ([% invoice.description | html_entity %])</option>
             [% END %]
        </select>
