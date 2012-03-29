@@ -29,3 +29,11 @@ the previously entered information re-filled in ( 'sticky' )
 datase the user will be warned in realtime (implementation is ajax) with a
 helpful error message. This is a case insensitive check.
 
+=item If a user ignores the client side checks, or has javascript disabled,
+and does not fill in a hostname or use an existing hostname (case insensitive
+check) the interface shows a helpful error mesage indicating in laymans terms
+what the issue was.
+
+=item the server site (helpful) duplicate name checks will also affect ups
+device addition, although it should be les common (as by design multiple
+devices can have the same IP and multiple devices can hang from the same UPS)
