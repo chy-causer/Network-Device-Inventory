@@ -63,7 +63,7 @@ URI
 The todo file contains the full future roadmap in terms of improvements and
 new features.
 
-=head1 COPYRIGHT AND LICENCE
+=head1 LICENSE AND COPYRIGHT
 
 Network Device Inventory - keep a database of devices to feed other systems
 (such as monitoring software). Copyright 2007 University of Oxford

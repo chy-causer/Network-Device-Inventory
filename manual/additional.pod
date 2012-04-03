@@ -42,3 +42,9 @@ devices can have the same IP and multiple devices can hang from the same UPS)
 
 =item all date fields provide a date picker (currently via jQuery)
 
+=item An optional end of life date field for hardware models is provided which
+can be null or hold the vendors announced end-of-life date for that the
+hardware model
+
+=item a License statement should be present in each cgi script and module and
+be consistent across the program 

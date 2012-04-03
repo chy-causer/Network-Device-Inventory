@@ -7,9 +7,8 @@
 
 =over 4
 
-=item [feature] (4th April) add optional date field which holds the end-of-life date of
-   the hardware model
-  
+=item [feature] (4th April) ability to see all devices which are of a particular model type
+
 =item [feature] (10th April) Add a service level to support contracts.
  
 =item [feature] (11th April) Show all devices under a support contract / show all not under a
@@ -17,15 +16,10 @@
  
 =item [feature] (17th April) Support contracts: cost and duration of contract, start and end
    date plus service level.
-   
-=item [feature] (18th April) ability to see all devices which are of a particular model type
  
 =item [release] (24th April) Write tests for each module
  
 =item [release] (25th April) Improve install instructions
-
-=item [release] (1st May) Put license details in each file
-
 
 =back
 

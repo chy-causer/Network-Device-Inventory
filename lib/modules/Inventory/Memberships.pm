@@ -576,9 +576,9 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-The University of Oxford disclaims all copyright interest in the program
+The University of Oxford agrees to the release under the GPL of in the program
 `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
 Oxford University Computer Services.
 
 Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
-also disclaims all copyright interest in the program.
+also agreed to the code release under the GPL.
