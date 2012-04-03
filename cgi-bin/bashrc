@@ -9,9 +9,10 @@ use Template;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Introlemembers qw(fqdns_bybashgroup);
+use Inventory;
+use Inventory::Introlemembers;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 
@@ -29,10 +30,14 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #

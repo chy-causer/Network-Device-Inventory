@@ -7,26 +7,24 @@
 
 =over 4
 
-=item [feature] add a change audit trail
-
-=item [feature] add optional date field which holds the end-of-life date of
+=item [feature] (4th April) add optional date field which holds the end-of-life date of
    the hardware model
   
-=item [feature] Add a service level to support contracts.
+=item [feature] (10th April) Add a service level to support contracts.
  
-=item [feature] Show all devices under a support contract / show all not under a
+=item [feature] (11th April) Show all devices under a support contract / show all not under a
    support contract.
  
-=item [feature] Support contracts: cost and duration of contract, start and end
+=item [feature] (17th April) Support contracts: cost and duration of contract, start and end
    date plus service level.
    
-=item [feature] ability to see all devices which are of a particular model type
+=item [feature] (18th April) ability to see all devices which are of a particular model type
  
-=item [release] Write tests for each module
+=item [release] (24th April) Write tests for each module
  
-=item [release] Improve install instructions
+=item [release] (25th April) Improve install instructions
 
-=item [release] Put license details in each file
+=item [release] (1st May) Put license details in each file
 
 
 =back
@@ -35,6 +33,9 @@
 1.2 LONGER TERM ISSUES
 
 =over 4
+
+=item [defect] ssh keys page allows inserting invalid ssh keys but then will
+not display them testdata "id 160 | host_id 1471 | sshkey testing:testing:123"
 
 =item [defect] error message in log Argument "" isn't numeric in numeric lt
 (<) at /srv/www/overlord/lib/tt/inventory_viewhost.tt line 136
@@ -60,8 +61,6 @@ accidentally enabled when only one essential field is filled in
 
 =item [feature] Introduce edit restrictions on the groups (frodos/ups and status)
       where names mustn't change
-
-=item [feature] JQuery - Show a date picker widget on date fields
 
 =item [feature] Ajax - As the user types, show if the name is unique and
       available or not (tick or cross)

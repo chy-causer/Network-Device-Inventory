@@ -37,3 +37,8 @@ what the issue was.
 =item the server site (helpful) duplicate name checks will also affect ups
 device addition, although it should be les common (as by design multiple
 devices can have the same IP and multiple devices can hang from the same UPS)
+
+=item the pages leave a change audit trail in the logs
+
+=item all date fields provide a date picker (currently via jQuery)
+

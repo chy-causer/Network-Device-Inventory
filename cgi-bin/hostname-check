@@ -8,9 +8,10 @@ use CGI;
 use Config::Tiny;
 use DBD::Pg;
 use DBI;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory;
 use Inventory::Hosts;
 
 my $BASEURL = CGI::url( -base => 1 );
@@ -30,10 +31,14 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -51,8 +56,7 @@ if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_us
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-my %gets =
-  Inventory::populate_query_fields();    # not strictly a get field of course
+my %gets = Inventory::populate_query_fields(); # not strictly a get field
 
 if ( not exists $gets{'hostname'} ){
     print "0";

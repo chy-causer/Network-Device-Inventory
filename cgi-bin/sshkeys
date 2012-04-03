@@ -5,14 +5,15 @@ use strict;
 our $VERSION = qw('1.0.0');
 
 use CGI;
-use Template;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
+use Log::Log4perl;
+use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Sshkeys qw(edit_sshkeys create_sshkeys get_sshkeys_info);
-use Inventory::Hosts qw(get_hosts_info);
+use Inventory;
+use Inventory::Sshkeys;
+use Inventory::Hosts;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -31,10 +32,14 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -64,8 +69,7 @@ if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_us
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-my %gets =
-  Inventory::populate_query_fields();    # not strictly a get field of course
+my %gets = Inventory::populate_query_fields(); # not strictly a get field
 my %POSTS;
 if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
@@ -74,9 +78,11 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
 my ( $edit, $delete );
 if ( $gets{'sshkey_id'} && $gets{'sshkey_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to delete ID $gets{'sshkey_id'}");
         $delete = $gets{'sshkey_id'};
     }
     else {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to edit ID $gets{'sshkey_id'}");
         $edit = $gets{'sshkey_id'};
     }
 }
@@ -86,13 +92,16 @@ my %message;    # communicate success or failure, sink or swim
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to delete ID $POSTS{'sshkey_id'}");
         %message =
           %{ Inventory::Sshkeys::delete_sshkeys( $dbh, $POSTS{'sshkey_id'} ) };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'sshkey_id'}");
         %message = %{ Inventory::Sshkeys::edit_sshkeys( $dbh, \%POSTS ) };
     }
     elsif ( $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
         %message = %{ Inventory::Sshkeys::create_sshkeys( $dbh, \%POSTS ) };
     }
 }
@@ -125,25 +134,37 @@ __END__
 
 =head1 NAME
 
+sshkeys
+
 =head1 VERSION
 
 This documentation refers to version 1.0.0 
 
 =head1 USAGE
 
+Used as a cgi webpage
+
 =head1 REQUIRED ARGUMENTS
+
+none
 
 =head1 OPTIONS
 
 =head1 DESCRIPTION
 
+Show the ssh keys our hosts have and let people edit or add records.
+
 =head1 DIAGNOSTICS
 
-error messages
+User errors should be explained to the user via the interface in helpful
+laymans terms.
+
+Fatal error messages should be logged to the apache error log with auditing
+information to the applications logging file.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Configuration files used?
+/srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
 

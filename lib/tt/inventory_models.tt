@@ -1,9 +1,10 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
-# $Revision: 3529 $
-# $Id: inventory_models.tt 3529 2012-02-07 12:33:58Z guy $
--%]
+<script>
+    $(function() {
+        $( "#dateeol" ).datepicker();
+        $( "#dateeol_edit" ).datepicker();
+    });
+</script>
+
 <div>
 [% IF message.keys.size %]
   [% FOR notification IN message.keys %] 
@@ -28,10 +29,9 @@
  <fieldset><legend>Edit an existing entry</legend>
   [% FOR model IN models %]
       [% IF edit == model.id %]
-      <p>
-       Model Name:
-       <input type="text" name="model_name" maxlength="35" value="[% model.name | html_entity %]" />
-       Made by: </td>
+      <table>
+        <tr><th>Model Name</th><td><input type="text" name="model_name" maxlength="35" value="[% model.name | html_entity %]" /></td></tr>
+        <tr><th>Made by</th><td>
        <select name="manufacturer_id">
           [% FOR manufacturer IN manufacturers %]
           <option value="[% manufacturer.id | html_entity %]"
@@ -41,9 +41,11 @@
           >[% manufacturer.name | html_entity %]</option>
           [% END %]
          </select>
-        <input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
-        <input type="submit" value="Submit Changes" />
-        </p>
+         </td></tr>
+        <tr><th>End of Life Date</th><td><input type="text" id="dateeol_edit" name="model_dateeol" maxlength="15" value="[% model.dateeol | html_entity %]" /> (if known)</td></tr>
+        <tr><td colspan="2"><input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
+        <input type="submit" value="Submit Changes" /></td></tr>
+        </table>
       [% END %]
   [% END %]
   </fieldset>
@@ -51,8 +53,7 @@
 [% END %]
 
 [% IF manufacturers.size < 1 %]
-   
-   
+    
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -63,16 +64,17 @@
 [% ELSE %]
 <form action="" method="post">
  <fieldset><legend>Enter a new model</legend>
-  <p>
-      Model Name
-      <input type="text" name="model_name" maxlength="35" />
-      Made by:
+  <table>
+      <tr><th>Model Name </th><td><input type="text" name="model_name" maxlength="35" /></td></tr>
+      <tr><th>Made by </th><td>
           <select name="manufacturer_id">
           [% FOR manufacturer IN manufacturers %]
           <option value="[% manufacturer.id | html_entity %]">[% manufacturer.name | html_entity %]</option>
           [% END %]
-          </select>
-      <input type="submit" value="Create Entry" /></p>
+          </select></td></tr>
+       <tr><th>End of Life Date </th><td><input type="text" id="dateeol" name="model_dateeol" maxlength="15" /> (if known)</td</tr>
+      <tr><td colspan="2"><input type="submit" value="Create Entry" /></td></tr>
+      </table>
   </fieldset>
 </form>
 [% END %]
@@ -92,6 +94,7 @@ $(document).ready(function(){
   <tr>
     <th>Model Name</th>
     <th>Manufacturer</th>
+    <th>End of life</th>
     <th>Total Hosts</th>
     <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
     <th>Options</th>
@@ -125,11 +128,12 @@ $(document).ready(function(){
     [% END %]
       <td>[% model.name | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %]</td>
+      <td>[% model.dateeol | html_entity %]</td>
       <td>[% count_sum | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span>     / 
+        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span> / 
         <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
-        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span>   / 
+        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span> / 
         <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
       </td>
       <td>
@@ -144,7 +148,6 @@ $(document).ready(function(){
 </table>
 
 [% ELSE %]
-
 
 <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 

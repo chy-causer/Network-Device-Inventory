@@ -1,9 +1,11 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
-# $Revision: 3529 $
-# $Id: inventory_contracts.tt 3529 2012-02-07 12:33:58Z guy $
--%]
+<script>
+    $(function() {
+        $( "#startdate" ).datepicker();
+        $( "#enddate" ).datepicker();
+        $( "#startdate_edit" ).datepicker();
+        $( "#enddate_edit" ).datepicker();
+    });
+</script>
 
 <div>
 [% IF message.keys.size %]
@@ -42,8 +44,8 @@
                              </select>
                           </td></tr>
       <tr><th>Serial</th><td><input type="text" name="contract_serial" maxlength="155" value="[% contract.serial | html_entity %]" /></td></tr>
-      <tr><th>Start Date</th><td><input type="text" name="contract_startdate" maxlength="155" value="[% contract.startdate | html_entity %]" /></td></tr>
-      <tr><th>End Date</th><td><input type="text" name="contract_enddate" maxlength="155" value="[% contract.enddate | html_entity %]" /></td></tr>
+      <tr><th>Start Date</th><td><input type="text" name="contract_startdate" id="startdate_edit" maxlength="155" value="[% contract.startdate | html_entity %]" /></td></tr>
+      <tr><th>End Date</th><td><input type="text" name="contract_enddate" id="enddate_edit" maxlength="155" value="[% contract.enddate | html_entity %]" /></td></tr>
       <tr><td colspan="2">
        <input type="hidden" name="contract_id" value="[% contract.id | html_entity %]" />
        <input type="hidden" name="action" value="edit" />
@@ -84,8 +86,8 @@
                              </select>
                           </td></tr>
       <tr><th>Serial</th><td><input type="text" name="contract_serial" maxlength="155" /></td></tr>
-      <tr><th>Start Date</th><td><input type="text" name="contract_startdate" maxlength="155" /></td></tr>
-      <tr><th>End Date</th><td><input type="text" name="contract_enddate" maxlength="155" /></td></tr>
+      <tr><th>Start Date</th><td><input id="startdate" type="text" name="contract_startdate" maxlength="155" /></td></tr>
+      <tr><th>End Date</th><td><input id="enddate" type="text" name="contract_enddate" maxlength="155" /></td></tr>
       <tr><td colspan="2">
        <input type="hidden" name="action" value="create" />
        <input type="submit" value="Create Entry" />

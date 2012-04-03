@@ -6,9 +6,10 @@ our $VERSION = qw('1.0.0');
 
 use CGI;
 use Config::Tiny;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -26,6 +27,10 @@ $CONFIG = Config::Tiny->read("$CONFIG_FILE");
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -78,7 +83,7 @@ error messages
 
 =head1 CONFIGURATION
 
-Configuration files used?
+/srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
 

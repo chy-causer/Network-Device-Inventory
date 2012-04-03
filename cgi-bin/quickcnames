@@ -10,8 +10,8 @@ use DBI;
 use DBD::Pg;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Cnames qw(create_cnames get_cnames_info edit_cnames);
+use Inventory;
+use Inventory::Cnames;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -34,6 +34,9 @@ my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+my @message_store;    # communicate success or failure, sink or swim
 
 #############################################################################
 #                                     main                                  #
@@ -78,28 +81,29 @@ if ( exists $gets{'host_id'} ) {
 
 if ( $gets{'cname_id'} && $gets{'cname_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to edit ID $gets{'cnamme_id'}");
         $edit = $gets{'cname_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to delete ID $gets{'cname_id'}");
         $delete = $gets{'cname_id'};
     }
 }
 
-my @message_store;    # communicate success or failure, sink or swim
-
-# are we taking action?
 if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete') {
+        $logger->info("$ENV{REMOTE_USER} posts to delete ID $POSTS{'cname_id'}");
         @message_store = Inventory::Cnames::delete_cname( $dbh, $POSTS{'cname_id'} );
     }
     if ( $POSTS{'action'} eq 'edit') {
+        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'cname_id'}");
         @message_store = Inventory::Cnames::edit_shortcnames( $dbh, \%POSTS );
     }
     if ( $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a new cname");i
         @message_store = Inventory::Cnames::create_shortcname( $dbh, \%POSTS );
     }
 }
-
 
 # list all the cnames (array of hashes)
 my @cnames = Inventory::Cnames::get_cnames_info($dbh);

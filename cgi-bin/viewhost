@@ -12,18 +12,18 @@ use DBD::Pg;
 use NetAddr::IP;
 use URI::Escape;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Cnames qw(get_cnames_info);
-use Inventory::Hosts qw(get_hosts_info host_info_wrapper update_time);
-use Inventory::Introles qw(get_hostgroups_info);
-use Inventory::Models qw(get_models_info);
-use Inventory::Interfaces qw(get_interfaces_info);
-use Inventory::Locations qw(get_locations_info);
-use Inventory::Introlemembers qw(memberships_byinterfaceid);
-use Inventory::Photos qw(get_photos_byhostid);
-use Inventory::Sshkeys qw(sshkeys_byhostid);
-use Inventory::Status qw(get_status_info);
-use Inventory::Ups qw(ups_byhostid);
+use Inventory;
+use Inventory::Cnames;
+use Inventory::Hosts;
+use Inventory::Introles;
+use Inventory::Models;
+use Inventory::Interfaces;
+use Inventory::Locations;
+use Inventory::Introlemembers;
+use Inventory::Photos;
+use Inventory::Sshkeys;
+use Inventory::Status;
+use Inventory::Ups;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -48,6 +48,7 @@ my $netdisco_url = $CONFIG->{'links'}->{netdisco_url};
 my $nagios_url   = $CONFIG->{'links'}->{nagios_url};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
 
 my %POSTS;
 

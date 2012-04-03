@@ -8,9 +8,10 @@ use CGI;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory;
 use Inventory::Contacts;
 use Inventory::Suppliers;
 
@@ -31,10 +32,14 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -64,7 +69,7 @@ if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_us
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-my %gets = populate_query_fields();    # not strictly a get field of course
+my %gets = Inventory::populate_query_fields();    # not strictly a get field
 my %POSTS;
 if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
@@ -74,9 +79,11 @@ my $edit;
 my $delete;
 if ( $gets{'contact_id'} && $gets{'contact_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to edit a contact $gets{'contact_id'}");
         $edit = $gets{'contact_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to delete a contact $gets{'contact_id'}");
         $delete = $gets{'contact_id'};
     }
 }
@@ -86,14 +93,17 @@ my %message;    # communicate success or failure, sink or swim
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to delete a contact ID $POSTS{'contact_id'}");
         %message =
           %{ Inventory::Contacts::delete_contacts( $dbh, $POSTS{'contact_id'} )
           };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to edit a contract ID $POSTS{'contact_id'}");
         %message = %{ Inventory::Contacts::edit_contacts( $dbh, \%POSTS ) };
     }
     elsif ( $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a new contract");
         %message = %{ Inventory::Contacts::create_contacts( $dbh, \%POSTS ) };
     }
 }
@@ -141,7 +151,7 @@ error messages
 
 =head1 CONFIGURATION
 
-Configuration files used?
+/srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
 

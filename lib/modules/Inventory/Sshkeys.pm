@@ -65,6 +65,7 @@ sub create_sshkeys {
         return \%message;
     }
 
+    $message{'DEBUG'} = "INSERT INTO sshkeys(fingerprint,host_id) VALUES($posts{'sshkey_fingerprint'}, $posts{'host_id'})";
     $message{'SUCCESS'} =
       "The SSH key creation $posts{'sshkey_fingerprint'} was successful";
     return \%message;

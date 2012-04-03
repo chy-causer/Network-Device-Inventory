@@ -48,9 +48,9 @@ sub create_models {
     }
 
     my $sth =
-      $dbh->prepare('INSERT INTO models(name,manufacturer_id) VALUES(?,?)');
+      $dbh->prepare('INSERT INTO models(name,manufacturer_id,dateeol) VALUES(?,?,?)');
 
-    if ( !$sth->execute( $posts->{'model_name'}, $posts->{'manufacturer_id'} ) )
+    if ( !$sth->execute( $posts->{'model_name'}, $posts->{'manufacturer_id'}, $posts->{'model_dateeol'} ) )
     {
         $message{'ERROR'} =
           "Internal Error: The model creation was unsuccessful";
@@ -90,11 +90,11 @@ sub edit_models {
     }
 
     my $sth =
-      $dbh->prepare('UPDATE models SET name=?,manufacturer_id=? WHERE id=?');
+      $dbh->prepare('UPDATE models SET name=?,manufacturer_id=?,dateeol=? WHERE id=?');
     if (
         !$sth->execute(
             $posts->{'model_name'}, $posts->{'manufacturer_id'},
-            $posts->{'model_id'}
+            $posts->{'model_dateeol'}, $posts->{'model_id'}
         )
       )
     {
@@ -119,6 +119,7 @@ sub get_models_info {
            models.id,
            models.name,
            models.manufacturer_id,
+           models.dateeol,
            manufacturers.name AS manufacturer_name
         FROM models,manufacturers 
         WHERE
@@ -136,6 +137,7 @@ sub get_models_info {
            models.id,
            models.name,
            models.manufacturer_id,
+           models.dateeol,
            manufacturers.name AS manufacturer_name
         FROM models,manufacturers 
         WHERE
@@ -201,6 +203,7 @@ sub get_frodo_models {
            models.id,
            models.name,
            models.manufacturer_id,
+           models.dateeol,
            manufacturers.name AS manufacturer_name
         FROM models
         LEFT JOIN manufacturers 
@@ -242,6 +245,7 @@ sub get_models_waps {
         'SELECT 
            models.id,
            models.name,
+           models.dateeol,
            models.manufacturer_id,
            manufacturers.name AS manufacturer_name
         FROM models,manufacturers 
@@ -274,12 +278,11 @@ Inventory::Models - Information on Models
 
 =head2 VERSION
 
-This document describes Inventory::Models version 0.0.1
+This document describes Inventory::Models version 1.0.1
 
 =head1 SYNOPSIS
 
-  use Inventory::Models qw(create_models edit_models show_models_info count_hosts_permodel);
-  # There are no special setup requirements
+  use Inventory::Models;
 
 =head1 PURPOSE
 

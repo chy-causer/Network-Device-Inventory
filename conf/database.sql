@@ -66,6 +66,7 @@ CREATE TABLE models (
     id               serial NOT NULL,
     name             character varying NOT NULL,
     manufacturer_id  integer NOT NULL,
+    dateeol          date,
     PRIMARY KEY(id)
 );
 ALTER TABLE ONLY models ADD CONSTRAINT models_manufacturer_id_fkey FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(id);

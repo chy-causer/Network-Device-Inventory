@@ -9,8 +9,9 @@ use Config::Tiny;
 use DBI;
 use DBD::Pg;
 use Template;
+use Log::Log4perl;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
+use Inventory;
 use Inventory::Contracts;
 use Inventory::Invoices;
 
@@ -31,10 +32,14 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -61,8 +66,10 @@ $tt->process(
 # invalid users get no further than the next line
 if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
-# I differenciate between get[sic] and post, and I'm proud. I also wear suspenders.
-my %gets = populate_query_fields();    # not strictly a get field of course
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+my %gets = Inventory::populate_query_fields();    # not strictly a get field
 my %POSTS;
 if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
@@ -72,9 +79,11 @@ my $edit;
 my $delete;
 if ( $gets{'contract_id'} && $gets{'contract_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} takes first step to edit a contract ID $gets{'contract_id'}");
         $edit = $gets{'contract_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->info("$ENV{REMOTE_USER} takes first step to delete a contract ID $gets{'contract_id'}");
         $delete = $gets{'contract_id'};
     }
 }
@@ -84,16 +93,19 @@ my %message;    # communicate success or failure, sink or swim
 # are we creating/editing or deleting?
 if ( $POSTS{'contract_id'} ) {
     if ( exists $POSTS{'action'} and $POSTS{'action'} eq 'delete' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to delete a contract ID $POSTS{'contract_id'}");
         %message = %{
             Inventory::Contracts::delete_contracts( $dbh,
                 $POSTS{'contract_id'} )
           };
     }
     elsif ( exists $POSTS{'action'} and $POSTS{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to edit $POSTS{'contract_id'}");
         %message = %{ Inventory::Contracts::edit_contracts( $dbh, \%POSTS ) };
     }
 }
 elsif ( exists $POSTS{'action'} and $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a new contract ID");
     %message = %{ Inventory::Contracts::create_contracts( $dbh, \%POSTS ) };
 }
 
@@ -138,7 +150,7 @@ error messages
 
 =head1 CONFIGURATION
 
-Configuration files used?
+/srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
 

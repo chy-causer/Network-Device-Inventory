@@ -8,12 +8,12 @@ use CGI;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Manufacturers qw(create_manufacturers edit_manufacturers
-  get_manufacturers_info count_models_permanufacturer count_hosts_permanufacturer);
-use Inventory::Models qw(get_models_info);
+use Inventory;
+use Inventory::Manufacturers;
+use Inventory::Models;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -36,7 +36,12 @@ my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
 
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
+
+my %message;    # communicate success or failure, sink or swim
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -65,8 +70,7 @@ if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_us
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-my %gets =
-  Inventory::populate_query_fields();    # not strictly a get field of course
+my %gets = Inventory::populate_query_fields();  # not strictly a get field
 my %POSTS;
 if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
@@ -77,15 +81,14 @@ if ( $gets{'manufacturer_id'} && $gets{'manufacturer_id'} !~ m/\D/x ) {
     $edit = $gets{'manufacturer_id'};
 }
 
-my %message;    # communicate success or failure, sink or swim
-
 # are we editing an existing entry?
 if ( $POSTS{'manufacturer_id'} ) {
+    $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_name'}");
     %message =
       %{ Inventory::Manufacturers::edit_manufacturers( $dbh, \%POSTS ) };
 }
 elsif ( $POSTS{'manufacturer_name'} ) {
-
+    $logger->info("$ENV{REMOTE_USER} posts to create a new manufacturer $POSTS{'manufacturer_name'}");
     # are we creating a new entry?
     %message =
       %{ Inventory::Manufacturers::create_manufacturers( $dbh, \%POSTS ) };
@@ -136,7 +139,7 @@ error messages
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Configuration files used?
+/srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
 

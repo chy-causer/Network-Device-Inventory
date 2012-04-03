@@ -8,11 +8,12 @@ use CGI;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Ups qw(get_links_info);
-use Inventory::Frodos qw(ordered_hash_frodos);
+use Inventory;
+use Inventory::Ups;
+use Inventory::Frodos;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -31,9 +32,13 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -57,8 +62,7 @@ $tt->process(
     }
 );
 
-my %gets =
-  Inventory::populate_query_fields();    # not strictly a get field of course
+my %gets = Inventory::populate_query_fields();    # not strictly a get field
 my $orderby;
 if ( !exists $gets{'orderby'} || $gets{'orderby'} =~ m/\W/x ) {
     $orderby = 'host_name';
@@ -68,7 +72,7 @@ else {
 }
 
 # all the frodos
-my %frodos = %{ ordered_hash_frodos( $dbh, $orderby ) };
+my %frodos = %{ Inventory::Frodos::ordered_hash_frodos( $dbh, $orderby ) };
 
 # all the ups joined to hosts
 my @links = Inventory::Ups::get_links_info($dbh);

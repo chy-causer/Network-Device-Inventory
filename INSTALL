@@ -1,6 +1,7 @@
 SITENAME='inventory'
 HOSTSSH='foo.exmaple.com'
 DOWNLOAD_DIR='/home/foo/temp'
+APACHE_USER=www-data
 
 0. Packages the webserver needs
      apt-get install libnet-dns-perl
@@ -11,12 +12,14 @@ DOWNLOAD_DIR='/home/foo/temp'
 
 1. Make the dns name required
 2. Copy the apache configuration in to place
-3. Make the directories needed 
+3. Make the directories needed for example
    mkdir /var/www/$SITENAME/static/cgi-bin -p
    mkdir /var/www/$SITENAME/static/stylesheets -p
    mkdir /var/www/$SITENAME/static/images -p
    mkdir /var/www/$SITENAME/lib/tt -p
    mkdir /var/www/$SITENAME/lib/local/tt -p
+   mkdir /var/log/inventory
+   chown $APACHE_USER:$APACHE_USER /var/log/inventory
 
 put any local modified versions of the files into /var/www/$SITENAME/lib/local/tt
 
@@ -27,22 +30,23 @@ put any local modified versions of the files into /var/www/$SITENAME/lib/local/t
 7. copy the config file into place
    scp $DOWNLOAD_DIR/conf/$SITENAME.ini $HOSTSSH:/var/www/$SITENAME/lib/
    configure the database details host/dbname/user/password
-   configure the  pathways
-8. copy modules into place
+   configure the pathways
+8. copy the logging configuration file into place and edit it
+9. copy modules into place
    # TODO: package up properly
    mkdir /usr/local/lib/site_perl/Inventory -p
    scp $DOWNLOAD_DIR/lib/modules/Inventory/*.pm $HOSTSSH:/usr/local/lib/site_perl/Inventory/
-9. copy the web files into place
+10. copy the web files into place
    scp $DOWNLOAD_DIR/lib/tt/inventory_*.tt $HOSTSSH:/var/www/$SITENAME/lib/tt/
    scp $DOWNLOAD_DIR/lib/stylesheets/*.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
    scp $DOWNLOAD_DIR/lib/images/inventory_* $HOSTSSH:/var/www/$SITENAME/static/images/
    scp $DOWNLOAD_DIR/cgi-bin/* $HOSTSSH:/var/www/$SITENAME/static/cgi-bin/
-10. TODO: fix this workaround for finding the config file
+11. TODO: fix this workaround for finding the config file
    ln -s /var/www /srv/www
-11. TODO and fix these two aliases in the cgi-bin
+12. TODO and fix these two aliases in the cgi-bin
    ln -s edithost quickadd
    ln -s edithost quickdevice
-12. Sort out jquery
+13. Sort out jquery
    # TODO: this is a real mess
    #
    # download the desired theme from 

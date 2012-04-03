@@ -8,10 +8,11 @@ use CGI;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Cnames qw(create_cnames get_cnames_info edit_cnames);
+use Inventory;
+use Inventory::Cnames;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -34,6 +35,10 @@ my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 #############################################################################
 #                                     main                                  #
@@ -63,8 +68,7 @@ if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_us
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-#
-my %gets = Inventory::populate_query_fields();
+my %gets = Inventory::populate_query_fields();  # not strictly a get field
 my %POSTS;
 if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
@@ -79,9 +83,11 @@ if ( exists $gets{'host_id'} ) {
 
 if ( $gets{'cname_id'} && $gets{'cname_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to edit ID $gets{'sshkey_id'}");
         $edit = $gets{'cname_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->debug("$ENV{REMOTE_USER} takes first step to delete ID $gets{'sshkey_id'}");
         $delete = $gets{'cname_id'};
     }
 }
@@ -91,13 +97,16 @@ my @message_store;    # communicate success or failure, sink or swim
 # are we taking action?
 if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to delete ID $POSTS{'cname_id'}");
         @message_store =
           Inventory::Cnames::delete_cname( $dbh, $POSTS{'cname_id'} );
     }
     if ( $POSTS{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'cname_id'}");
         @message_store = Inventory::Cnames::edit_cnames( $dbh, \%POSTS );
     }
     if ( $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a CNAME");
         @message_store = Inventory::Cnames::create_cnames( $dbh, \%POSTS );
     }
 }

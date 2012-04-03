@@ -8,12 +8,12 @@ use CGI;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 use Template;
 
-use Inventory qw(dbconnect populate_query_fields acl_checker);
-use Inventory::Models
-  qw(create_models edit_models get_models_info count_hosts_permodel);
-use Inventory::Manufacturers qw(get_manufacturers_info);
+use Inventory;
+use Inventory::Models;
+use Inventory::Manufacturers;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -32,10 +32,16 @@ my $dbhost           = $CONFIG->{'database'}->{db_host};
 my $dbname           = $CONFIG->{'database'}->{db_name};
 my $dbuser           = $CONFIG->{'database'}->{db_user};
 my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users      = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
+
+my %message;    # communicate success or failure, sink or swim
 
 #############################################################################
 #                                     main                                  #
@@ -65,7 +71,7 @@ if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_us
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-my %gets = populate_query_fields();    # not strictly a get field of course
+my %gets = Inventory::populate_query_fields();  # not strictly a get field
 my %POSTS;
 if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
@@ -73,18 +79,16 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
 
 my $edit;
 if ( $gets{'model_id'} && $gets{'model_id'} !~ m/\D/x ) {
+    $logger->debug("$ENV{REMOTE_USER} takes first step to edit ID $POSTS{'model_id'}");
     $edit = $gets{'model_id'};
 }
 
-my %message;    # communicate success or failure, sink or swim
-
-# are we editing an existing entry?
 if ( $POSTS{'model_id'} ) {
+    $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'model_id'}");
     %message = %{ Inventory::Models::edit_models( $dbh, \%POSTS ) };
 }
 elsif ( $POSTS{'model_name'} ) {
-
-    # are we creating a new entry?
+    $logger->info("$ENV{REMOTE_USER} posts to create model named $POSTS{'model_name'}");
     %message = %{ Inventory::Models::create_models( $dbh, \%POSTS ) };
 }
 
@@ -134,7 +138,7 @@ error messages
 
 =head1 CONFIGURATION
 
-Configuration files used?
+/srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
 
