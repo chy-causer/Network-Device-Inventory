@@ -549,6 +549,60 @@ sub delete_hosts {
     return \%message;
 }
 
+sub hash_hosts_permodel {
+    my ( $dbh ) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return unless $sth->execute();
+
+    my %return;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        if(!exists($return{$ref->{'model_name'}})){
+            my @data = ( $ref );
+            $return{ $ref->{'model_name'} } = \@data;
+        }
+        else {
+            push @{ $return{ $ref->{'model_name'} } }, $ref;
+        }
+    }
+
+    return \%return;
+}
+
+
 1;
 __END__
 
@@ -558,7 +612,7 @@ Inventory::Hosts - Networks team inventory module
 
 =head2 VERSION
 
-This document describes Inventory version 0.0.1
+This document describes Inventory version 1.0.0
 
 =head1 SYNOPSIS
 

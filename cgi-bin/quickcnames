@@ -8,6 +8,7 @@ use CGI;
 use Config::Tiny;
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
 use Template;
 
 use Inventory;
@@ -35,6 +36,9 @@ my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
 
 my @message_store;    # communicate success or failure, sink or swim
 
@@ -100,7 +104,7 @@ if ( exists $POSTS{'action'} ) {
         @message_store = Inventory::Cnames::edit_shortcnames( $dbh, \%POSTS );
     }
     if ( $POSTS{'action'} eq 'create' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to create a new cname");i
+        $logger->info("$ENV{REMOTE_USER} posts to create a new cname");
         @message_store = Inventory::Cnames::create_shortcname( $dbh, \%POSTS );
     }
 }

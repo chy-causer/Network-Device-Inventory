@@ -111,6 +111,12 @@ Create two aliases
    ln -s edithost quickadd
    ln -s edithost quickdevice
 
+=head2 Install Flot
+
+Please the flot jquery graphing externsions in your javascript folder
+    wget http://people.iola.dk/olau/flot/jquery.flot.js
+    wget http://people.iola.dk/olau/flot/jquery.flot.pie.js
+
 =head2 Install jQuery
 
 This section is sub optimal and needs some testing and revision

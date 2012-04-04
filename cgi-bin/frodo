@@ -79,7 +79,7 @@ else {
 if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 # all the frodos
-my $frodos = Inventory::Frodos:ordered_hash_frodos( $dbh, $orderby );
+my $frodos = Inventory::Frodos::ordered_hash_frodos( $dbh, $orderby );
 
 # all the ups joined to hosts
 my @links = Inventory::Ups::get_links_info($dbh);

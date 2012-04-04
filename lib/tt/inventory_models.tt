@@ -95,8 +95,6 @@ $(document).ready(function(){
     <th>Model Name</th>
     <th>Manufacturer</th>
     <th>End of life</th>
-    <th>Total Hosts</th>
-    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
     <th>Options</th>
   </tr>
   </thead>
@@ -119,9 +117,7 @@ $(document).ready(function(){
        [% id = model.id %]
        [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
     
-    [% IF 1 > count_sum %]
-      <tr class="block-status-inactive">
-    [% ELSIF counter % 2 > 0 %]
+    [% IF counter % 2 > 0 %]
       <tr class="stripe">
     [% ELSE %]
       <tr>
@@ -129,13 +125,6 @@ $(document).ready(function(){
       <td>[% model.name | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %]</td>
       <td>[% model.dateeol | html_entity %]</td>
-      <td>[% count_sum | html_entity %]</td>
-      <td>
-        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span> / 
-        <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
-        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span> / 
-        <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
-      </td>
       <td>
         <a href="models?model_id=[% model.id | html_entity %]">edit model</a> /
         <a href="manufacturers?manufacturer_id=[% model.manufacturer_id | html_entity %]">edit manufacturer</a> 

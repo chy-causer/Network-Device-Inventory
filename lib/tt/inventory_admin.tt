@@ -1,15 +1,6 @@
-<h4>Frodos DNS</h4>
-<ul>
-  <li><a href="cnames">Frodo Cnames</a> (full many-many interface)</li>
-</ul>
-
-<h4>Opsview specific</h4>
-<ul>
-  <li><a href="introles">Interface Roles</a></li>
-  <li><a href="introlemembers">Role Memberships</a></li>
-</ul>
-
 <h4>Inventory Tables</h4>
+
+<h5>Core Tables</h5>
 <ul>
   <li><a href="manufacturers">Hardware Manufacturers</a></li>
   <li><a href="models">Hardware Models</a></li>
@@ -22,16 +13,21 @@
   <li><a href="ups">UPS Protection</a></li>
 </ul>
 
+<h5>Finance</h5>
 <ul>
-  <li><a href="finance">Financal overview (work in progress)</a></li>
   <li><a href="contacts">Contacts</a></li>
   <li><a href="suppliers">Suppliers</a></li>
   <li><a href="contracts">Contracts (warranties, support contracts)</a></li>
   <li><a href="invoices">Invoices</a></li>
 </ul>
 
-<h4>Troubleshooting and sanity checking</h4>
+<h5>Opsview specific</h5>
 <ul>
-  <li><a href="problems_interfaces">Interface Problems</a></li>
-  <li><a href="about">History, License, file version information</a></li>
+  <li><a href="introles">Interface Roles</a></li>
+  <li><a href="introlemembers">Role Memberships</a></li>
+</ul>
+
+<h5>Frodos DNS</h5>
+<ul>
+  <li><a href="cnames">Frodo Cnames</a> (full many-many interface)</li>
 </ul>

@@ -12,11 +12,11 @@ use Log::Log4perl;
 use Template;
 
 use Inventory;
-use Inventory::Models;
 use Inventory::Manufacturers;
+use Inventory::Models;
 
-my $HOSTNAME = CGI::url( -base => 1 );
-my $BASEURL = $HOSTNAME;
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
 
 # remove everything from the first . onwards
 $HOSTNAME =~ s/\..*$//gx;
@@ -28,12 +28,12 @@ my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
 $CONFIG = Config::Tiny->read("$CONFIG_FILE");
 
-my $dbhost           = $CONFIG->{'database'}->{db_host};
-my $dbname           = $CONFIG->{'database'}->{db_name};
-my $dbuser           = $CONFIG->{'database'}->{db_user};
-my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
-my $valid_users      = $CONFIG->{'general'}->{allowed_users};
+my $dbhost      = $CONFIG->{'database'}->{db_host};
+my $dbname      = $CONFIG->{'database'}->{db_name};
+my $dbuser      = $CONFIG->{'database'}->{db_user};
+my $dbpass      = $CONFIG->{'database'}->{db_pass};
+my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
@@ -42,7 +42,6 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 my %message;    # communicate success or failure, sink or swim
-
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -57,7 +56,7 @@ my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle  => 'Hardware Models',
+        pagetitle  => 'Manufacturers',
         baseurl    => $BASEURL,
         groupname  => $CONFIG->{'general'}->{groupname},
         appname    => $CONFIG->{'general'}->{appname},
@@ -77,34 +76,24 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
 }
 
-my $edit;
-if ( $gets{'model_id'} && $gets{'model_id'} !~ m/\D/x ) {
-    $logger->debug("$ENV{REMOTE_USER} takes first step to edit ID $POSTS{'model_id'}");
-    $edit = $gets{'model_id'};
-}
-
-if ( $POSTS{'model_id'} ) {
-    $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'model_id'}");
-    %message = %{ Inventory::Models::edit_models( $dbh, \%POSTS ) };
-}
-elsif ( $POSTS{'model_name'} ) {
-    $logger->info("$ENV{REMOTE_USER} posts to create model named $POSTS{'model_name'}");
-    %message = %{ Inventory::Models::create_models( $dbh, \%POSTS ) };
-}
-
-# list all the models (array of hashes)
-my @models = Inventory::Models::get_models_info($dbh);
-
-# list all the manufacturers in order to populate dropdown (array of hashes)
+# list all the manufacturers (array of hashes)
 my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
 
+# number of models per manufacturer
+my %model_count =
+  %{ Inventory::Manufacturers::count_models_permanufacturer($dbh) };
+
+# number of models per manufacturer
+my %host_count =
+  %{ Inventory::Manufacturers::count_hosts_permanufacturer($dbh) };
+
 $tt->process(
-    'inventory_models.tt',
+    'inventory_manufacturers-report.tt',
     {
-        models        => \@models,
         manufacturers => \@manufacturers,
         message       => \%message,
-        edit          => $edit,
+        model_counts  => \%model_count,
+        host_counts   => \%host_count,
     }
 );
 $tt->process( 'inventory_footer.tt', {} );
@@ -112,7 +101,8 @@ $tt->process( 'inventory_footer.tt', {} );
 __END__
 
 =head1 NAME
-models
+
+inventory_manufacturers-report.tt
 
 =head1 VERSION
 
@@ -126,13 +116,11 @@ This documentation refers to version 1.0.0
 
 =head1 DESCRIPTION
 
-Lets the user view and edit the list of hardware models that the inventory database knows about
-
 =head1 DIAGNOSTICS
 
 error messages
 
-=head1 CONFIGURATION
+=head1 CONFIGURATION AND ENVIRONMENT
 
 /srv/www/$HOSTNAME/lib/inventory.ini
 

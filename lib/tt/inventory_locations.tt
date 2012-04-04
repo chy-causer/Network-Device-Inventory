@@ -31,12 +31,27 @@
       <p>Edit the location called:
       <input type="text" name="location_name" value="[% location.name | html_entity %]" maxlength="55" />
       <input type="hidden" name="location_id" value="[% location.id | html_entity %]" />
+      <input type="hidden" name="action" value="edit" />
       <input type="submit" value="Submit Changes" />
       </p>
       [% END %]
   [% END %]
   </fieldset>
 </form>
+[% ELSIF delete %]
+
+  [% FOR location IN locations %]
+      [% IF delete == location.id %]
+<form action="locations" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry &quot;[% location.name | html_entity %]&quot;?
+ <br />
+ <input type="hidden" name="location_id" value="[% location.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="locations">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
 [% END %]
 
 <form action="" method="post">
@@ -49,7 +64,9 @@
   </fieldset>
 </form>
 
-<h3>Current Locations</h3>
+<form method="get" action="locations">
+<fieldset><legend>Recorded  Locations</legend>
+
 [% IF locations.size > 0 %]
 <script type="text/javascript">
 $(document).ready(function(){ 
@@ -58,50 +75,40 @@ $(document).ready(function(){
 ); 
 </script>
 
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 <table id="allresults">
   <thead>
   <tr>
-    <th>Locations Name</th>
-    <th>Total Hosts present<br />Excl decommissioned</th>
-    <th>Breakdown by Host State<br />Active / Inactive / Instock / Decommissioned</th>
+    <th></th><th>Locations Name</th>
   </tr>
   </thead>
 
   <tfoot>
    <tr>
-    <td colspan="3">There are [% locations.size | html_entity %] locations recorded</td>
+    <td colspan="2">There are [% locations.size | html_entity %] locations recorded</td>
    </tr>
   </tfoot>
 
   <tbody>
   [% counter=0 %]
   [% FOR location IN locations %]
-    [% id = location.id %]
     [% counter = counter +1 %]
-    [% sum = location_counts.$id.active + location_counts.$id.instock + location_counts.$id.decommissioned %]
 
     [% class="" %]
-    [% IF sum < 1 %]
-       [% class="block-status-inactive" %]
-    [% ELSIF counter % 2 > 0 %]
+    [% IF counter % 2 > 0 %]
       [% class="stripe" %]
     [% END %]
     
     <tr class="[% class | html_entity %]">
-    
+      <td><input type="radio" name="location_id" value="[% location.id  | html_entity %]" /></td>
       <td><a href="locations?location_id=[% location.id | html_entity %]">[% location.name | html_entity %]</a></td>
-      <td>[% sum | html_entity %]</td>
-      <td>
-        <span class="status-active">[% 0 + location_counts.$id.active | html_entity %]</span>
-        / <span class="status-inactive">[% 0 + location_counts.$id.inactive | html_entity %]</span> 
-        / <span class="status-instock">[% 0 + location_counts.$id.instock | html_entity %]</span>
-        / <span class="status-decommissioned">[% 0 + location_counts.$id.decommissioned | html_entity %]</span> 
-      </td>
-  </tr>
+    </tr>
   [% END %]
   </tbody>
-
 </table>
+
+</fieldset>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">

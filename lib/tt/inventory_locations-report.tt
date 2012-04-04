@@ -1,0 +1,90 @@
+[%-
+# $Author: guy $
+# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
+# $Revision: 3529 $
+# $Id: inventory_locations.tt 3529 2012-02-07 12:33:58Z guy $
+-%]
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           ERROR: [% message.$notification  | html_entity %]
+      </p>
+   </div>
+</div>
+    
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+<h3>Current Locations</h3>
+[% IF locations.size > 0 %]
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Locations Name</th>
+    <th>Total Hosts present<br />Excl decommissioned</th>
+    <th>Breakdown by Host State<br />Active / Inactive / Instock / Decommissioned</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+   <tr>
+    <td colspan="3">There are [% locations.size | html_entity %] locations recorded</td>
+   </tr>
+  </tfoot>
+
+  <tbody>
+  [% counter=0 %]
+  [% FOR location IN locations %]
+    [% id = location.id %]
+    [% counter = counter +1 %]
+    [% sum = location_counts.$id.active + location_counts.$id.instock + location_counts.$id.decommissioned %]
+
+    [% class="" %]
+    [% IF sum < 1 %]
+       [% class="block-status-inactive" %]
+    [% ELSIF counter % 2 > 0 %]
+      [% class="stripe" %]
+    [% END %]
+    
+    <tr class="[% class | html_entity %]">
+    
+      <td><a href="locations?location_id=[% location.id | html_entity %]">[% location.name | html_entity %]</a></td>
+      <td>[% sum | html_entity %]</td>
+      <td>
+        <span class="status-active">[% 0 + location_counts.$id.active | html_entity %]</span>
+        / <span class="status-inactive">[% 0 + location_counts.$id.inactive | html_entity %]</span> 
+        / <span class="status-instock">[% 0 + location_counts.$id.instock | html_entity %]</span>
+        / <span class="status-decommissioned">[% 0 + location_counts.$id.decommissioned | html_entity %]</span> 
+      </td>
+  </tr>
+  [% END %]
+  </tbody>
+
+</table>
+
+[% ELSE %]
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware locations at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
+[% END %]
+
+</div>

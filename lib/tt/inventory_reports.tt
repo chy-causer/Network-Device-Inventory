@@ -1,0 +1,13 @@
+<h4>Data Analysis (work in progress)</h4>
+<ul>
+  <li><a href="finance">Financal overview</a></li>
+  <li><a href="manufacturers-report">Manufacturers</a></li>
+  <li><a href="models-report">Models</a></li>
+  <li><a href="locations-report">Locations</a></li>
+</ul>
+
+<h4>Troubleshooting and sanity checking</h4>
+<ul>
+  <li><a href="problems_interfaces">Interface Problems</a></li>
+  <li><a href="about">Application History, License, file version information</a></li>
+</ul>

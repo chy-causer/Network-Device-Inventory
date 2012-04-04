@@ -97,22 +97,12 @@ elsif ( $POSTS{'manufacturer_name'} ) {
 # list all the manufacturers (array of hashes)
 my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
 
-# number of models per manufacturer
-my %model_count =
-  %{ Inventory::Manufacturers::count_models_permanufacturer($dbh) };
-
-# number of models per manufacturer
-my %host_count =
-  %{ Inventory::Manufacturers::count_hosts_permanufacturer($dbh) };
-
 $tt->process(
     'inventory_manufacturers.tt',
     {
         manufacturers => \@manufacturers,
         message       => \%message,
         edit          => $edit,
-        model_counts  => \%model_count,
-        host_counts   => \%host_count,
     }
 );
 $tt->process( 'inventory_footer.tt', {} );

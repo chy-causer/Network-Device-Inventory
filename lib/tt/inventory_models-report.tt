@@ -1,0 +1,178 @@
+<script>
+    $(function() {
+        $( "#dateeol" ).datepicker();
+        $( "#dateeol_edit" ).datepicker();
+    });
+</script>
+
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           ERROR: [% message.$notification  | html_entity %]
+      </p>
+   </div>
+</div>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+
+[% IF models.size < 1 %]
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware models at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
+
+</div>
+[% STOP %]
+[% END %]
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<script type="text/javascript">
+$(function () {
+    var data = [
+
+    [%- FOR model IN models -%]
+       [%- id = model.id -%]
+       [%- count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock -%]
+       { label: "[% model.name | html_entity %]",  data: [% count_sum | html_entity %]},
+    [%- END -%]
+    ];
+
+$.plot($("#graph1"), data, 
+{
+        series: {
+            pie: { 
+                show: true,
+                // combine results of 2% and less
+                combine: {
+                    color: '#999',
+                    threshold: 0.02
+                },
+                label: {
+                    show: true,
+                    radius: 3/4,
+                    formatter: function(label, series){
+                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+                    },
+                    background: { 
+                        opacity: 0.5,
+                        color: '#000'
+                    }
+               },
+            }
+        },
+        grid: {
+            hoverable: true,
+        },
+        legend: {
+            show: false
+        }
+});
+$("#graph1").bind("plothover", pieHover);
+
+function pieHover(event, pos, obj) {
+    if (!obj)
+             return;
+    percent = parseFloat(obj.series.percent).toFixed(2);
+    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
+}
+
+});
+
+</script>
+
+
+<div id="column2" style="float:right; width:520px; padding:5px; border-left: 1px solid grey;">
+
+<div id="graph1" style="width:500px;height:500px;"></div>
+
+<div id="hover"></div>
+
+<table border="1" style="width:500px;">
+    <tr><th>Model</th><th>Hosts</th></tr>
+[% FOREACH modelname IN hosts.keys.sort %]
+    <tr><td>[% modelname | html_entity %]</td><td>
+       [% FOREACH host IN hosts.$modelname %]
+          [% host.name %] [% IF host.description %]([% host.description %])[% END %] [% IF host.status_name %] ([% host.status_name %]) [% END %]
+          <br />
+       [% END %]
+    </td></tr>
+[% END %]
+</table>
+</div> <!-- right column -->
+
+<h4>All Models</h4>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Model Name</th>
+    <th>Manufacturer</th>
+    <th>End of life</th>
+    <th>Total Hosts</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+    <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
+  </tfoot>
+
+  [% counter=0 %]
+  [% previous_rows_manufacturerid='none' %]
+  [% FOR model IN models %]
+    [% IF previous_rows_manufacturerid != model.manufacturer_id %]
+       [% IF previous_rows_manufacturerid !='none' %]
+       </tbody>
+       [% END %]
+       <tbody>
+    [% END %]
+
+    [% counter = counter +1 %]
+       [% id = model.id %]
+       [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+    
+    [% IF 1 > count_sum %]
+      <tr class="block-status-inactive">
+    [% ELSIF counter % 2 > 0 %]
+      <tr class="stripe">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td>[% model.name | html_entity %]</td>
+      <td>[% model.manufacturer_name | html_entity %]</td>
+      <td>[% model.dateeol | html_entity %]</td>
+      <td>[% count_sum | html_entity %]</td>
+      <td>
+        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span> / 
+        <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
+        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span> / 
+        <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
+      </td>
+     [% previous_rows_manufacturerid=model.manufacturer_id %]
+  </tr>
+  [% END %]
+</tbody>
+
+</table>
+    
+</div>

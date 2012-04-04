@@ -111,16 +111,42 @@ sub count_locations_perhost {
     return \%return_hash;
 }
 
+sub delete_locations {
+
+    # delete a single location
+
+    my ( $dbh, $id ) = @_;
+    my %message;
+
+    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
+
+        # could be an error we've made or someone trying to be clever with
+        # altering the submission.
+        $message{'ERROR'} =
+          'Programming Error: Possible issue with the submission form';
+        return \%message;
+    }
+
+    my $sth = $dbh->prepare('DELETE FROM locations WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        $message{'ERROR'} =
+          "Internal Error: The location could not be deleted, it's probably in use by a host entry";
+        return \%message;
+    }
+
+    $message{'SUCCESS'} = 'The specificed entry was deleted';
+}
+
 1;
 __END__
 
 =head1 NAME
 
-Inventory - Networks team inventory module
+Locations.pm
 
 =head2 VERSION
 
-This document describes Inventory version 0.0.1
+This document describes Inventory version 1.0.0
 
 =head1 SYNOPSIS
 
@@ -130,15 +156,16 @@ This document describes Inventory version 0.0.1
 
 =head2 Main Subroutines
 
- The main abilities are:
+The main abilities are:
   - create new types of entry in a table
   - edit existing entries in a table
   - list existing entries
 
 =head2 Returns
- All returns from lists are arrays of hashes
+All returns from lists are arrays of hashes
 
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+All creates and edits return a hash, the key gives success or failure, the
+value gives the human message of what went wrong.
 
 =head1 SUBROUTINES/METHODS
 
@@ -146,7 +173,9 @@ This document describes Inventory version 0.0.1
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+A postgres database with the database layout that's expected is required.
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
