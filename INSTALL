@@ -1,18 +1,51 @@
-SITENAME='inventory'
-HOSTSSH='foo.exmaple.com'
-DOWNLOAD_DIR='/home/foo/temp'
-APACHE_USER=www-data
+=pod
 
-0. Packages the webserver needs
-     apt-get install libnet-dns-perl
-     apt-get install libregexp-common-perl
-     apt-get install libnetaddr-ip-perl
-     apt-get install libfile-slurp-perl
-     apt-get install libcrypt-ssleay-perl
+=head1 Installing the Inventory Application
 
-1. Make the dns name required
-2. Copy the apache configuration in to place
-3. Make the directories needed for example
+=head2 Foreword
+
+This is a work in progress, essentially an effort to drag an in house web
+application from 2007 into open source status so that it can bbe used
+anywhere.
+
+The install process is not well tested currently, if you encounter an error
+with the below steps do please suggest a revision to guyjohnedwards@gmail.com
+
+The following examples substitute the site name and other varibles, typical
+values might be:
+
+    SITENAME='inventory'
+    HOSTSSH='foo.example.com'
+    DOWNLOAD_DIR='/home/foo/temp'
+    APACHE_USER=www-data
+
+=head2 Install the packages the webserver needs
+
+under debian
+
+    apt-get install libnet-dns-perl libregexp-common-perl libnetaddr-ip-perl libfile-slurp-perl libcrypt-ssleay-perl
+
+=head2 Make the DNS name required
+
+See your DNS administrator in order to create the DNS name for yor website, such as
+   www.example.com. IN A 192.168.1.1
+
+=head2 Setup the apache configuration in to place
+
+Move the sites configuration into place and link to make it active
+   cp conf/apache-inventory /etc/apache/sites-available/inventory
+   # alter the site name, virtual hosting type or any paths as required
+   vim /etc/apache/sites-available/inventory
+   cd /etc/apache/sites-enabled
+   ln -s ../sites-available/inventory inventory
+
+=head2 Make the directories
+
+Make the directories needed for example, perhaps using 
+   SITENAME='inventory'
+   APACHE_USER=www-data
+
+then in the following we would use
    mkdir /var/www/$SITENAME/static/cgi-bin -p
    mkdir /var/www/$SITENAME/static/stylesheets -p
    mkdir /var/www/$SITENAME/static/images -p
@@ -21,37 +54,70 @@ APACHE_USER=www-data
    mkdir /var/log/inventory
    chown $APACHE_USER:$APACHE_USER /var/log/inventory
 
-put any local modified versions of the files into /var/www/$SITENAME/lib/local/tt
+=head2 Local styling annd modification
 
-4. copy the SQL file conf/database.sql to the server
-5. use `pwgen 10` to create passwords and put them in the copied sql file for
-   the two user accounts at the start of the file
-6. import into postgres e.g. psql < /tmp/database.sql
-7. copy the config file into place
+Put any local modified versions of the files into /var/www/$SITENAME/lib/local/tt
+
+=head2 Create the database
+
+First copy the SQL file conf/database.sql to the server.
+
+Use `pwgen 10` or similar to create passwords and put them in the start of the
+copied SQL file relacing the example placeholder passwords
+
+Import the SQL into postgres e.g. 
+   psql < /tmp/database.sql
+
+=head2 Setup the application configuration
+
+Copy the config file into place
    scp $DOWNLOAD_DIR/conf/$SITENAME.ini $HOSTSSH:/var/www/$SITENAME/lib/
-   configure the database details host/dbname/user/password
-   configure the pathways
-8. copy the logging configuration file into place and edit it
-9. copy modules into place
+
+Configure the database details host/dbname/user/password to be the same as the
+previous step.
+
+Configure the file and directory pathways as you wish for your
+system
+
+Copy the logging configuration file into place and edit it
+
+The system was originally written for a system using /srv/www, currently you
+may need to link your web directory to this to avoid issues
+   ln -s /var/www /srv/www
+
+=head2 Install the perl modules
+
+Copy modules into place
    # TODO: package up properly
    mkdir /usr/local/lib/site_perl/Inventory -p
    scp $DOWNLOAD_DIR/lib/modules/Inventory/*.pm $HOSTSSH:/usr/local/lib/site_perl/Inventory/
-10. copy the web files into place
+
+=head2 Copy the application files into place
+
+Copy the templates into place
    scp $DOWNLOAD_DIR/lib/tt/inventory_*.tt $HOSTSSH:/var/www/$SITENAME/lib/tt/
+
+and the stylesheets
    scp $DOWNLOAD_DIR/lib/stylesheets/*.css $HOSTSSH:/var/www/$SITENAME/static/stylesheets/
+
+and the images
    scp $DOWNLOAD_DIR/lib/images/inventory_* $HOSTSSH:/var/www/$SITENAME/static/images/
+
+and the scipts themselves
    scp $DOWNLOAD_DIR/cgi-bin/* $HOSTSSH:/var/www/$SITENAME/static/cgi-bin/
-11. TODO: fix this workaround for finding the config file
-   ln -s /var/www /srv/www
-12. TODO and fix these two aliases in the cgi-bin
+
+Create two aliases
+   # TODO do this in apache configuration instead?
    ln -s edithost quickadd
    ln -s edithost quickdevice
-13. Sort out jquery
-   # TODO: this is a real mess
-   #
-   # download the desired theme from 
-   # http://jqueryui.com/download
-   # then copy the files:
+
+=head2 Install jQuery
+
+This section is sub optimal and needs some testing and revision
+
+Download the desired theme from http://jqueryui.com/download , then copy the
+files:
+
    mkdir /var/www/inventory/static/javascript
    wget http://autobahn.tablesorter.com/jquery.tablesorter.min.js
 
@@ -64,3 +130,4 @@ put any local modified versions of the files into /var/www/$SITENAME/lib/local/t
    scp css/pepper-grinder/images/* $HOSTSSH:/var/www/$SITENAME/static/images/
    # on the webserver
    sed -i 's/(images\//(\/images\//g' stylesheets/*.css
+

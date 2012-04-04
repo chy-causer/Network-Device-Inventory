@@ -34,13 +34,13 @@ and does not fill in a hostname or use an existing hostname (case insensitive
 check) the interface shows a helpful error mesage indicating in laymans terms
 what the issue was.
 
-=item the server site (helpful) duplicate name checks will also affect ups
+=item The server site (helpful) duplicate name checks will also affect ups
 device addition, although it should be les common (as by design multiple
 devices can have the same IP and multiple devices can hang from the same UPS)
 
-=item the pages leave a change audit trail in the logs
+=item The pages leave a change audit trail in the logs
 
-=item all date fields provide a date picker (currently via jQuery)
+=item All date fields provide a date picker (currently via jQuery)
 
 =item An optional end of life date field for hardware models is provided which
 can be null or hold the vendors announced end-of-life date for that the
@@ -48,3 +48,5 @@ hardware model
 
 =item a License statement should be present in each cgi script and module and
 be consistent across the program 
+
+=item The install instructions are in pod format and are complete
