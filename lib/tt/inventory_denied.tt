@@ -1,9 +1,9 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
-# $Revision: 3529 $
-# $Id: inventory_denied.tt 3529 2012-02-07 12:33:58Z guy $
--%]
-
 <h3>Sorry</h3>
-<p class="input-error">Your username of &quot;[% remote_user | html_entity %]&quot; does not match any on the access control list for this application.</p>
+
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           Your username of &quot;[% remote_user | html_entity %]&quot; does not match any on the access control list for this application.
+      </p>
+   </div>
+</div>
