@@ -5,15 +5,47 @@
 # Created: 2008-07-28
 # Description: Common functions for the inventory suite
 #
-# $Id: Inventory.pm 3524 2012-02-06 15:52:19Z guy $
-# $LastChangedBy: guy $
-# $LastChangedDate: 2012-02-06 15:52:19 +0000 (Mon, 06 Feb 2012) $
-# $LastChangedRevision: 3524 $
-# $uid: WKSVJLkDxol6i3cu0ur87kzKu4utX1CoqBibi41DQRIlf $
-#
 package Inventory;
 use strict;
 use warnings;
+
+=pod
+
+=head1 NAME
+
+Inventory - Networks team inventory module
+
+=head2 VERSION
+
+This document describes Inventory version 1.0.0
+
+=head1 SYNOPSIS
+
+use Inventory;
+
+=head1 DESCRIPTION
+
+ In the basic Inventory.pm the main abilities are:
+  - create a database connection
+  - restrict access to authorised users
+  - find out if they are a superuser
+  - get a hash of GET query string fields
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DIAGNOSTICS
+
+=head1 CONFIGURATION
+
+A postgres database with the database layout that's expected is required.
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+=head1 SUBROUTINES/METHODS
+
+=cut
 
 our $VERSION = qw('0.0.2');
 use base qw( Exporter);
@@ -27,11 +59,25 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
+use Log::Log4perl;
+
+Log::Log4perl::init('config/log.conf', 30);
+
+my $log = Log::Log4perl->get_logger();
+   $log->error('I need food');
+
+=pod
+
+=head2 is_superuser
+
+boolean test to see if the user is priviliged superuser according to config file
+
+=cut
+
 
 sub is_superuser {
     my ( $officer, $config ) = @_;
 
-    # boolean test if user is priviliged superuser according to config
     my $TRUE = '1';
 
     return if !defined $officer || length($officer) == 0;
@@ -44,9 +90,16 @@ sub is_superuser {
     return;
 }
 
+=pod
+
+=head2 dbconnect
+
+Connects to the database
+
+=cut
+
 sub dbconnect {
 
-    # guess what, connects to the database
     my ( $dbname, $dbuser, $dbhost, $dbpass ) = @_;
     if ( !$dbname ) { print "ERROR: no dbname\n"; return 0; }
     if ( !$dbuser ) { print "ERROR: no dbuser\n"; return 0; }
@@ -65,6 +118,13 @@ sub dbconnect {
     return $dbh;
 }
 
+=pod
+
+=head2 populate_query_fields
+
+=cut
+
+
 sub populate_query_fields {
 
     # this lets us use %get
@@ -78,6 +138,17 @@ sub populate_query_fields {
     }
     return (%query_string);
 }
+
+=pod
+
+=head2 acl_checker
+
+I differenciate between get and post, not everyone agrees with this but there
+is an RFC2616 that suggests that we should. I do so for behaviour not security
+reasons.
+
+=cut
+
 
 sub acl_checker {
     my $tt          = shift;
@@ -106,10 +177,18 @@ sub acl_checker {
     }
 }
 
+=pod
+
+=head2 abort_ifnofile
+
+Catch a non existant configuration file to avoid messy failure
+
+=cut
+
+
 sub abort_ifnofile {
     my $test = @_;
 
-    # catch a non existant configuration file
 
     if ( not defined $test or length($test) == 0 ) {
         print
@@ -136,48 +215,7 @@ sub abort_ifnofile {
 1;
 __END__
 
-=head1 NAME
-Inventory - Networks team inventory module
-
-=head2 VERSION
-This document describes Inventory version 0.0.1
-
-=head1 SYNOPSIS
-
-use Inventory;
-
-=head1 DESCRIPTION
-
-=head1 SUBROUTINES/METHODS
-
-=head2 dbconnect
-
-=head2 is_superuser
-
-=head2 populate_query_fields
-
-=head2 acl_checker
-
- In the basic Inventory.pm the main abilities are:
-  - create a database connection
-  - restrict access to authorised users
-  - find out if they are a superuser
-  - get a hash of query string fields (_not_ post)
-
-=head2 Returns
-
- The authorised users sub simply ejects unauthorised users.
- The query string fileds are returned as a hash
-
-=head1 REQUIRED ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 DIAGNOSTICS
-
-=head1 CONFIGURATION
-
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+=pod
 
 =head1 DEPENDENCIES
 
@@ -213,9 +251,9 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-The University of Oxford agrees to the release under the GPL of in the program
+The University of Oxford disclaims all copyright interest in the program
 `Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
 Oxford University Computer Services.
 
 Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
-also agreed to the code release under the GPL.
+also disclaims all copyright interest in the program.
