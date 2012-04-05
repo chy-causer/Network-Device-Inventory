@@ -94,7 +94,7 @@ $(document).ready(function(){
   </thead>
   
   <tfoot>
-  <tr><td colspan="6">[% suppliers.size %] results were obtained</td></tr>
+  <tr><td colspan="6">[% suppliers.size | html_entity %] results were obtained</td></tr>
   </tfoot>
 
   <tbody>

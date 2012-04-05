@@ -1,9 +1,3 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
-# $Revision: 3529 $
-# $Id: inventory_problems_interfaces.tt 3529 2012-02-07 12:33:58Z guy $
--%]
 <div>
 
 <h3>Active Hosts With No Network Interfaces</h3>
@@ -20,7 +14,7 @@
 
   <tfoot>
    <tr>
-     <td colspan="3">There are [% hosts_no_interface.size %] hosts matching this query</td>
+     <td colspan="3">There are [% hosts_no_interface.size | html_entity %] hosts matching this query</td>
    </tr>
   </tfoot>
 
@@ -67,7 +61,7 @@
 
   <tfoot>
    <tr>
-     <td colspan="3">There are [% hosts_singleno_primary.size %] hosts matching this query</td>
+     <td colspan="3">There are [% hosts_singleno_primary.size | html_entity %] hosts matching this query</td>
    </tr>
   </tfoot>
 
@@ -117,7 +111,7 @@
 
   <tfoot>
    <tr>
-     <td colspan="3">There are [% hosts_multino_primary.size %] hosts matching this query</td>
+     <td colspan="3">There are [% hosts_multino_primary.size | html_entity %] hosts matching this query</td>
    </tr>
   </tfoot>
 

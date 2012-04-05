@@ -1,9 +1,3 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
-# $Revision: 3529 $
-# $Id: inventory_invoices.tt 3529 2012-02-07 12:33:58Z guy $
--%]
 <div>
 [% IF message.keys.size %]
   [% FOR notification IN message.keys %] 
@@ -39,7 +33,7 @@
                                [% FOR supplier IN suppliers %] 
                                  <option 
                                  [%- IF supplier.id == invoice.supplier_id -%] selected="selected" [%- END -%] 
-                                 value="[% supplier.id %]">[% supplier.name %]</option>
+                                 value="[% supplier.id %]">[% supplier.name | html_entity %]</option>
                                  [% END %]
                                </select>
                                 </td></tr>
@@ -48,7 +42,7 @@
                                [% FOR contact IN contacts %] 
                                  <option 
                                  [%- IF contact.id == invoice.purchaser_id -%] selected="selected" [%- END -%] 
-                                 value="[% contact.id %]">[% contact.name %]</option>
+                                 value="[% contact.id %]">[% contact.name | html_entity %]</option>
                                  [% END %]
                                </select>
                                </td></tr>
@@ -57,7 +51,7 @@
                                [% FOR contact IN contacts %] 
                                  <option 
                                  [%- IF contact.id == invoice.signitory_id -%] selected="selected" [%- END -%] 
-                                 value="[% contact.id %]">[% contact.name %]</option>
+                                 value="[% contact.id %]">[% contact.name | html_entity %]</option>
                                  [% END %]
                                </select>
                                </td></tr>
@@ -82,7 +76,7 @@
   [% FOR invoice IN invoices %]
       [% IF delete == invoice.id %]
 <form action="invoices" method="post">
- <p class="block-warning">Are you sure you want to delete the entry called &quot;[% invoice.description | html_entity %]&quot; ([% invoice.date %])?
+ <p class="block-warning">Are you sure you want to delete the entry called &quot;[% invoice.description | html_entity %]&quot; ([% invoice.date | html_entity %])?
  <br />
  <input type="hidden" name="invoice_id" value="[% invoice.id | html_entity %]" />
  <input type="hidden" name="action" value="delete" />
@@ -101,21 +95,21 @@
        <tr><th>Supplier</th><td>
                              <select name="supplier_id">
                                [% FOR supplier IN suppliers %] 
-                                 <option value="[% supplier.id %]">[% supplier.name %]</option>
+                                 <option value="[% supplier.id | html_entity %]">[% supplier.name | html_entity %]</option>
                                  [% END %]
                                </select>
                              </td></tr>
        <tr><th>Purchaser</th><td>
                              <select name="purchaser_id">
                                [% FOR contact IN contacts %] 
-                                 <option value="[% contact.id %]">[% contact.name %]</option>
+                                 <option value="[% contact.id | html_entity %]">[% contact.name | html_entity %]</option>
                                  [% END %]
                                </select>
                              </td></tr>
        <tr><th>Senior Signitory</th><td>
                              <select name="signitory_id">
                                [% FOR contact IN contacts %] 
-                                 <option value="[% contact.id %]">[% contact.name %]</option>
+                                 <option value="[% contact.id | html_entity %]">[% contact.name | html_entity %]</option>
                                  [% END %]
                                </select>
                              </td></tr>
@@ -163,7 +157,7 @@ $(document).ready(function(){
   </thead>
   
   <tfoot>
-  <tr><td colspan="11">[% invoices.size %] results were obtained</td></tr>
+  <tr><td colspan="11">[% invoices.size | html_entity %] results were obtained</td></tr>
   </tfoot>
 
   <tbody>

@@ -1,14 +1,7 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3535 $
-# $Id: inventory_contacts.tt 3535 2012-02-10 12:47:01Z guy $
--%]
-
 <div>
-[% IF message.keys.size %]
-  [% FOR notification IN message.keys %] 
-    [% IF notification == "ERROR" %]
+[%- IF message.keys.size -%]
+  [%- FOR notification IN message.keys -%]
+    [%- IF notification == "ERROR" -%]
  
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
@@ -18,13 +11,13 @@
    </div>
 </div>
  
-    [% ELSE %]
+    [%- ELSE -%]
       <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
-    [% END %]
-  [% END %]
-[% ELSE %]
+    [%- END -%]
+  [%- END -%]
+[%- ELSE -%]
 <p>This page records hardware contacts for the equipment we maintain. The information used here is used by the list of models</p>
-[% END %]
+[%- END -%]
 
 <script type="text/javascript">
 // <![CDATA[
@@ -43,21 +36,21 @@ function showHide(shID) {
 // ]]>
 </script>
 
-[% IF edit %]
+[%- IF edit -%]
 
 <form action="contacts" method="post">
  <fieldset><legend>Edit an Existing Contact</legend>
-  [% FOR contact IN contacts %]
-      [% IF edit == contact.id %]
+  [%- FOR contact IN contacts -%]
+      [%- IF edit == contact.id -%]
   <table>
     <tr><th>Name</th><td><input type="text" name="contact_name" maxlength="180" value="[% contact.name | html_entity %]" /></td></tr>
     <tr><th>Company</th><td>
                              <select name="supplier_id">
-                               [% FOR supplier IN suppliers %] 
+                               [%- FOR supplier IN suppliers -%]
                                  <option 
                                  [%- IF supplier.id == contact.supplier_id -%] selected="selected" [%- END -%] 
-                                 value="[% supplier.id %]">[% supplier.name %]</option>
-                               [% END %]
+                                 value="[% supplier.id %]">[% supplier.name | html_entity %]</option>
+                               [%- END -%]
                              </select>
                         </td></tr>
     <tr><th>Role</th><td><input type="text" name="contact_role" maxlength="155" value="[% contact.role | html_entity %]" /></td></tr>
@@ -72,15 +65,15 @@ function showHide(shID) {
        <input type="submit" value="Submit Changes" /></td></tr>
   </table>
 
-      [% END %]
-  [% END %]
+      [%- END -%]
+  [%- END -%]
   </fieldset>
 </form>
 
-[% ELSIF delete %]
+[%- ELSIF delete -%]
 
-  [% FOR contact IN contacts %]
-      [% IF delete == contact.id %]
+  [%- FOR contact IN contacts -%]
+      [%- IF delete == contact.id -%]
 <form action="contacts" method="post">
  <p class="block-warning">Are you sure you want to delete the entry called &quot;[% contact.name | html_entity %]&quot; ([% contact.supplier_name | html_entity %]) ?
  <br />
@@ -88,18 +81,16 @@ function showHide(shID) {
  <input type="hidden" name="action" value="delete" />
  <a href="contacts">Abandon</a> or <input type="submit" value="Delete" /></p> 
 </form>
-      [% END %]
-  [% END %]
+      [%- END -%]
+  [%- END -%]
 
-[% END %]
+[%- END -%]
 
-
-
-[% IF suppliers.size < 1 %]
+[%- IF suppliers.size < 1 -%]
 
   <p class="block-warning">No suppliers exist yet, please create some first on the <a href="suppliers">suppliers</a> page</p>
 
-[% ELSE %]
+[%- ELSE -%]
   <p><a href="#" [% IF edit %] [% ELSE %]style="display:none;" [% END %] id="new-show" onclick="showHide('new');return false;">+ Show the new entry form</a></p>
 
   <form id="new" [% IF edit %] style="display:none;" [% ELSE %][% END %] action="" method="post">
@@ -126,13 +117,10 @@ function showHide(shID) {
      </fieldset>
    </form>
 
-[% END %]
-
-
-
+[%- END -%]
 
 <h3>Current Contacts</h3>
-[% IF contacts.size > 0 %]
+[%- IF contacts.size > 0 -%]
 
 <script type="text/javascript">
 $(document).ready(function(){ 
@@ -148,18 +136,18 @@ $(document).ready(function(){
 <table id="allresults">
   <thead> <tr> <th></th> <th>Name</th> <th>Company</th> <th>Contact</th> <th>Notes</th> </tr> </thead>
   
-  [% counter=0 %]
-  [% FOR contact IN contacts %]
-      [% NEXT IF contact.supplier_name == 'OUCS' %]
-      [% counter=counter+1 %]
-  [% END %]
+  [%- counter=0 -%]
+  [%- FOR contact IN contacts -%]
+      [%- NEXT IF contact.supplier_name == 'OUCS' -%]
+      [%- counter=counter+1 -%]
+  [%- END -%]
 
   <tfoot> <tr><td colspan="8">[% counter %] results were obtained</td></tr> </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% FOR contact IN contacts %]
-      [% NEXT IF contact.supplier_name == 'OUCS' %]
+  [%- counter=0 -%]
+  [%- FOR contact IN contacts -%]
+      [%- NEXT IF contact.supplier_name == 'OUCS' -%]
       
    <tr>
       <td><input type="radio" name="contact_id" value="[% contact.id  | html_entity %]" /></td>
@@ -173,8 +161,8 @@ $(document).ready(function(){
       <td>[% contact.notes         | html_entity %]</td>
    </tr>
   
-      [% counter=counter+1 %] 
-  [% END %]
+      [%- counter=counter+1 -%]
+  [%- END -%]
   </tbody>
 </table>
 </fieldset>
@@ -185,18 +173,18 @@ $(document).ready(function(){
 <table id="oucsresults">
   <thead> <tr> <th></th> <th>Name</th> <th>Contact</th> <th>Notes</th> </tr> </thead>
   
-  [% counter=0 %]
-  [% FOR contact IN contacts %]
-      [% NEXT IF contact.supplier_name != 'OUCS' %]
-      [% counter=counter+1 %]
-  [% END %]
+  [%- counter=0 -%]
+  [%- FOR contact IN contacts -%]
+      [%- NEXT IF contact.supplier_name != 'OUCS' -%]
+      [%- counter=counter+1 -%]
+  [%- END -%]
 
-  <tfoot> <tr><td colspan="8">[% counter %] results were obtained</td></tr> </tfoot>
+  <tfoot> <tr><td colspan="8">[% counter | html_entity %] results were obtained</td></tr> </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% FOR contact IN contacts %]
-      [% NEXT IF contact.supplier_name != 'OUCS' %]
+  [%- counter=0 -%]
+  [%- FOR contact IN contacts -%]
+      [%- NEXT IF contact.supplier_name != 'OUCS' -%]
     
     <tr>
       <td><input type="radio" name="contact_id" value="[% contact.id  | html_entity %]" /></td>
@@ -208,16 +196,14 @@ $(document).ready(function(){
       </td>
       <td>[% contact.notes         | html_entity %]</td>
    </tr>
-      [% counter=counter+1 %] 
-  
-  [% END %]
+      [%- counter=counter+1 -%]
+  [%- END -%]
   </tbody>
 </table>
 </fieldset>
 </form>
 
-
-[% ELSE %]
+[%- ELSE -%]
 
 <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
@@ -227,6 +213,5 @@ $(document).ready(function(){
    </div>
 </div>
 
-[% END %]
-
+[%- END -%]
 </div>

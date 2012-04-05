@@ -8,9 +8,9 @@
 </script>
 
 <div>
-[% IF message.keys.size %]
-  [% FOR notification IN message.keys %] 
-    [% IF notification == "ERROR" %]
+[%- IF message.keys.size -%]
+  [%- FOR notification IN message.keys -%]
+    [%- IF notification == "ERROR" -%]
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -18,29 +18,29 @@
       </p>
    </div>
 </div>
-    [% ELSE %]
+    [%- ELSE -%]
       <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
-    [% END %]
-  [% END %]
-[% ELSE %]
+    [%- END -%]
+  [%- END -%]
+[%- ELSE -%]
 <p>This page records hardware contracts for the equipment we maintain. The information used here is used by the list of models</p>
-[% END %]
+[%- END -%]
 
-[% IF edit %]
+[%- IF edit -%]
 
 <form action="" method="post">
  <fieldset><legend>Edit an Service Contract</legend>
-  [% FOR contract IN contracts %]
-      [% IF edit == contract.id %]
+  [%- FOR contract IN contracts -%]
+      [%- IF edit == contract.id -%]
     <table>
       <tr><th>Name</th><td><input type="text" name="contract_name" maxlength="155" value="[% contract.name | html_entity %]" /></td></tr>
       <tr><th>Invoice</th><td>
                              <select name="invoice_id">
-                               [% FOR invoice IN invoices %] 
+                               [%- FOR invoice IN invoices -%]
                                  <option 
                                  [%- IF invoice.id == contract.invoice_id -%] selected="selected" [%- END -%] 
-                                 value="[% invoice.id %]">[% invoice.description | html_entity %] ([% invoice.date | html_entity %])</option>
-                               [% END %]
+                                 value="[% invoice.id | html_entity %]">[% invoice.description | html_entity %] ([% invoice.date | html_entity %])</option>
+                               [%- END -%]
                              </select>
                           </td></tr>
       <tr><th>Serial</th><td><input type="text" name="contract_serial" maxlength="155" value="[% contract.serial | html_entity %]" /></td></tr>
@@ -52,15 +52,15 @@
        <input type="submit" value="Submit Changes" /></td>
       </td></tr>
     </table>
-      [% END %]
-  [% END %]
+      [%- END -%]
+  [%- END -%]
   </fieldset>
 </form>
 
-[% ELSIF delete %]
+[%- ELSIF delete -%]
 
-  [% FOR contract IN contracts %]
-      [% IF delete == contract.id %]
+  [%- FOR contract IN contracts -%]
+      [%- IF delete == contract.id -%]
 <form action="contracts" method="post">
  <p class="block-warning">Are you sure you want to delete the contract called &quot;[% contract.name | html_entity %]&quot; ?
  <br />
@@ -68,10 +68,9 @@
  <input type="hidden" name="action" value="delete" />
  <a href="contracts">Abandon</a> or <input type="submit" value="Delete" /></p> 
 </form>
-      [% END %]
-  [% END %]
-
-[% END %]
+      [%- END -%]
+  [%- END -%]
+[%- END -%]
 
 <form action="" method="post">
   <fieldset><legend>Record a new contract</legend>
@@ -80,9 +79,9 @@
       <tr><th>Name</th><td><input type="text" name="contract_name" maxlength="155" /></td></tr>
       <tr><th>Invoice</th><td>
                              <select name="invoice_id">
-                               [% FOR invoice IN invoices %] 
-                                 <option value="[% invoice.id %]">[% invoice.description | html_entity %] ([% invoice.date | html_entity %])</option>
-                               [% END %]
+                               [%- FOR invoice IN invoices -%] 
+                                 <option value="[% invoice.id | html_entity %]">[% invoice.description | html_entity %] ([% invoice.date | html_entity %])</option>
+                               [%- END -%]
                              </select>
                           </td></tr>
       <tr><th>Serial</th><td><input type="text" name="contract_serial" maxlength="155" /></td></tr>
@@ -98,7 +97,7 @@
 </form>
 
 <h3>Current Contracts</h3>
-[% IF contracts.size > 0 %]
+[%- IF contracts.size > 0 -%]
 
 <script type="text/javascript">
 $(document).ready(function(){ 
@@ -123,12 +122,12 @@ $(document).ready(function(){
   </thead>
   
   <tfoot>
-  <tr><td colspan="6">[% contracts.size %] results were obtained</td></tr>
+  <tr><td colspan="6">[%- contracts.size | html_entity -%] results were obtained</td></tr>
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% FOR contract IN contracts %]
+  [%- counter=0 -%]
+  [%- FOR contract IN contracts -%]
       <td><input type="radio" name="contract_id" value="[% contract.id  | html_entity %]" /></td>
       <td>[% contract.name      | html_entity %]</td>
       <td>[% contract.serial    | html_entity %]</td>
@@ -137,12 +136,12 @@ $(document).ready(function(){
       <td>[% contract.invoice_description   | html_entity %]</td>
    </tr>
   
-  [% END %]
+  [%- END -%]
   </tbody>
 </fieldset>
 </table>
 
-[% ELSE %]
+[%- ELSE -%]
 
 <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
@@ -152,6 +151,5 @@ $(document).ready(function(){
    </div>
 </div>
 
-[% END %]
-
+[%- END -%]
 </div>

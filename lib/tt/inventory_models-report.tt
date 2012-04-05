@@ -112,7 +112,7 @@ function pieHover(event, pos, obj) {
 [% FOREACH modelname IN hosts.keys.sort %]
     <tr><td>[% modelname | html_entity %]</td><td>
        [% FOREACH host IN hosts.$modelname %]
-          [% host.name %] [% IF host.description %]([% host.description %])[% END %] [% IF host.status_name %] ([% host.status_name %]) [% END %]
+          [% host.name | html_entity %] [% IF host.description %]([% host.description | html_entity %])[% END %] [% IF host.status_name %] ([% host.status_name | html_entity %]) [% END %]
           <br />
        [% END %]
     </td></tr>

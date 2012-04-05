@@ -1,8 +1,8 @@
 <div>
-[% IF message_store.size > 0 %]
-  [% FOR message IN message_store %]
-    [% FOR notification IN message.keys %] 
-      [% IF notification == "ERROR" %]
+[%- IF message_store.size > 0 -%]
+  [%- FOR message IN message_store -%]
+    [%- FOR notification IN message.keys -%] 
+      [%- IF notification == "ERROR" -%]
 
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
@@ -12,14 +12,14 @@
    </div>
 </div>
       
-      [% ELSIF notification == "SUCCESS" %]
+      [%- ELSIF notification == "SUCCESS" -%]
         <p class="input-success">SUCCESS: [% message.$notification  | html_entity %]</p>
-      [% ELSIF notification != "FATAL" %]
+      [%- ELSIF notification != "FATAL" -%]
         <p class="debug">Programming Error: Weird output from script that I wan't expecting to be output: Key: [% notification  | html_entity %] Value: [% message.$notification  | html_entity %]</p>
-      [% END %]
-    [% END %]
-  [% END %]
-[% END %]
+      [%- END -%]
+    [%- END -%]
+  [%- END -%]
+[%- END -%]
 
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
@@ -30,21 +30,21 @@
    </div>
 </div>
 
-[% IF edit %]
+[%- IF edit -%]
 <form action="" method="post">
  <fieldset><legend>Edit an Existing Entry</legend>
-  [% FOR cname IN cnames %]
-      [% IF edit == cname.id %]
+  [%- FOR cname IN cnames -%]
+      [%- IF edit == cname.id -%]
   <p>This host
         <select name="host_id">
           <option value="">broken entry</option>
-          [% FOR host IN hosts %]
+          [%- FOR host IN hosts -%]
           <option value="[% host.id | html_entity %]"
            [% IF cname.host_id == host.id || makehost_id == cname.host_id %]
            selected="selected"
-           [% END %]
+           [%- END -%]
           >[% host.name | html_entity %]</option>
-          [% END %]
+          [%- END -%]
         </select>
           <br />
        needs an associated DNS record of:
@@ -55,15 +55,15 @@
        <input type="hidden" name="cname_id" value="[% cname.id | html_entity %]" />
        <input type="hidden" name="action" value="edit" />
        <input type="submit" value="Submit Changes" /></td>
-      [% END %]
-  [% END %]
+      [%- END -%]
+  [%- END -%]
   </fieldset>
 </form>
 
-[% ELSIF delete %]
+[%- ELSIF delete -%]
 
-  [% FOR cname IN cnames %]
-      [% IF delete == cname.id %]
+  [%- FOR cname IN cnames -%]
+      [%- IF delete == cname.id -%]
 <form action="cnames" method="post">
  <p class="block-warning">Are you sure you want to delete the entry &quot;[% cname.shortname | html_entity %].frodo.ox.ac.uk. IN CNAME [% cname.dnsname | html_entity %].frodo.ox.ac.uk.&quot; ?
  <br />
@@ -71,20 +71,19 @@
  <input type="hidden" name="action" value="delete" />
  <a href="contacts">Abandon</a> or <input type="submit" value="Delete" /></p> 
 </form>
-      [% END %]
-  [% END %]
-
-[% END %]
+      [%- END -%]
+  [%- END -%]
+[%- END -%]
 
 
 <form action="" method="post">
   <fieldset><legend>Enter a new record</legend>
   <p>This host
         <select name="host_id">
-          [% FOR host IN hosts %]
+          [%- FOR host IN hosts -%]
           <option value="[% host.id | html_entity %]"
           >[% host.name | html_entity %]</option>
-          [% END %]
+          [%- END -%]
         </select>
    <br />
    needs an associated DNS record of:
@@ -99,7 +98,7 @@
 </form>
 
 <h3>Current Cnames</h3>
-[% IF cnames.size > 0 %]
+[%- IF cnames.size > 0 -%]
 <script type="text/javascript">
 $(document).ready(function(){ 
         $("#allresults").tablesorter({ textExtraction:"complex"}); 
@@ -127,37 +126,34 @@ $(document).ready(function(){
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% FOR cname IN cnames %]
-    [% thisname ="" %] 
-    [% FOR host IN hosts %]
-       [% IF cname.host_id == host.id %] 
-           [% thisname = host.name %]
-       [% END %]
-    [% END %]
+  [%- counter=0 -%]
+  [%- FOR cname IN cnames -%]
+    [%- thisname ="" -%] 
+    [%- FOR host IN hosts -%]
+       [%- IF cname.host_id == host.id -%]
+           [%- thisname = host.name -%]
+       [%- END -%]
+    [%- END -%]
 
-    [% IF counter % 2 > 0 %]
+    [%- IF counter % 2 > 0 -%]
       <tr class="stripe">
-    [% ELSE %]
+    [%- ELSE -%]
       <tr>
-    [% END %]
+    [%- END -%]
     
-    [% counter = counter +1 %]
-
+    [%- counter = counter +1 -%]
       <td><input type="radio" name="cname_id" value="[% cname.id  | html_entity %]" /></td>
       <td><strong>[% cname.shortname | html_entity %]</strong>.frodo.ox.ac.uk</td>
       <td>IN CNAME <strong>[% cname.dnsname   | html_entity %]</strong>.frodo.ox.ac.uk</td>
-      <td>[% thisname %]</td>
+      <td>[% thisname | html_entity %]</td>
    </tr>
-  
-  [% END %]
+  [%- END -%]
   </tbody>
 </table>
 </fieldset>
 </form>
 
-
-[% ELSE %]
+[%- ELSE -%]
 <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -165,6 +161,6 @@ $(document).ready(function(){
       </p>
    </div>
 </div>
-[% END %]
+[%- END -%]
 
 </div>

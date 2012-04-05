@@ -1,15 +1,8 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-10 12:47:01 +0000 (Fri, 10 Feb 2012) $
-# $Revision: 3535 $
-# $Id: inventory_edithost.tt 3535 2012-02-10 12:47:01Z guy $
--%]
-
 <div>
-[% IF message_store.size > 0 %]
-  [% FOR message IN message_store %]
-    [% FOR notification IN message.keys %] 
-      [% IF notification == "ERROR" %]
+[%- IF message_store.size > 0 -%]
+  [%- FOR message IN message_store -%]
+    [%- FOR notification IN message.keys -%] 
+      [%- IF notification == "ERROR" -%]
 <div class="ui-widget">
    <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -17,29 +10,29 @@
       </p>
    </div>
 </div>
-      [% ELSIF notification == "SUCCESS" %]
+      [%- ELSIF notification == "SUCCESS" -%]
         <p class="input-success">SUCCESS: [% message.$notification  | html_entity %]</p>
-      [% ELSIF notification != "FATAL" %]
+      [%- ELSIF notification != "FATAL" -%]
         <p class="debug">Programming Error: Key: [% notification | html_entity %] Value: [% message.$notification  | html_entity %]</p>
-      [% END %]
-    [% END %]
-  [% END %]
-[% END %]
+      [%- END -%]
+    [%- END -%]
+  [%- END -%]
+[%- END -%]
 
-[% INCLUDE inventory_hostsearch.tt IF edithost %]
+[%- INCLUDE inventory_hostsearch.tt IF edithost -%]
 
-[% IF hosts.keys.size == 1 %]
-[% SET host = hosts.values.first %]
-[% END %]
+[%- IF hosts.keys.size == 1 -%]
+[%- SET host = hosts.values.first -%]
+[%- END -%]
 
-[% IF quickadd %]
+[%- IF quickadd -%]
     <h3>Quick Add Host</h3>
-[% ELSIF quickdevice %]
+[%- ELSIF quickdevice -%]
     <h3>Quick Add Device</h3>
-[% ELSE %]
-    [% SET edithost = 1 %]
+[%- ELSE -%]
+    [%- SET edithost = 1 -%]
     <h3>Quick Edit [% lookup | html_entity %] [% '(' _ host.id _ ')' IF development %]</h3>
-[% END %]
+[%- END -%]
 
 
 <form id="edithost" method="POST" action="[% IF quickdevice %]quickdevice[% ELSE %]edithost[% END %]" >
@@ -98,7 +91,7 @@
       </td>
   </tr>
 
-[% ELSE %]
+[%- ELSE -%]
 
   <tr>
     <th>Name</th>
@@ -107,7 +100,7 @@
       (e.g. &quot;server-name&quot;, must be unique)</td>
   </tr>
 
-[% END %]
+[%- END -%]
 
   <tr>
     <th>Description</th>
@@ -123,10 +116,10 @@
       <td>
        <select name="status_id" onchange="return validatedropdown('status')">
         <option value="">-- pick a status --</option>
-        [% FOR state IN status %]
+        [%- FOR state IN status -%]
           <option value="[% state.id | html_entity %]" [% IF state.id == host.status_id OR posts.status_id==state.id %] selected="selected" [% END %]>
                 [% state.state  | html_entity %] ([% state.description | html_entity %])</option>
-        [% END %]
+        [%- END -%]
        </select>
        <span id="status-essential" class="essential-text"> &#42; must make a selection</span>
      </td>
@@ -137,17 +130,17 @@
       <td>
        <select name="model_id" onchange="return validatedropdown('model')">
         <option value="">-- pick a model --</option>
-        [% IF quickdevice %]
+        [%- IF quickdevice -%]
             [% FOR model IN frodo_models %]
             <option value="[% model.id | html_entity %]" [% IF model.id == host.model_id OR posts.model_id==model.id %] selected="selected" [% END %]>
                     [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])</option>
-            [% END %]
-        [% ELSE %]
-            [% FOR model IN models %]
+            [%- END -%]
+        [%- ELSE -%]
+            [%- FOR model IN models -%]
             <option value="[% model.id | html_entity %]" [% IF model.id == host.model_id OR posts.model_id==model.id %] selected="selected" [% END %]>
                     [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])</option>
-            [% END %]
-        [% END %]
+            [%- END -%]
+        [%- END -%]
        </select>
        <span id="model-essential" class="essential-text"> &#42; must make a selection</span>
      </td>
@@ -163,9 +156,9 @@
       <td>
        <select name="location_id" onchange="return validatedropdown('location')">
           <option value="">-- pick a location --</option>
-        [% FOR location IN locations %]
+        [%- FOR location IN locations -%]
           <option value="[% location.id | html_entity %]" [% IF location.id == host.location_id OR posts.location_id == location.id %] selected="selected" [% END %]>[% location.name | html_entity %] </option>
-        [% END %]
+        [%- END -%]
        </select>
        <div class="alternate-option">
        <strong>or</strong> link to a new site called: <input type="text" size="45" name="location_x" value="" onchange="return validatedropdown('location')"/>
@@ -177,147 +170,147 @@
   <tr id="ups">
     <th>UPS</th>
       <td>
-      [% FOR thisups IN host.ups %]
+      [%- FOR thisups IN host.ups -%]
         <select name="ups_id_[% thisups.link_id %]"> [%# hosts_to_upshost.id %]
             <option value="">-- remove this ups --</option>
-            [% FOR device IN ups.sort('name') %]
+            [%- FOR device IN ups.sort('name') -%]
             <option value="[% device.ups_id | html_entity %]" [% IF device.ups_id == thisups.ups_id %] selected="selected" [% END %]>
                     [% device.ups_name | html_entity %] [% '(' _ device.ups_description _ ')' IF device.ups_description %]</option>
-            [% END %]
+            [%- END -%]
         </select>
         <br />
-       [% END %]
+       [%- END -%]
        
-       [% IF NOT host.ups.size %]
+       [%- IF NOT host.ups.size -%]
         <select name="ups_id_x">
             <option value="" selected="selected">-- add supporting ups ? --</option>
-            [% FOR device IN ups.sort('name') %]
+            [%- FOR device IN ups.sort('name') -%]
             <option value="[% device.ups_id | html_entity %]" [% IF device.ups_id == thisups.ups_id OR posts.ups_id_x == device.ups_id %] selected="selected" [% END %]>
                     [% device.ups_name | html_entity %] [% IF device.ups_description %][% device.ups_description | html_entity %][% END %]</option>
-            [% END %]
+            [%- END -%]
         </select>
        <div class="alternate-option">
         or link to a new:
             <select name="ups_x_model">
-                [% FOR model IN models %]
+                [%- FOR model IN models -%]
                 <option value="[% model.id | html_entity %]" [% 'selected="selected"' IF model.id == 29 %]>
                         [% model.name | html_entity %] ([% model.manufacturer_name | html_entity %])</option>
-                [% END %]
+                [%- END -%]
             </select>
-        [% IF NOT quickdevice %]
+        [%- IF NOT quickdevice -%]
             named: <input type="text" size="25" maxlength="53" name="ups_x" value="[% IF posts.exists('ups_x') %][% posts.ups_x | html_entity %][% END %]" />
-        [% ELSE %]
+        [%- ELSE -%]
             <input type="hidden" name="ups_x" value="MAGIC_FRODO_UPS_NAME_COOKIE" />
-        [% END %]
+        [%- END -%]
         <br />
         with description: <input type="text" size="25" name="ups_x_description" value="[% IF posts.exists('ups_x_description') %][% posts.ups_x_description | html_entity %][% END %]" />
         and IP: <input type="text" size="25" maxlength="53" name="ups_x_ip" value="[% IF posts.exists('ups_x_ip') %][% posts.ups_x_ip | html_entity %][% END %]" />
         </div>
-       [% END %]
+       [%- END -%]
      </td>
   </tr>
 
-[% IF NOT quickdevice %]
+[%- IF NOT quickdevice -%]
 
   <tr>
     <th>Interfaces</th>
     <td>
-    [%# if no primary interfaces are seen, then we emit a help note later on %]
-    [% SET primarycount = 0 %]
-    [% FOREACH interface IN host.interfaces %]
+    [%- # if no primary interfaces are seen, then we emit a help note later on %]
+    [%- SET primarycount = 0 -%]
+    [%- FOREACH interface IN host.interfaces -%]
     <fieldset>    
         IP: <input type="text" size="39" name="interface_[% interface.id %]_ip" value="[% interface.address | html_entity %]" />
             (cached as [% interface.lastresolvedfqdn | html_entity %] on [% interface.lastresolveddate | html_entity %])
             <li>is: 
-                <select name="interface_[% interface.id %]_isprimary">
+                <select name="interface_[% interface.id | html_entity %]_isprimary">
                     <option value="false" [% 'selected="selected"' IF interface.isprimary != '1' %]>not the primary interface</option>
                     <option value="true"  [% 'selected="selected"' IF interface.isprimary == '1' %]>the primary interface</option>
                 </select>
             </li>
 
-            [%# interfaces on Frodo devices which are defined Primary can have DNS A and CNAME added here %]
-            [%# this limitation is because the cname implementation referrs to a hosts.id not an interfaces.id %]
-            [%# and also only one host name / cname per device %]
+            [%- # interfaces on Frodo devices which are defined Primary can have DNS A and CNAME added here -%]
+            [%- # this limitation is because the cname implementation referrs to a hosts.id not an interfaces.id -%]
+            [%- # and also only one host name / cname per device -%]
 
-            [% FOREACH hostgroup IN host.hostgroups %]
-                [% IF hostgroup.name == 'device-frodo' AND interface.isprimary == 1 %]
+            [%- FOREACH hostgroup IN host.hostgroups -%]
+                [%- IF hostgroup.name == 'device-frodo' AND interface.isprimary == 1 -%]
 
-                [% SET primarycount = primarycount + 1 %]
-                [% SET cnamecount = 0 %]
+                [%- SET primarycount = primarycount + 1 -%]
+                [%- SET cnamecount = 0 -%]
 
-                [% FOREACH cname IN host.cnames %]
-                    <li>with friendly name: <input type="text" size="25" maxlength="53" name="arec_[% cname.id %]" value="[% cname.dnsname | html_entity %]" />
-                        and frodo-xxx name: <input type="text" size="25" maxlength="53" name="cname_[% cname.id %]" value="[% cname.shortname | html_entity %]" />
+                [%- FOREACH cname IN host.cnames -%]
+                    <li>with friendly name: <input type="text" size="25" maxlength="53" name="arec_[% cname.id | html_entity %]" value="[% cname.dnsname | html_entity %]" />
+                        and frodo-xxx name: <input type="text" size="25" maxlength="53" name="cname_[% cname.id | html_entity %]" value="[% cname.shortname | html_entity %]" />
                     </li>
-                    [% SET cnamecount = cnamecount + 1 %]
+                    [%- SET cnamecount = cnamecount + 1 -%]
                     [% LAST %] [%# only interested in there being one host name and cname! %]
-                [% END %]
+                [%- END -%]
 
-                [%# if no cnames are associated with this device, offer to create one %]
-                [% IF cnamecount == 0 %]
+                [%- # if no cnames are associated with this device, offer to create one -%]
+                [%- IF cnamecount == 0 -%]
                     <li>with friendly name: <input type="text" size="25" maxlength="53" name="arec_x" value="" />
                         and frodo-xxx name: <input type="text" size="25" maxlength="53" name="cname_x" value="" />
                     </li>
-                [% END %]
+                [%- END -%]
 
-                [% LAST %]
-                [% END %]
-            [% END %]
+                [%- LAST -%]
+                [%- END -%]
+            [%- END -%]
 
-            [% FOREACH thisrole IN interface.hostgroups %]
+            [%- FOREACH thisrole IN interface.hostgroups -%]
                 <li>role: 
                 <select name="interface_[% interface.id %]_role_[% thisrole.id %]">
                     <option value="">-- remove this role --</option>
-                    [% FOR hostgroup IN hostgroups.sort('name') %]
+                    [%- FOR hostgroup IN hostgroups.sort('name') -%]
                     <option value="[% hostgroup.id | html_entity %]" [% 'selected="selected"' IF hostgroup.id == thisrole.role %]>
                             [% hostgroup.name | html_entity %] </option>
-                    [% END %]
+                    [%- END -%]
                 </select>
                 </li>
-            [% END %]
+            [%- END -%]
             <li>role: 
                 <select name="interface_[% interface.id %]_role_x">
                     <option value="" selected="selected">-- add interface role --</option>
-                    [% FOR hostgroup IN hostgroups.sort('name') %]
+                    [%- FOR hostgroup IN hostgroups.sort('name') -%]
                     <option value="[% hostgroup.id | html_entity %]">[% hostgroup.name | html_entity %]</option>
-                    [% END %]
+                    [%- END -%]
                 </select>
             </li>
     </fieldset>
-    [% END %]
+    [%- END -%]
 
     <fieldset>
     IP: <input type="text" size="15" name="interface_x_ip" value="" />
-    [% IF edithost %]
+    [%- IF edithost -%]
         <li>is: 
             <select name="interface_x_isprimary">
                 <option value="false" selected="selected">not the primary interface</option>
                 <option value="true">the primary interface</option>
             </select>
         </li>
-    [% ELSE %]
-        [%# add and frodo are automatically primary of course %]
+    [%- ELSE -%]
+        [%- # add and frodo are automatically primary of course -%]
         <input type="hidden" name="interface_x_isprimary" value="true" />
-    [% END %]
+    [%- END -%]
     <li>role: 
         <select name="interface_x_role">
             <option value="" selected="selected">-- set interface role ? --</option>
-            [% FOR hostgroup IN hostgroups.sort('name') %]
+            [%- FOR hostgroup IN hostgroups.sort('name') -%]
             <option value="[% hostgroup.id | html_entity %]">[% hostgroup.name | html_entity %]</option>
-            [% END %]
+            [%- END -%]
         </select>
     </li>
     </fieldset>
-    [% IF host.interfaces.size %]
+    [%- IF host.interfaces.size -%]
         <p>* To delete an Interface, blank out the IP Address field
         <br />* No need to add <tt>.frodo</tt> (or similar) to the end of names, it will be done for you</p>
-    [% END %]
-    [% FOREACH hostgroup IN host.hostgroups %]
-        [% IF hostgroup.name == 'device-frodo' AND primarycount == 0 %]
+    [%- END -%]
+    [%- FOREACH hostgroup IN host.hostgroups -%]
+        [%- IF hostgroup.name == 'device-frodo' AND primarycount == 0 -%]
         <p>* Hostname and Alias options will appear once there is a Primary Interface</p>
-        [% LAST %]
-        [% END %]
-    [% END %]
+        [%- LAST -%]
+        [%- END -%]
+    [%- END -%]
     </td>
   </tr>
   
@@ -326,27 +319,27 @@
       <td>
        <select name="invoice_id">
         <option value="">-- pick an invoice --</option>
-            [% FOR invoice IN invoices %]
+            [%- FOR invoice IN invoices -%]
             <option value="[% invoice.id | html_entity %]" [%- IF invoice.id == host.invoice_id OR invoice.id == posts.invoice_id -%]
                                                            selected="selected"
                                                            [%- END %]>
                     [% invoice.name | html_entity %] ([% invoice.description | html_entity %])</option>
-            [% END %]
+            [%- END -%]
        </select>
      </td>
   </tr>
 
-[% END %] [%# if not quickdevice %]
+[%- END -%] [%- # if not quickdevice -%]
 
 </table>
 <input type="hidden" name="host_id" value="[% host.id | html_entity %]" />
-[% IF edithost %]
+[%- IF edithost -%]
     <input type="submit" id="submit" value="Submit Changes" />
-[% ELSIF quickadd %]
+[%- ELSIF quickadd -%]
     <input type="submit" id="submit" value="Create Host" />
-[% ELSIF quickdevice %]
+[%- ELSIF quickdevice -%]
     <input type="submit" id="submit" value="Create Device" disabled="disabled" />
-[% END %]
+[%- END -%]
 </form>
 
 </div>

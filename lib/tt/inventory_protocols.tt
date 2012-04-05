@@ -91,7 +91,7 @@ $(document).ready(function(){
   </thead>
 
   <tfoot>
-    <tr><td colspan="4">[% protocols.size %] results were returned</td></tr>
+    <tr><td colspan="4">[% protocols.size | html_entity %] results were returned</td></tr>
   </tfoot>
 
   <tbody>

@@ -68,14 +68,14 @@ $(document).ready(function(){
    <th>Filename</th>
    <th colspan="2">Matches version on github?</th>
 </tr>
-[% FOR file IN files.keys.sort %]
-   [% NEXT IF files.$file.type == 'template' %] 
-   [% NEXT IF files.$file.type == 'module' %] 
-   [% IF files.$file.error == '1' %]
+[%- FOR file IN files.keys.sort -%]
+   [%- NEXT IF files.$file.type == 'template' -%] 
+   [%- NEXT IF files.$file.type == 'module' -%] 
+   [%- IF files.$file.error == '1' -%]
      <tr class="warning">
-   [% ELSE %]
+   [%- ELSE -%]
    <tr>
-   [% END %]
+   [%- END -%]
      <td>[% files.$file.name | html_entity %]</td>
      [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
      <td class="block-success" colspan="2">Matches</td>
@@ -91,10 +91,9 @@ $(document).ready(function(){
      </td>
      [%- END -%]
    </tr>
-[% END %]
+[%- END -%]
 </table>
 </div>
-
 
 <div id="modules">
 
@@ -106,13 +105,13 @@ $(document).ready(function(){
    <th colspan="2">Matches version on github?</th>
 </tr>
 
-[% FOR file IN files.keys.sort %]
-   [% NEXT IF files.$file.type != 'module' %] 
-   [% IF files.$file.error == '1' %]
+[%- FOR file IN files.keys.sort -%]
+   [%- NEXT IF files.$file.type != 'module' -%] 
+   [%- IF files.$file.error == '1' -%]
      <tr class="warning">
-   [% ELSE %]
+   [%- ELSE -%]
    <tr>
-   [% END %]
+   [%- END -%]
      <td>[% files.$file.name | html_entity %]</td>
      [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
      <td class="block-success" colspan="2">Matches</td>
@@ -128,10 +127,9 @@ $(document).ready(function(){
      </td>
      [%- END -%]
    </tr>
-[% END %]
+[%- END -%]
 </table>
 </div>
-
 
 <div id="templates">
 <h4>Templates</h4>
@@ -142,13 +140,13 @@ $(document).ready(function(){
    <th colspan="2">Matches version on github?</th>
 </tr>
 
-[% FOR file IN files.keys.sort %]
-   [% NEXT IF files.$file.type != 'template' %] 
-   [% IF files.$file.error == '1' %]
+[%- FOR file IN files.keys.sort -%]
+   [%- NEXT IF files.$file.type != 'template' -%]
+   [%- IF files.$file.error == '1' -%]
      <tr class="warning">
-   [% ELSE %]
+   [%- ELSE -%]
    <tr>
-   [% END %]
+   [%- END -%]
      <td>[% files.$file.name | html_entity %]</td>
      [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
      <td class="block-success" colspan="2">Matches</td>
@@ -164,6 +162,6 @@ $(document).ready(function(){
      </td>
      [%- END -%]
    </tr>
-[% END %]
+[%- END -%]
 </table>
 </div>

@@ -1,9 +1,3 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-09 09:38:20 +0000 (Thu, 09 Feb 2012) $
-# $Revision: 3532 $
-# $Id: inventory_finance.tt 3532 2012-02-09 09:38:20Z guy $
--%]
 <script type="text/javascript">
   WebFontConfig = {
     google: { families: [ 'Annie+Use+Your+Telescope::latin' ] }
@@ -57,29 +51,29 @@ $(document).ready(function(){
 <h3 style="float:left">Purchase Order / Invoice</h3>
 
 <table id="datebox">
- <tr><th>Date</th><td>[% invoice.0.date %]</td></tr>
- <tr><th>Description</th><td>[% invoice.0.description %]</td></tr>
- <tr><th>Order No.</th><td>[% invoice.0.ponumber %]</td></tr>
- <tr><th>Req No.</th><td>[% invoice.0.reqnumber %]</td></tr>
+ <tr><th>Date</th><td>[% invoice.0.date | html_entity %]</td></tr>
+ <tr><th>Description</th><td>[% invoice.0.description | html_entity %]</td></tr>
+ <tr><th>Order No.</th><td>[% invoice.0.ponumber | html_entity %]</td></tr>
+ <tr><th>Req No.</th><td>[% invoice.0.reqnumber | html_entity %]</td></tr>
 </table>
 
 <br style="clear:both" />
 
 <table id="supplierbox">
-  <tr><th>Supplier:</th> <td><a href="[% supplier.0.website %]">[% supplier.0.name %]</a></td></tr>
-  <tr><th>Address:</th>  <td>[% supplier.0.address %]</td></tr>
+  <tr><th>Supplier:</th> <td><a href="[% supplier.0.website %]">[% supplier.0.name | html_entity %]</a></td></tr>
+  <tr><th>Address:</th>  <td>[% supplier.0.address | html_entity %]</td></tr>
   <tr><th>Phone:</th>    <td>
-                               [% IF supplier.0.techphone %] [% supplier.0.techphone %] (technical support) [% END %]
-                               [% IF supplier.0.salesphone %] [% supplier.0.salesphone %] (sales)           [% END %]
+                               [% IF supplier.0.techphone | html_entity %] [% supplier.0.techphone | html_entity %] (technical support) [% END %]
+                               [% IF supplier.0.salesphone | html_entity %] [% supplier.0.salesphone | html_entity %] (sales)           [% END %]
                          </td></tr>
   <tr><th>Contact:</th>  <td>
-                               [% counter=1 %]
+                               [%- counter=1 -%]
                                [%-  FOR contact IN contacts -%]
-                                   [% IF contact.email     %]
+                                   [%- IF contact.email     -%]
                                          <a href="mailto:[% contact.email | html_entity %]">[%- contact.name | html_entity -%]</a>
-                                   [% ELSE %]      
+                                   [%- ELSE -%]      
                                          [%- contact.name | html_entity -%]
-                                   [% END %]
+                                   [%- END -%]
                                    , [%- contact.role | html_entity -%]
                                    [% IF contact.telephone %] ([% contact.telephone | html_entity %]) [% END %]
                                    [%- IF contacts.size > counter -%]
@@ -99,7 +93,7 @@ $(document).ready(function(){
         <span>University Asset / Manufacturers Serial</span></th>
   </tr>
   
-  [% FOR host IN hosts %]
+  [%- FOR host IN hosts -%]
   <tr>
       <td>1</td>
       <td>[% host.manufacturer_name | html_entity %] - [% host.model_name | html_entity %] </td>
@@ -109,18 +103,18 @@ $(document).ready(function(){
       <td>[% IF host.asset %] [% host.asset | html_entity %] [% ELSE %] none [% END %]
           / [% IF host.serial %] [% host.serial | html_entity %] [% ELSE %] none [% END %]</td>
   </tr>
-  [% END %]
+  [%- END -%]
 </table>
 
 
 <table id="adminbox">
   <tr>
-      <th>Requisitioner</th>      <td class="signed">[% invoice.0.purchaser_name %]</td>
-      <th>Total Cost</th>         <td>[% invoice.0.totalcost %]</td>
+      <th>Requisitioner</th>      <td class="signed">[% invoice.0.purchaser_name | html_entity %]</td>
+      <th>Total Cost</th>         <td>[% invoice.0.totalcost | html_entity %]</td>
   </tr>
-  <tr><th>Authorisation</th>      <td class="signed">[% invoice.0.signitory_name %]</td><td></td><td></td></tr>
-  <tr><th>Cost Centre</th>        <td>[% invoice.0.costcentre %]</td><td></td><td></td></tr>
-  <tr><th>Natural Account</th>    <td>[% invoice.0.natacct %]</td><td></td><td></td></tr>
+  <tr><th>Authorisation</th>      <td class="signed">[% invoice.0.signitory_name | html_entity %]</td><td></td><td></td></tr>
+  <tr><th>Cost Centre</th>        <td>[% invoice.0.costcentre | html_entity %]</td><td></td><td></td></tr>
+  <tr><th>Natural Account</th>    <td>[% invoice.0.natacct | html_entity %]</td><td></td><td></td></tr>
 </table>
 
 <p><strong>Disclaimer:</strong> This is a generalisation of an invoice from a
@@ -160,12 +154,12 @@ $(document).ready(function(){
   </thead>
   
   <tfoot>
-  <tr><td colspan="11">[% invoices.size %] results were obtained</td></tr>
+  <tr><td colspan="11">[% invoices.size | html_entity %] results were obtained</td></tr>
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% FOR invoice IN invoices %]
+  [%- counter=0 -%]
+  [%- FOR invoice IN invoices -%]
       <td><a href="finance?invoice_id=[% invoice.id  | html_entity %]">view</a></td>
       <td>[% invoice.description    | html_entity %]</td>
       <td>[% invoice.supplier_name  | html_entity %]</td>
@@ -179,12 +173,12 @@ $(document).ready(function(){
       <td>[% invoice.natacct        | html_entity %]</td>
    </tr>
   
-  [% END %]
+  [%- END -%]
   </tbody>
 </table>
 </div> <!-- all -->
 
-[% ELSE %]
+[%- ELSE -%]
 <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -192,6 +186,6 @@ $(document).ready(function(){
       </p>
    </div>
 </div>
-[% END %]
+[%- END -%]
 
 </div>

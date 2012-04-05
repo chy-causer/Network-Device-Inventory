@@ -5,8 +5,8 @@
 </div> <!-- branding -->
 
 <div id="copyright">
-    <a href="[% group_website %]">[% group_name %]</a>
-    <a href="mailto:[% group_email %]">&lt;[% group_email %]&gt;</a><br />
+    <a href="[% group_website | html_entity %]">[% group_name %]</a>
+    <a href="mailto:[% group_email | html_entity %]">&lt;[% group_email | html_entity %]&gt;</a><br />
     Released under the GPL v2<br />
 </div>
 

@@ -171,7 +171,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
   <tr>
      <th>Invoice</th>
      [% IF hosts.$host.invoice_id %]
-         <td><a href="finance?invoice_id=[% hosts.$host.invoice_id %]">[% hosts.$host.invoice_description %] ([% hosts.$host.invoice_date %])</a></td>
+         <td><a href="finance?invoice_id=[% hosts.$host.invoice_id | html_entity %]">[% hosts.$host.invoice_description | html_entity %] ([% hosts.$host.invoice_date | html_entity %])</a></td>
      [% ELSE %]
          <td class="input-warning">There are no invoices associated with this hardware (<a href="invoices">create one?</a>)</td>
      [% END %]
