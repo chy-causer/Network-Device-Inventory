@@ -1,20 +1,56 @@
 <h3>What is this</h3>
 
-<p>This is a network hardware inventory, it's main use if for keeping track of what devices and servers we have and for feeding information to the various monitoring systems.</p>
+<p>This is a network hardware inventory, it's main use is for keeping track of
+what devices and servers are on a network. It was originally written to feed
+information to various in-house monitoring systems at a university in the
+central networks team.</p>
 
-<h3>Features Incoming</h3>
+<p>It was very basic when written in 2007 and there was little development
+internally after completion but in 2012 the author, who was leaving the company,
+was granted permission to open-source the application. The open source release
+meant that the author could develop it as a portfolio example of a reasonably
+large project in active industry use and as a result the university benefitted
+from any new features introduced without cost.</p>
+
+<h4>It seems a little... unfinished?</h4>
+
+<p>Because it was a internal private syustem heavily, the current code on
+github is currently having the site-specific parts worked around, made
+optional and replaced. In short it's a little in-flux but should improve
+soon. It should be usable by ~July 2012</p>
+
+<h4>What can it currently do?</h4>
 
 <ul>
-  <li>Javascript input validation for the quickfrodo page</li>
-  <li>Add a service level to support contracts</li>
-  <li>Show all devices under a support contract / not under a support contracti (inc cost and duration of contract, start and end date plus service level)</li>
-  <li>Introduce edit restrictions on the groups (frodos/ups and status) where names mustn't change</li>
+  <li>Store all network devices basic details</li>
+  <li>Record which services are on which hosts</li>
+  <li>Keep a list of all your servers SSH keys</li>
+  <li>Lookup a service address to see which host provides it</li>
+  <li>Produce output suitable for a .bashrc file</li>
+  <li>Configuration via .ini file</li>
+  <li>User access control via Apache authentication modules use $ENV{REMOTE_USER}</li>
+  <li>A demo mode for read only access for everyone</li>
 </ul>
 
-<h3>Current known Defects</h3>
-<ul class="bugs">
-  <li>The frodo cnames page is a last minute addon, this system was originally designed to depend on the dns, not write scripts to manage it. The last minute addition therefore gives poor usability.</li>
-  <li>Hostgroups: the names of a small number of groups (e.g. frodos, frodo ups) are used in some of the programming logic of the web pages, and yet there isn't an edit restriction on the name of the group in the database. The eventual replacement may be a view comprised of an editable and non editable table.</li>
-  <li>Statuses: Some checks depend upon the names of the statuses not changing, this is a similar issue to above</li>
+<p>Currently the inventory does have a section for making DNS CNAME records
+for certain devices but this was a emergency feature put in at request in 2007
+to side step an issue with the seperate IPAM in use locally and is not likely
+to stay - the inventory depends upon DNS as a source of information rather
+than generating records for it.</p>
+
+<h4>What are you writing right now? (April 2012)</h4>
+
+<ul>
+   <li>Javascript input validation (but the forms work fine without)</li>
+   <li>Some helpful ajax on form input</li> 
+   <li>Separation of reporting and changing operations</li>
+   <li>Improved reporting information</li>
+   <li>Removing bugs or defects</li>
+   <li>Making it less site specific whilst still being able to work for the
+   original purpose</li>
+   <li>User activity logging (edits, deletes)</li>
 </ul>
 
+<h4>What is on the way?</h4>
+
+<p>For the full surrent roadmap see the <a href="http://github.com/guyed/Network-Device-Inventory/blob/master/todo">todo</a> file on github</p>
