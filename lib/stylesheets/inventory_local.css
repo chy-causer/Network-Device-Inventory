@@ -48,8 +48,8 @@ div#footer, #header p, div#footer p:last-child {
     background-color: #eceadf;
 }
 div#sidebar li {
-    background-color: #eceadf;
-    border-bottom: 1px solid #654b24;
+/*    background-color: #eceadf;
+    border-bottom: 1px solid #654b24; */
     color: #654b24;
 }
 
