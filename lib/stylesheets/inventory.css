@@ -568,7 +568,7 @@ table {
 }
 
 tbody {
-    border: 1px solid black;            /* BRANDING:  black */
+/*    border: 1px solid black;            /* BRANDING:  black */
 }
 
 div.alternate-option {
@@ -713,6 +713,41 @@ div#footer {
 }
 .ui-state-error a, .ui-state-error a:hover {
      border-bottom: 1px solid;
+}
+
+/* reports styling */
+
+table.report {
+   padding: 0.2em 0.5em 0.2em 0.5em;
+   border-collapse: collapse;
+}
+
+table.report td {
+   border-bottom: 1px solid #f0f0f0; /* a light grey */
+}
+
+div#rightcolumn {
+    float:right; max-midth: 520px;
+    width:520px;
+    margin-left:10px;
+    padding-left:10px;
+    border-left: 1px solid #f0f0f0; /* a light grey */
+}
+
+#rightcolumn div.graph { 
+    width:500px;
+    height:500px;
+}
+#rightcolumn table {
+    /* width: 460px; */
+}
+.graphlabel {
+    font-size:8pt;
+    text-align:center;
+    padding:2px;color:white;
+}
+#rightcolumn div#hover span {
+    /* background-color: #f0f0f0; /* a light grey */
 }
 
 /*

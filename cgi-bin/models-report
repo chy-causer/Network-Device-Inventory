@@ -84,6 +84,11 @@ my %host_count = %{ Inventory::Models::count_hosts_permodel($dbh) };
 
 my $hosts = Inventory::Hosts::hash_hosts_permodel($dbh);
 
+#print '<pre class="debug">';
+#use Data::Dumper;
+#print Dumper $hosts;
+#print "</pre>";
+
 $tt->process(
     'inventory_models-report.tt',
     {

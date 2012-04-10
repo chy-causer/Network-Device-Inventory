@@ -58,6 +58,10 @@ then in the following we would use
 
 Put any local modified versions of the files into /var/www/$SITENAME/lib/local/tt
 
+Create local stylesheets
+ touch /var/www/$SITENAME/static/stylesheets/local.css
+ touch /var/www/$SITENAME/static/stylesheets/local_print.css
+
 =head2 Create the database
 
 First copy the SQL file conf/database.sql to the server.

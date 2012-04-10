@@ -7,15 +7,15 @@
 
 =over 4
 
-=item [feature] (4th April) ability to see all devices which are of a particular model type
-
-=item [feature] (10th April) Add a service level to support contracts.
- 
 =item [feature] (11th April) Show all devices under a support contract / show all not under a
    support contract.
  
-=item [feature] (17th April) Support contracts: cost and duration of contract, start and end
-   date plus service level.
+=item [feature] (17th April) Support contracts: 
+                                    cost of contract
+                                    duration of contract
+                                    start date
+                                    end date
+                                    service level.
  
 =item [release] (24th April) Write tests for each module
 

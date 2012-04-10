@@ -50,3 +50,7 @@ hardware model
 be consistent across the program 
 
 =item The install instructions are in pod format and are complete
+
+=item A reports page based on Model type, for exampel the ability to see all
+devices which are of a particular model type
+

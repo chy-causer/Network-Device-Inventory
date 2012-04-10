@@ -5,6 +5,8 @@
     });
 </script>
 
+<h3>Inventory Information Based on Model</h3>
+
 <div>
 [% IF message.keys.size %]
   [% FOR notification IN message.keys %] 
@@ -52,12 +54,12 @@ $(function () {
 
     [%- FOR model IN models -%]
        [%- id = model.id -%]
-       [%- count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock -%]
+       [%- count_sum = (host_counts.$id.active||0) + (host_counts.$id.inactive||0) + (host_counts.$id.instock||0) -%]
        { label: "[% model.name | html_entity %]",  data: [% count_sum | html_entity %]},
     [%- END -%]
     ];
 
-$.plot($("#graph1"), data, 
+$.plot($("#modelgraph"), data, 
 {
         series: {
             pie: { 
@@ -71,7 +73,7 @@ $.plot($("#graph1"), data,
                     show: true,
                     radius: 3/4,
                     formatter: function(label, series){
-                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+                        return '<div class="graphlabel">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
                     },
                     background: { 
                         opacity: 0.5,
@@ -87,7 +89,7 @@ $.plot($("#graph1"), data,
             show: false
         }
 });
-$("#graph1").bind("plothover", pieHover);
+$("#modelgraph").bind("plothover", pieHover);
 
 function pieHover(event, pos, obj) {
     if (!obj)
@@ -101,28 +103,35 @@ function pieHover(event, pos, obj) {
 </script>
 
 
-<div id="column2" style="float:right; width:520px; padding:5px; border-left: 1px solid grey;">
+<div id="rightcolumn">
+    <div id="modelgraph" class="graph"></div>
+    <div id="hover"></div>
 
-<div id="graph1" style="width:500px;height:500px;"></div>
+ <h4>Specific Hosts by Model</h4>
 
-<div id="hover"></div>
-
-<table border="1" style="width:500px;">
+ <table class="report">
     <tr><th>Model</th><th>Hosts</th></tr>
-[% FOREACH modelname IN hosts.keys.sort %]
-    <tr><td>[% modelname | html_entity %]</td><td>
-       [% FOREACH host IN hosts.$modelname %]
-          [% host.name | html_entity %] [% IF host.description %]([% host.description | html_entity %])[% END %] [% IF host.status_name %] ([% host.status_name | html_entity %]) [% END %]
+ [% FOREACH modelname IN hosts.keys.sort -%]
+    [% id = hosts.$modelname.0.model_id %]   
+       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+    [%- IF 1 > count_sum -%]
+      <tr class="block-status-inactive">
+    [%- ELSE -%]
+      <tr>
+    [%- END -%]
+    <td>[% modelname | html_entity %]</td><td>
+       [%- FOREACH host IN hosts.$modelname -%]
+          [%- host.name | html_entity %] [% IF host.description %]([% host.description | html_entity %])[% END %] [% IF host.status_name %] ([% host.status_name | html_entity %]) [% END -%]
           <br />
-       [% END %]
+       [%- END -%]
     </td></tr>
-[% END %]
-</table>
+ [%- END -%]
+ </table>
 </div> <!-- right column -->
 
 <h4>All Models</h4>
 
-<table id="allresults">
+<table id="allresults" class="report">
   <thead>
   <tr>
     <th>Model Name</th>
@@ -149,12 +158,10 @@ function pieHover(event, pos, obj) {
 
     [% counter = counter +1 %]
        [% id = model.id %]
-       [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
     
     [% IF 1 > count_sum %]
       <tr class="block-status-inactive">
-    [% ELSIF counter % 2 > 0 %]
-      <tr class="stripe">
     [% ELSE %]
       <tr>
     [% END %]
@@ -163,10 +170,10 @@ function pieHover(event, pos, obj) {
       <td>[% model.dateeol | html_entity %]</td>
       <td>[% count_sum | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span> / 
-        <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
-        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span> / 
-        <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
+        <span class="status-active">[% 0 + (host_counts.$id.active || 0)      | html_entity %] </span> / 
+        <span class="status-inactive">[% 0 + (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
+        <span class="status-instock">[% 0 + (host_counts.$id.instock || 0)   | html_entity %] </span> / 
+        <span class="status-decommissioned">[% 0 + (host_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
      [% previous_rows_manufacturerid=model.manufacturer_id %]
   </tr>
@@ -175,4 +182,5 @@ function pieHover(event, pos, obj) {
 
 </table>
     
-</div>
+
+</div> <!-- page end -->
