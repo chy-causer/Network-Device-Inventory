@@ -61,11 +61,6 @@ use DBI;
 use DBD::Pg;
 use Log::Log4perl;
 
-Log::Log4perl::init('config/log.conf', 30);
-
-my $log = Log::Log4perl->get_logger();
-   $log->error('I need food');
-
 =pod
 
 =head2 is_superuser
