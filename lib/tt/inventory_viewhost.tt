@@ -52,7 +52,6 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
  [% END -%]
 
 [%- IF hosts.keys.size > 0 -%]
- <h3>Details for [% lookup | html_entity %]</h3>
 
   [% counter=0 -%]
   [% FOR host IN hosts.keys -%]
@@ -125,7 +124,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
 
   <tr>
     <th>UPS Protected</th>
-      [% IF hosts.$host.ups.0.size < 1 %]
+      [% IF hosts.$host.ups.0 && hosts.$host.ups.0.size < 1 %]
       <td class="input-warning">
           No
       [% ELSE %]
@@ -140,7 +139,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
 <!--  no longer used
   <tr>
     <th>University Asset Tag</th>
-    [% IF hosts.$host.asset.length > 0 %]
+    [% IF hosts.$host.asset && hosts.$host.asset.length > 0 %]
       <td>[% hosts.$host.asset | html_entity %]</td>
     [% ELSE %]
     <td class="input-warning">There is no OUCS asset tag recorded for this host</td>

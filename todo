@@ -29,12 +29,6 @@
 =item [defect] ssh keys page allows inserting invalid ssh keys but then will
 not display them testdata "id 160 | host_id 1471 | sshkey testing:testing:123"
 
-=item [defect] error message in log Argument "" isn't numeric in numeric lt
-(<) at /srv/www/overlord/lib/tt/inventory_viewhost.tt line 136
-
-=item [defect] error message in log Argument "" isn't numeric in numeric gt
-(>) at /srv/www/overlord/lib/tt/inventory_viewhost.tt line 147
-
 =item [defect] on the quick device addition page the submit button is
 accidentally enabled when only one essential field is filled in
 
