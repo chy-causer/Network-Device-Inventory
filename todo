@@ -7,15 +7,15 @@
 
 =over 4
 
-=item [feature] (11th April) Show all devices under a support contract / show all not under a
-   support contract.
- 
-=item [feature] (17th April) Support contracts: 
+=item [feature] (10th April) Support contracts: 
                                     cost of contract
                                     duration of contract
                                     start date
                                     end date
                                     service level.
+
+=item [feature] (17th April) Show all devices under a support contract / show all not under a
+   support contract. 
  
 =item [release] (24th April) Write tests for each module
 
@@ -25,6 +25,12 @@
 1.2 LONGER TERM ISSUES
 
 =over 4
+
+=item [defect] On the models report page javascript table sorting is not working
+
+=item [defect] on the models report page the initial sort by modelname appears to have an out of order oddity 'WS-C4948E-F' at the top which needs investigating
+
+=item [defect] on the models report page the javascript column sort icons are shown for the status breakdown column, which it wont makes sense to sort by
 
 =item [defect] on the quick edit page editing one aspect (such as the status)
 results in the message "Thanks for confirming this hosts details" and the
@@ -48,7 +54,11 @@ accidentally enabled when only one essential field is filled in
 
 =item [defect] IPv6 name resolution, e.g. add a IPv6 interface that rsolves to a host and the inventory will read ' unresolved'
 
-=item [feature] script to check/update cached dns records overnight
+=item [feature] Make a script to check/update cached dns records overnight or a page option that does a async run through of the records (ajax, progressbar) to update them
+
+=item [feature] On the model report page the hosts by model output is long. Make a option to (ajax) display hosts for a model when the model is clicked instead.
+
+=item [feature] Combined with the feature request above, make the full list of hosts by model available to print out if needed.
 
 =item [feature] Introduce edit restrictions on the groups (frodos/ups and status)
       where names mustn't change
