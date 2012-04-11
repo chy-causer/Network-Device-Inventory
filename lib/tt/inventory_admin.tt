@@ -13,10 +13,11 @@
   <li><a href="ups">UPS Protection</a></li>
 </ul>
 
-<h5>Finance</h5>
+<h5>Finance and Support</h5>
 <ul>
-  <li><a href="contacts">Contacts</a></li>
+  <li><a href="contacts">Contacts (people)</a></li>
   <li><a href="suppliers">Suppliers</a></li>
+  <li><a href="servicelevels">Service Levels</a></li>
   <li><a href="contracts">Contracts (warranties, support contracts)</a></li>
   <li><a href="invoices">Invoices</a></li>
 </ul>

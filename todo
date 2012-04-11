@@ -7,15 +7,11 @@
 
 =over 4
 
-=item [feature] (10th April) Support contracts: 
-                                    cost of contract
-                                    duration of contract
-                                    start date
-                                    end date
-                                    service level.
-
 =item [feature] (17th April) Show all devices under a support contract / show all not under a
    support contract. 
+
+=item [feature] show the calculated duration of a support contract on the reports page
+
  
 =item [release] (24th April) Write tests for each module
 
@@ -53,6 +49,10 @@ accidentally enabled when only one essential field is filled in
 =item [defect] dont let a ups be its own ups
 
 =item [defect] IPv6 name resolution, e.g. add a IPv6 interface that rsolves to a host and the inventory will read ' unresolved'
+
+=item [feature] show a graph of percentage hosts under a support contract
+
+=item [feature] show the time remaining on a support contract on the reports page
 
 =item [feature] Make a script to check/update cached dns records overnight or a page option that does a async run through of the records (ajax, progressbar) to update them
 

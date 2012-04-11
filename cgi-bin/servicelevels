@@ -12,9 +12,8 @@ use Template;
 use Log::Log4perl;
 
 use Inventory;
-use Inventory::Contracts;
-use Inventory::Invoices;
 use Inventory::Servicelevels;
+use Inventory::Suppliers;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -56,7 +55,7 @@ my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle  => 'Contracts',
+        pagetitle  => 'Servicelevels',
         baseurl    => $BASEURL,
         groupname  => $CONFIG->{'general'}->{groupname},
         appname    => $CONFIG->{'general'}->{appname},
@@ -78,49 +77,47 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
 
 my $edit;
 my $delete;
-if ( $gets{'contract_id'} && $gets{'contract_id'} =~ m/^[\d]+$/x ) {
+if ( $gets{'servicelevel_id'} && $gets{'servicelevel_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
-        $logger->info("$ENV{REMOTE_USER} takes first step to edit a contract ID $gets{'contract_id'}");
-        $edit = $gets{'contract_id'};
+        $logger->info("$ENV{REMOTE_USER} takes first step to edit a servicelevel ID $gets{'servicelevel_id'}");
+        $edit = $gets{'servicelevel_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
-        $logger->info("$ENV{REMOTE_USER} takes first step to delete a contract ID $gets{'contract_id'}");
-        $delete = $gets{'contract_id'};
+        $logger->info("$ENV{REMOTE_USER} takes first step to delete a servicelevel ID $gets{'servicelevel_id'}");
+        $delete = $gets{'servicelevel_id'};
     }
 }
 
 my %message;    # communicate success or failure, sink or swim
 
 # are we creating/editing or deleting?
-if ( $POSTS{'contract_id'} ) {
+if ( $POSTS{'servicelevel_id'} ) {
     if ( exists $POSTS{'action'} and $POSTS{'action'} eq 'delete' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to delete a contract ID $POSTS{'contract_id'}");
+        $logger->info("$ENV{REMOTE_USER} posts to delete a servicelevel ID $POSTS{'servicelevel_id'}");
         %message = %{
-            Inventory::Contracts::delete_contracts( $dbh,
-                $POSTS{'contract_id'} )
+            Inventory::Servicelevels::delete_servicelevels( $dbh,
+                $POSTS{'servicelevel_id'} )
           };
     }
     elsif ( exists $POSTS{'action'} and $POSTS{'action'} eq 'edit' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to edit $POSTS{'contract_id'}");
-        %message = %{ Inventory::Contracts::edit_contracts( $dbh, \%POSTS ) };
+        $logger->info("$ENV{REMOTE_USER} posts to edit $POSTS{'servicelevel_id'}");
+        %message = %{ Inventory::Servicelevels::edit_servicelevels( $dbh, \%POSTS ) };
     }
 }
 elsif ( exists $POSTS{'action'} and $POSTS{'action'} eq 'create' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to create a new contract ID");
-    %message = %{ Inventory::Contracts::create_contracts( $dbh, \%POSTS ) };
+        $logger->info("$ENV{REMOTE_USER} posts to create a new servicelevel ID");
+    %message = %{ Inventory::Servicelevels::create_servicelevels( $dbh, \%POSTS ) };
 }
 
-# list all the contracts (array of hashes)
-my @contracts     = Inventory::Contracts::get_contracts_info($dbh);
-my @invoices      = Inventory::Invoices::get_invoices_info($dbh);
+# list all the servicelevels (array of hashes)
 my @servicelevels = Inventory::Servicelevels::get_servicelevels_info($dbh);
+my @suppliers     = Inventory::Suppliers::get_suppliers_info($dbh);
 
 $tt->process(
-    'inventory_contracts.tt',
+    'inventory_servicelevels.tt',
     {
-        contracts     => \@contracts,
-        invoices      => \@invoices,
         servicelevels => \@servicelevels,
+        suppliers     => \@suppliers,
         message       => \%message,
         edit          => $edit,
         delete        => $delete,
@@ -131,7 +128,7 @@ $tt->process( 'inventory_footer.tt', {} );
 __END__
 
 =head1 NAME
-Contracts
+Servicelevels
 
 =head1 VERSION
 
@@ -145,7 +142,7 @@ This documentation refers to version 1.0.0
 
 =head1 DESCRIPTION
 
-Lets the user view and edit the list of hardware contracts that the inventory database knows about
+Lets the user view and edit the list of hardware servicelevels that the inventory database knows about
 
 =head1 DIAGNOSTICS
 

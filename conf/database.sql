@@ -45,16 +45,27 @@ ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_supplier_id_fkey FOREIGN KEY (
 ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_purchaser_id_fkey FOREIGN KEY (purchaser_id) REFERENCES contacts(id);
 ALTER TABLE ONLY invoices ADD CONSTRAINT invoices_signitory_id_fkey FOREIGN KEY (signitory_id) REFERENCES contacts(id);
 
+CREATE TABLE servicelevels (
+    id            serial NOT NULL,
+    name          character varying NOT NULL,
+    description   character varying,
+    supplier_id   integer DEFAULT NULL,
+    PRIMARY KEY(id)
+);
+ALTER TABLE ONLY servicelevels ADD CONSTRAINT servicelevels_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
+
 CREATE TABLE contracts (
     id            serial NOT NULL,
     name          character varying NOT NULL,
     serial        character varying,
     startdate     character varying,
     enddate       character varying,
-    invoice_id    integer DEFAULT NULL,
+    invoice_id      integer DEFAULT NULL,
+    servicelevel_id integer DEFAULT NULL,
     PRIMARY KEY(id)
 );
 ALTER TABLE ONLY contracts ADD CONSTRAINT contracts_invoice_id_fkey FOREIGN KEY (invoice_id) REFERENCES invoices(id);
+ALTER TABLE ONLY contracts ADD CONSTRAINT contracts_servicelevel_id_fkey FOREIGN KEY (servicelevel_id) REFERENCES servicelevels(id);
 
 CREATE TABLE manufacturers (
     id    serial NOT NULL,
@@ -266,6 +277,7 @@ GRANT select ON status TO demouser;
 GRANT select ON protocols TO demouser;
 GRANT select ON hosts_to_upshost TO demouser;
 GRANT select ON suppliers TO demouser;
+GRANT select ON servicelevels TO demouser;
 
 GRANT select ON contacts TO demouser;
 GRANT select ON invoices TO demouser;
@@ -291,6 +303,7 @@ GRANT select ON status_id_seq TO demouser;
 GRANT select ON protocols_id_seq TO demouser;
 GRANT select ON hosts_to_upshost_id_seq TO demouser;
 GRANT select ON suppliers_id_seq TO demouser;
+GRANT select ON servicelevels_id_seq TO demouser;
 
 GRANT select ON contacts_id_seq TO demouser;
 GRANT select ON invoices_id_seq TO demouser;
@@ -317,6 +330,7 @@ GRANT select,insert,update,delete ON status TO writeuser;
 GRANT select,insert,update,delete ON protocols TO writeuser;
 GRANT select,insert,update,delete ON hosts_to_upshost TO writeuser;
 GRANT select,insert,update,delete ON suppliers TO writeuser;
+GRANT select,insert,update,delete ON servicelevels TO writeuser;
 
 GRANT select,insert,update,delete ON contacts TO writeuser;
 GRANT select,insert,update,delete ON invoices TO writeuser;
@@ -342,6 +356,7 @@ GRANT all ON status_id_seq TO writeuser;
 GRANT all ON protocols_id_seq TO writeuser;
 GRANT all ON hosts_to_upshost_id_seq TO writeuser;
 GRANT all ON suppliers_id_seq TO writeuser;
+GRANT all ON servicelevels_id_seq TO writeuser;
 
 GRANT all ON contacts_id_seq TO writeuser;
 GRANT all ON invoices_id_seq TO writeuser;

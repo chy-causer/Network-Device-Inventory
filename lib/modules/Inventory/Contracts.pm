@@ -37,9 +37,15 @@ sub create_contracts {
           'Input Error: Please check your input is alpha numeric and complete';
         return \%message;
     }
+    if( $input->{'invoice_id'} eq '' ){
+        $input->{'invoice_id'} = undef;
+    }
+    if( $input->{'servicelevel_id'} eq '' ){
+        $input->{'servicelevel_id'} = undef;
+    }
 
     my $sth = $dbh->prepare(
-'INSERT INTO contracts(name,serial,startdate,enddate,invoice_id) VALUES(?,?,?,?,?)'
+'INSERT INTO contracts(name,serial,startdate,enddate,invoice_id,servicelevel_id) VALUES(?,?,?,?,?,?)'
     );
 
     if (
@@ -48,7 +54,8 @@ sub create_contracts {
             $input->{'contract_serial'},
             $input->{'contract_startdate'},
             $input->{'contract_enddate'},
-            $input->{'invoice_id'}
+            $input->{'invoice_id'},
+            $input->{'servicelevel_id'},
 
         )
       )
@@ -83,9 +90,15 @@ sub edit_contracts {
           'Input Error: Please check your input is alpha numeric and complete';
         return \%message;
     }
+    if( $input->{'invoice_id'} eq '' ){
+        $input->{'invoice_id'} = undef;
+    }
+    if( $input->{'servicelevel_id'} eq '' ){
+        $input->{'servicelevel_id'} = undef;
+    }
 
     my $sth = $dbh->prepare(
-'UPDATE contracts SET name=?,serial=?,startdate=?,enddate=?,invoice_id=? WHERE id=?'
+'UPDATE contracts SET name=?,serial=?,startdate=?,enddate=?,invoice_id=?,servicelevel_id=? WHERE id=?'
     );
     if (
         !$sth->execute(
@@ -94,6 +107,7 @@ sub edit_contracts {
             $input->{'contract_startdate'},
             $input->{'contract_enddate'},
             $input->{'invoice_id'},
+            $input->{'servicelevel_id'},
 
             $input->{'contract_id'}
         )
@@ -150,10 +164,14 @@ sub get_contracts_info {
            contracts.enddate,
            contracts.serial,
            contracts.invoice_id,
-           invoices.description AS invoice_description
+           invoices.description AS invoice_description,
+           servicelevels.description AS servicelevel_description,
+           servicelevels.name AS servicelevel_name,
+           servicelevels.id AS servicelevel_id
 
-        FROM contracts,invoices 
-        
+        FROM contracts 
+            LEFT JOIN invoices on invoices.id = contracts.invoice_id
+            LEFT JOIN servicelevels on servicelevels.id = contracts.servicelevel_id
         WHERE 
            invoices.id = contracts.invoice_id,
            contracts.id = ?
@@ -173,12 +191,15 @@ sub get_contracts_info {
            contracts.enddate,
            contracts.serial,
            contracts.invoice_id,
-           invoices.description AS invoice_description
-        FROM contracts,invoices
-
-        WHERE 
-           invoices.id = contracts.invoice_id
+           invoices.description AS invoice_description,
+           servicelevels.description AS servicelevel_description,
+           servicelevels.name AS servicelevel_name,
+           servicelevels.id AS servicelevel_id
         
+        FROM contracts 
+            LEFT JOIN invoices on invoices.id = contracts.invoice_id
+            LEFT JOIN servicelevels on servicelevels.id = contracts.servicelevel_id
+
         ORDER BY 
            contracts.name
         '

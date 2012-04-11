@@ -1,0 +1,147 @@
+<script>
+    $(function() {
+        $( "#startdate" ).datepicker();
+        $( "#enddate" ).datepicker();
+        $( "#startdate_edit" ).datepicker();
+        $( "#enddate_edit" ).datepicker();
+    });
+</script>
+
+<div>
+[%- IF message.keys.size -%]
+  [%- FOR notification IN message.keys -%]
+    [%- IF notification == "ERROR" -%]
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           ERROR: [% message.$notification  | html_entity %]
+      </p>
+   </div>
+</div>
+    [%- ELSE -%]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [%- END -%]
+  [%- END -%]
+[%- ELSE -%]
+<p>This page records hardware servicelevels for the equipment we maintain. The information used here is used by the list of models</p>
+[%- END -%]
+
+[%- IF edit -%]
+
+<form action="" method="post">
+ <fieldset><legend>Edit an Service Servicelevel</legend>
+  [%- FOR servicelevel IN servicelevels -%]
+      [%- IF edit == servicelevel.id -%]
+    <table>
+      <tr><th>Service level</th><td><input type="text" name="servicelevel_name" maxlength="155" value="[% servicelevel.name | html_entity %]" /></td></tr>
+      <tr><th>Description</th><td><input type="text" name="servicelevel_description" maxlength="255" value="[% servicelevel.description | html_entity %]" /></td></tr>
+      <tr><th>Supplier</th><td>
+                             <select name="supplier_id">
+                               [%- FOR supplier IN suppliers -%]
+                                 <option 
+                                 [%- IF supplier.id == servicelevel.supplier_id -%] selected="selected" [%- END -%] 
+                                 value="[% supplier.id | html_entity %]">[% supplier.name | html_entity %]</option>
+                               [%- END -%]
+                             </select>
+                          </td></tr>
+      <tr><td colspan="2">
+       <input type="hidden" name="servicelevel_id" value="[% servicelevel.id | html_entity %]" />
+       <input type="hidden" name="action" value="edit" />
+       <input type="submit" value="Submit Changes" /></td>
+      </td></tr>
+    </table>
+      [%- END -%]
+  [%- END -%]
+  </fieldset>
+</form>
+
+[%- ELSIF delete -%]
+
+  [%- FOR servicelevel IN servicelevels -%]
+      [%- IF delete == servicelevel.id -%]
+<form action="servicelevels" method="post">
+ <p class="block-warning">Are you sure you want to delete the servicelevel called &quot;[% servicelevel.name | html_entity %]&quot; (Supplier: [% servicelevel.supplier_name | html_entity %]) ?
+ <br />
+ <input type="hidden" name="servicelevel_id" value="[% servicelevel.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="servicelevels">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [%- END -%]
+  [%- END -%]
+[%- END -%]
+
+<form action="servicelevels" method="post">
+  <fieldset><legend>Record a new servicelevel</legend>
+
+    <table>
+      <tr><th>Service level</th><td><input type="text" name="servicelevel_name" maxlength="155" /></td></tr>
+      <tr><th>Description</th><td><input type="text" name="servicelevel_description" maxlength="255" /></td></tr>
+      <tr><th>Supplier</th><td>
+                             <select name="supplier_id">
+                               [%- FOR supplier IN suppliers -%]
+                                 <option value="[% supplier.id | html_entity %]">[% supplier.name | html_entity %]</option>
+                               [%- END -%]
+                             </select>
+                          </td></tr>
+      <tr><td colspan="2">
+       <input type="hidden" name="action" value="create" />
+       <input type="submit" value="Create Entry" />
+      </td></tr>
+    </table>
+
+  </fieldset>
+</form>
+
+<h3>Current Servicelevels</h3>
+[%- IF servicelevels.size > 0 -%]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<form action="servicelevels" method="get">
+<fieldset><legend>Recorded Servicelevels</legend>
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+<table id="allresults">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Servicelevels Name</th>
+    <th>Supplier</th>
+    <th>Description</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+  <tr><td colspan="6">[%- servicelevels.size | html_entity -%] results were obtained</td></tr>
+  </tfoot>
+
+  <tbody>
+  [%- counter=0 -%]
+  [%- FOR servicelevel IN servicelevels -%]
+      <td><input type="radio" name="servicelevel_id" value="[% servicelevel.id  | html_entity %]" /></td>
+      <td>[% servicelevel.name          | html_entity %]</td>
+      <td>[% servicelevel.supplier_name | html_entity %]</td>
+      <td>[% servicelevel.description   | html_entity %]</td>
+   </tr>
+  
+  [%- END -%]
+  </tbody>
+</fieldset>
+</table>
+
+[%- ELSE -%]
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no servicelevels at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
+
+[%- END -%]
+</div>

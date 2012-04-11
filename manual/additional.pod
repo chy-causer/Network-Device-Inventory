@@ -54,3 +54,6 @@ be consistent across the program
 =item A reports page based on Model type, for example the ability to see all
 devices which are of a particular model type
 
+=item Support contracts record the supplier, cost of contract, start date, end
+date and service level. It's intentionally possible for a support contract to
+have no supplier or support level.
