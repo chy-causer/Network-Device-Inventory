@@ -26,6 +26,11 @@
 
 =over 4
 
+=item [defect] on the quick edit page editing one aspect (such as the status)
+results in the message "Thanks for confirming this hosts details" and the
+details last confirmed date is updated to the present date, which may not be
+desirable - the rest of the hosts details haven't been confirmed.
+
 =item [defect] ssh keys page allows inserting invalid ssh keys but then will
 not display them testdata "id 160 | host_id 1471 | sshkey testing:testing:123"
 
