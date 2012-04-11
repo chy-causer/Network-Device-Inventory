@@ -2,31 +2,53 @@
 
 =head1 INVENTORY - CURRENT ROADMAP
 
+
 =head2
 1.1 IMMEDIATE REQUIREMENTS
 
 =over 4
 
-=item [feature] (17th April) Show all devices under a support contract / show all not under a
-   support contract. 
+=item [defect] rework the contracts page to accomodate below work, check add,
+edit, delete
 
-=item [feature] show the calculated duration of a support contract on the reports page
+=item [defect] is invoice essential to a contract? Current entry implies not,
+database says it is - may be a TT code defect to fix.
 
+=item [feature] (17th April) Show all devices under a support contract / show
+all not under a support contract. 
+
+=item [feature] show the calculated duration of a support contract on the
+reports page
  
 =item [release] (24th April) Write tests for each module
 
 =back
+
+
+=head2
+
+1.1.5 REQUESTS
+
+=item [defect] On the models report page javascript table sorting is not
+working
+
+=item [defect] on the models report page the initial sort by modelname appears
+to have an out of order oddity 'WS-C4948E-F' at the top which needs
+investigating
+
+=item [defect] on the models report page the javascript column sort icons are
+shown for the status breakdown column, which it wont makes sense to sort by
+
+=item [defect] Move the frodo models out of Models.pm and into a configuration
+file OR boolean column in the models table?
+
 
 =head2
 1.2 LONGER TERM ISSUES
 
 =over 4
 
-=item [defect] On the models report page javascript table sorting is not working
-
-=item [defect] on the models report page the initial sort by modelname appears to have an out of order oddity 'WS-C4948E-F' at the top which needs investigating
-
-=item [defect] on the models report page the javascript column sort icons are shown for the status breakdown column, which it wont makes sense to sort by
+=item [defect] look for FIXME statements in th code and add to this file
 
 =item [defect] on the quick edit page editing one aspect (such as the status)
 results in the message "Thanks for confirming this hosts details" and the

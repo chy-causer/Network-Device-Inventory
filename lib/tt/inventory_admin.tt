@@ -19,6 +19,7 @@
   <li><a href="suppliers">Suppliers</a></li>
   <li><a href="servicelevels">Service Levels</a></li>
   <li><a href="contracts">Contracts (warranties, support contracts)</a></li>
+  <li><a href="hoststocontracts">Map hosts to support contracts</a></li>
   <li><a href="invoices">Invoices</a></li>
 </ul>
 

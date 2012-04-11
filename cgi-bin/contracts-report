@@ -1,0 +1,171 @@
+#!/usr/bin/perl
+
+use warnings FATAL => 'all';
+use strict;
+our $VERSION = qw('1.0.0');
+
+use CGI;
+use Config::Tiny;
+use DBI;
+use DBD::Pg;
+use Log::Log4perl;
+use Template;
+use Readonly;
+
+use Inventory;
+use Inventory::Contracts;
+use Inventory::Suppliers;
+use Inventory::Servicelevels;
+
+my $hostname = CGI::url( -base => 1 );
+my Readonly $BASEURL => $HOSTNAME;
+
+# remove everything from the first . onwards
+$hostname =~ s/\..*$//gx;
+# remove everything from the start to the last /
+$hostname =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$hostname/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost           = $CONFIG->{'database'}->{db_host};
+my $dbname           = $CONFIG->{'database'}->{db_name};
+my $dbuser           = $CONFIG->{'database'}->{db_user};
+my $dbpass           = $CONFIG->{'database'}->{db_pass};
+my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users      = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
+
+my %message;    # communicate success or failure, sink or swim
+my Readonly $PAGETITLE => 'Hardware Support Contracts Overview';
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle  => $PAGETITLE,
+        baseurl    => $BASEURL,
+        groupname  => $CONFIG->{'general'}->{groupname},
+        appname    => $CONFIG->{'general'}->{appname},
+        companyname=> $CONFIG->{'general'}->{companyname},
+    }
+);
+
+# invalid users get no further than the next line
+if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
+
+# I differenciate between get and post, not everyone agrees with this but
+# there is an RFC2616 that suggests that we should. I do so for behaviour not
+# security reasons.
+my %gets = Inventory::populate_query_fields();  # not strictly a get field
+
+# list all the contracts (array of hashes)
+my @contracts = Inventory::Contracts::get_contracts_info($dbh);
+
+# list all the suppliers in order to populate dropdown (array of hashes)
+my @suppliers = Inventory::Suppliers::get_suppliers_info($dbh);
+
+# number of contracts per manufacturer
+# my %host_count = %{ Inventory::Contracts::count_hosts_percontract($dbh) };
+# my $hosts = Inventory::Hosts::hash_hosts_percontract($dbh);
+
+#print '<pre class="debug">';
+#use Data::Dumper;
+#print Dumper $hosts;
+#print "</pre>";
+
+$tt->process(
+    'inventory_contracts-report.tt',
+    {
+        pagetitle  => $PAGETITLE,
+        contracts     => \@contracts,
+        suppliers     => \@suppliers,
+        message       => \%message,
+#        host_counts   => \%host_count,
+#        hosts         => $hosts,
+    }
+) || die $tt->error();
+$tt->process( 'inventory_footer.tt', {} );
+
+__END__
+
+=head1 NAME
+
+contracts-report
+
+=head1 VERSION
+
+This documentation refers to version 1.0.0 
+
+=head1 USAGE
+
+=head1 REQUIRED ARGUMENTS
+
+=head1 OPTIONS
+
+=head1 DESCRIPTION
+
+Lets the user view and edit the list of hardware contracts that the inventory database knows about
+
+=head1 DIAGNOSTICS
+
+error messages
+
+=head1 CONFIGURATION
+
+/srv/www/$HOSTNAME/lib/inventory.ini
+
+=head1 DEPENDENCIES
+
+=head1 INCOMPATIBILITIES
+
+none known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+Network Device Inventory - keep a database of devices to feed other systems
+(such as monitoring software). Copyright 2007 University of Oxford
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+The University of Oxford agrees to the release under the GPL of in the program
+`Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
+Oxford University Computer Services.
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
+also agreed to the code release under the GPL.

@@ -215,6 +215,7 @@ sub get_contracts_info {
     return @return_array;
 }
 
+
 1;
 
 __END__

@@ -1,0 +1,156 @@
+<script>
+    $(function() {
+        $( "#startdate" ).datepicker();
+        $( "#enddate" ).datepicker();
+        $( "#startdate_edit" ).datepicker();
+        $( "#enddate_edit" ).datepicker();
+    });
+</script>
+
+<div>
+[%- IF message.keys.size -%]
+  [%- FOR notification IN message.keys -%]
+    [%- IF notification == "ERROR" -%]
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           ERROR: [% message.$notification  | html_entity %]
+      </p>
+   </div>
+</div>
+    [%- ELSE -%]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [%- END -%]
+  [%- END -%]
+[%- END -%]
+
+[%- IF edit -%]
+
+<form action="hoststocontracts" method="post">
+ <fieldset><legend>Edit a Host to Service Contract Mapping</legend>
+  [%- FOR mapping IN hoststocontracts -%]
+      [%- IF edit == mapping.id -%]
+    <table>
+      <tr><th>Host Name</th><td>
+                             <select name="host_id">
+                               [%- FOR host IN hosts -%]
+                                 <option 
+                                 [%- IF host.id == mapping.host_id -%] selected="selected" [%- END -%] 
+                                 value="[% host.id | html_entity %]">[% host.name | html_entity %]</option>
+                               [%- END -%]
+                             </select>
+                          </td></tr>
+      <tr><th>Service Level</th><td>
+                             <select name="contract_id">
+                               [%- FOR contract IN contracts -%]
+                                 <option 
+                                 [%- IF contract.id == mapping.contract_id -%] selected="selected" [%- END -%] 
+                                 value="[% contract.id | html_entity %]">[% contract.name | html_entity %]</option>
+                               [%- END -%]
+                             </select>
+                          </td></tr>
+      <tr><td colspan="2">
+       <input type="hidden" name="hosttocontract_id" value="[% mapping.id | html_entity %]" />
+       <input type="hidden" name="action" value="edit" />
+       <input type="submit" value="Submit Changes" /></td>
+      </td></tr>
+    </table>
+      [%- END -%]
+  [%- END -%]
+  </fieldset>
+</form>
+
+[%- ELSIF delete -%]
+
+  [%- FOR mapping IN hoststocontracts -%]
+      [%- IF delete == mapping.id -%]
+<form action="hoststocontracts" method="post">
+ <p class="block-warning">Are you sure you want to delete the host to contract mapping ( <strong>[% mapping.host_name  %]</strong> to <strong>[% mapping.contract_name | html_entity %]</strong>) ?
+ <br />
+ <input type="hidden" name="hosttocontract_id" value="[% mapping.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="contracts">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [%- END -%]
+  [%- END -%]
+[%- END -%]
+
+<form action="hoststocontracts" method="post">
+  <fieldset><legend>Record a new host to contract mapping</legend>
+
+    <table>
+      <tr><th>Host Name</th><td>
+                             <select name="host_id">
+                               [%- FOR host IN hosts -%]
+                                 <option 
+                                 value="[% host.id | html_entity %]">[% host.name | html_entity %]</option>
+                               [%- END -%]
+                             </select>
+                          </td></tr>
+      <tr><th>Contract</th><td>
+                             <select name="contract_id">
+                               [%- FOR contract IN contracts -%]
+                                 <option 
+                                 value="[% contract.id | html_entity %]">[% contract.name | html_entity %]</option>
+                               [%- END -%]
+                             </select>
+                          </td></tr>
+      <tr><td colspan="2">
+       <input type="hidden" name="action" value="create" />
+       <input type="submit" value="Create Entry" />
+      </td></tr>
+    </table>
+  </fieldset>
+</form>
+
+<h3>Current Host to Contract Mappings</h3>
+[%- IF hoststocontracts.size > 0 -%]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<form action="" method="get">
+<fieldset><legend>Recorded Mappings</legend>
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+<table id="allresults">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Hosts Name</th>
+    <th>Contracts Name</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+  <tr><td colspan="3">[%- hoststocontracts.size | html_entity -%] results were obtained</td></tr>
+  </tfoot>
+
+  <tbody>
+  [%- counter=0 -%]
+  [%- FOR mapping IN hoststocontracts -%]
+      <td><input type="radio" name="hosttocontract_id" value="[% mapping.id | html_entity %]" /></td>
+      <td>[% mapping.host_name      | html_entity %]</td>
+      <td>[% mapping.contract_name  | html_entity %]</td>
+   </tr>
+  
+  [%- END -%]
+  </tbody>
+</fieldset>
+</table>
+
+[%- ELSE -%]
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no contracts at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
+
+[%- END -%]
+</div>

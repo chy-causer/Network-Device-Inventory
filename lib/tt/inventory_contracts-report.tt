@@ -1,0 +1,197 @@
+<script>
+    $(function() {
+        $( "#dateeol" ).datepicker();
+        $( "#dateeol_edit" ).datepicker();
+    });
+</script>
+
+<h3>[% pagetitle %]</h3>
+
+<div>
+[% IF message.keys.size %]
+  [% FOR notification IN message.keys %] 
+    [% IF notification == "ERROR" %]
+<div class="ui-widget">
+   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           ERROR: [% message.$notification  | html_entity %]
+      </p>
+   </div>
+</div>
+    [% ELSE %]
+      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
+    [% END %]
+  [% END %]
+[% END %]
+
+
+[% IF contracts.size < 1 %]
+
+<div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware contracts at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+</div>
+
+</div>
+[% STOP %]
+[% END %]
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
+
+<script type="text/javascript">
+$(function () {
+    var data = [
+
+    [%- FOR contract IN contracts -%]
+       [%- id = contract.id -%]
+       [%- count_sum = (host_counts.$id.active||0) + (host_counts.$id.inactive||0) + (host_counts.$id.instock||0) -%]
+       { label: "[% contract.name | html_entity %]",  data: [% count_sum | html_entity %]},
+    [%- END -%]
+    ];
+
+$.plot($("#contractgraph"), data, 
+{
+        series: {
+            pie: { 
+                show: true,
+                // combine results of 2% and less
+                combine: {
+                    color: '#999',
+                    threshold: 0.02
+                },
+                label: {
+                    show: true,
+                    radius: 3/4,
+                    formatter: function(label, series){
+                        return '<div class="graphlabel">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+                    },
+                    background: { 
+                        opacity: 0.5,
+                        color: '#000'
+                    }
+               },
+            }
+        },
+        grid: {
+            hoverable: true,
+        },
+        legend: {
+            show: false
+        }
+});
+$("#contractgraph").bind("plothover", pieHover);
+
+function pieHover(event, pos, obj) {
+    if (!obj)
+             return;
+    percent = parseFloat(obj.series.percent).toFixed(2);
+    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
+}
+
+});
+
+</script>
+
+
+<div id="rightcolumn">
+    
+    [%- IF !hosts.keys.sort || hosts.keys.sort.size < 1 -%]
+       <p>There are no hosts under contract to graph at this time</p>
+    [%- ELSE -%]
+       <div id="contractgraph" class="graph"></div>
+       <div id="hover"></div>
+    [%- END -%]
+
+ <h4>Specific Hosts by Contract</h4>
+
+    [%- IF !hosts.keys.sort || hosts.keys.sort.size < 1 -%]
+       <p>There are no hosts under contract to show at this time</p>
+    [%- ELSE -%]
+ <table class="report">
+    <tr><th>Contract</th><th>Hosts</th></tr>
+ [% FOREACH contractname IN hosts.keys.sort -%]
+    [% id = hosts.$contractname.0.contract_id %]   
+       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+    [%- IF 1 > count_sum -%]
+      <tr class="block-status-inactive">
+    [%- ELSE -%]
+      <tr>
+    [%- END -%]
+    <td>[% contractname | html_entity %]</td><td>
+       [%- FOREACH host IN hosts.$contractname -%]
+          [%- host.name | html_entity %] [% IF host.description %]([% host.description | html_entity %])[% END %] [% IF host.status_name %] ([% host.status_name | html_entity %]) [% END -%]
+          <br />
+       [%- END -%]
+    </td></tr>
+ [%- END -%]
+ </table>
+   [%- END -%]
+
+</div> <!-- right column -->
+
+<h4>Contracts</h4>
+
+[%- IF !hosts.keys.sort || hosts.keys.sort.size < 1 -%]
+   <p>There are no contracts to display.</p>
+[%- ELSE -%]
+
+<table id="allresults" class="report">
+  <thead>
+  <tr>
+    <th>Contracts Name</th>
+    <th>Serial</th>
+    <th>Start Date</th>
+    <th>End Date</th>
+    <th>Invoice</th>
+    <th>Servicelevel</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+    <tr><td colspan="5">There were [% contracts.size | html_entity %] contracts returned by the database</td></tr>
+  </tfoot>
+
+  [% counter=0 %]
+  [% previous_rows_manufacturerid='none' %]
+  [% FOR contract IN contracts %]
+    [% IF previous_rows_supplierid != contract.supplier_id %]
+       [% IF previous_rows_supplierid !='none' %]
+       </tbody>
+       [% END %]
+       <tbody>
+    [% END %]
+
+    [% counter = counter +1 %]
+       [% id = contract.id %]
+       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+    
+    [% IF 1 > count_sum %]
+      <tr class="block-status-inactive">
+    [% ELSE %]
+      <tr>
+    [% END %]
+      <td>[% contract.name      | html_entity %]</td>
+      <td>[% contract.serial    | html_entity %]</td>
+      <td>[% contract.startdate | html_entity %]</td>
+      <td>[% contract.enddate             | html_entity %]</td>
+      <td>[% contract.invoice_description | html_entity %]</td>
+      <td>[% contract.servicelevel_name   | html_entity %]</td>
+     [% previous_rows_supplierid=contract.supplier_id %]
+  </tr>
+  [% END %]
+</tbody>
+
+</table>
+[%- END -%]
+
+</div> <!-- page end -->

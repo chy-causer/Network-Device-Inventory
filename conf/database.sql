@@ -256,6 +256,15 @@ ALTER TABLE ONLY voipswitches ADD CONSTRAINT voipswitches_voipnetwork_id_fkey FO
 ALTER TABLE ONLY voipswitches ADD CONSTRAINT voipswitches_voipbackend_id_fkey FOREIGN KEY (voipbackend_id) REFERENCES voipbackends(id);
 ALTER TABLE ONLY voipswitches ADD CONSTRAINT voipswitches_voipconnectiontype_id_fkey FOREIGN KEY (voipconnectiontype_id) REFERENCES voipconnectiontypes(id);
 
+CREATE TABLE hoststocontracts (
+    id             serial UNIQUE NOT NULL,
+    host_id        integer NOT NULL,
+    contract_id    integer NOT NULL,
+    PRIMARY KEY(host_id,contract_id)
+);
+ALTER TABLE ONLY hoststocontracts ADD CONSTRAINT hoststocontracts_host_id_fkey FOREIGN KEY (host_id) REFERENCES hosts(id);
+ALTER TABLE ONLY hoststocontracts ADD CONSTRAINT hoststocontracts_contract_id_fkey FOREIGN KEY (contract_id) REFERENCES contracts(id);
+
 
 GRANT select ON hostgroups TO demouser;
 GRANT select ON interfaces_to_services TO demouser;
@@ -282,6 +291,7 @@ GRANT select ON servicelevels TO demouser;
 GRANT select ON contacts TO demouser;
 GRANT select ON invoices TO demouser;
 GRANT select ON contracts TO demouser;
+GRANT SELECT ON hoststocontracts TO demouser;
 
 GRANT select ON hostgroups_id_seq TO demouser;
 GRANT select ON interfaces_to_services_id_seq TO demouser;
@@ -308,6 +318,7 @@ GRANT select ON servicelevels_id_seq TO demouser;
 GRANT select ON contacts_id_seq TO demouser;
 GRANT select ON invoices_id_seq TO demouser;
 GRANT select ON contracts_id_seq TO demouser;
+GRANT select ON hoststocontracts_id_seq TO demouser;
 
 
 GRANT select,insert,update,delete ON hostgroups TO writeuser;
@@ -335,6 +346,7 @@ GRANT select,insert,update,delete ON servicelevels TO writeuser;
 GRANT select,insert,update,delete ON contacts TO writeuser;
 GRANT select,insert,update,delete ON invoices TO writeuser;
 GRANT select,insert,update,delete ON contracts TO writeuser;
+GRANT select,insert,update,delete ON hoststocontracts TO writeuser;
 
 GRANT all ON hostgroups_id_seq TO writeuser;
 GRANT all ON interfaces_to_services_id_seq TO writeuser;
@@ -361,3 +373,4 @@ GRANT all ON servicelevels_id_seq TO writeuser;
 GRANT all ON contacts_id_seq TO writeuser;
 GRANT all ON invoices_id_seq TO writeuser;
 GRANT all ON contracts_id_seq TO writeuser;
+GRANT all ON hoststocontracts_id_seq TO writeuser;
