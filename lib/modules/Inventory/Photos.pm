@@ -204,17 +204,14 @@ sub upload_photos {
     if ( defined $fh ) {
 
         my $host_id  = $POSTS{'host_id'};
-        my $filename = "host_$host_id.$extension";
+        my $filename = "$md5.$extension";
 
         my $md5 = Digest::MD5->new->addfile(*$fh)->hexdigest;
 
         # FIXME md5 causes the file read to fail
         seek $fh, 0, 0;
 
-        # You dirty dirty hack you, oh yes
-        # my $md5 = int( rand(10000000000) );
-
-        open my $UPLOADFILE, '>', "$upload_dir/$md5-$filename" or croak $!;
+        open my $UPLOADFILE, '>', "$upload_dir/$filename" or croak $!;
         binmode $UPLOADFILE;
 
         # Copy a binary file to somewhere safe
@@ -224,7 +221,7 @@ sub upload_photos {
         }
         close $UPLOADFILE;
 
-        $POSTS{'photo_url'} = "$website/$image_path/$md5-$filename";
+        $POSTS{'photo_url'} = "$website/$image_path/$filename";
 
         # create a new entry?
         %message = %{ create_photos( $dbh, \%POSTS ) };

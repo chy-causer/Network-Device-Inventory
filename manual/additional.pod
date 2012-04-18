@@ -56,4 +56,8 @@ devices which are of a particular model type
 
 =item Support contracts record the supplier, cost of contract, start date, end
 date and service level. It's intentionally possible for a support contract to
-have no supplier or support level.
+have no supplier or support level
+
+=uploaded photos of hosts are saved with the filename
+$md5sum-of-upload.$fileexternsion which should perform some de-duplication.
+The old system used the md5sum and a unique identifier for the host.

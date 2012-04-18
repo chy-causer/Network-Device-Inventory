@@ -8,25 +8,28 @@
 
 =over 4
 
+=item [feature] (17th April) Show all devices under a support contract / show
+all not under a support contract. 
+
+=over 8
+
 =item [defect] rework the contracts page to accomodate below work, check add,
 edit, delete
 
 =item [defect] is invoice essential to a contract? Current entry implies not,
 database says it is - may be a TT code defect to fix.
 
-=item [feature] (17th April) Show all devices under a support contract / show
-all not under a support contract. 
-
 =item [feature] show the calculated duration of a support contract on the
 reports page
- 
+
+=back
+
 =item [release] (24th April) Write tests for each module
 
 =back
 
 
 =head2
-
 1.1.5 REQUESTS
 
 =item [defect] On the models report page javascript table sorting is not
@@ -48,7 +51,7 @@ file OR boolean column in the models table?
 
 =over 4
 
-=item [defect] look for FIXME statements in th code and add to this file
+=item [defect] look for FIXME statements in the code and add to this file
 
 =item [defect] on the quick edit page editing one aspect (such as the status)
 results in the message "Thanks for confirming this hosts details" and the
@@ -66,11 +69,9 @@ accidentally enabled when only one essential field is filled in
 
 =item [defect] new update system has no reset/recheck system
 
-=item [defect] On the photos page make it use a sha hash as the complete filename
-
 =item [defect] dont let a ups be its own ups
 
-=item [defect] IPv6 name resolution, e.g. add a IPv6 interface that rsolves to a host and the inventory will read ' unresolved'
+=item [defect] IPv6 name resolution, e.g. add a IPv6 interface that resolves to a host and the inventory will read ' unresolved'
 
 =item [feature] show a graph of percentage hosts under a support contract
 
