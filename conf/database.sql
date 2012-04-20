@@ -182,10 +182,11 @@ ALTER TABLE ONLY services ADD CONSTRAINT services_protocol_id_fkey FOREIGN KEY (
 
 CREATE TABLE interfaces (
     id                 serial NOT NULL,
-    host_id           integer NOT NULL,
+    host_id            integer NOT NULL,
     address            cidr NOT NULL,
     lastresolvedfqdn   character varying,
     lastresolveddate   date,
+    isprimary          boolean,
     PRIMARY KEY(id)
 );
 
