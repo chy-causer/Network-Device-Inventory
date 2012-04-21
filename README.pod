@@ -8,7 +8,7 @@ It was approved for release as open source code on the 10th February 2012
 
 At the time of public release the code is in the process of being
 'publicified' so may make references to private/in house systems and terms or
-be in a non working state where parts have been rmeoved. 
+be in a non working state where parts have been removed. 
 
 It's intended to fix this as soon as possible, a working demonstration site is
 currently being configured.
