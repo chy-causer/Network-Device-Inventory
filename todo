@@ -1,83 +1,39 @@
-=pod
-
-=head1 INVENTORY - CURRENT ROADMAP
-
-
-All defects are now tracked in the github issue tracker at 
+All defects and features are now tracked in the github issue tracker at 
 https://github.com/guyed/Network-Device-Inventory/issues
 
-
-=head2
-1.1 IMMEDIATE REQUIREMENTS
-
-=over 4
-
-=item [feature] Show all devices under a support contract / show all not under
-a support contract. 
-
-=over 8
-
-=item [work completion] rework the contracts page to accomodate below work,
-check add, edit, delete
-
-=item [design] is invoice essential to a contract? Current entry implies not,
-database says it is - may be a TT code defect to fix.
-
-=item [feature] show the calculated duration of a support contract on the
-reports page
-
-=back
-
-=back
+You can easily add new features and bugs there
 
 
-=head2
-1.1.5 REQUESTS
-
-=item [design problem] Move the frodo models out of Models.pm and into a configuration
-file OR boolean column in the models table?
-
-=item [release] Write tests for each module
-
-=item [release] Fix outstanding defects in github tracker
-
-=head2
-1.2 LONGER TERM ISSUES
-
-=over 4
-
-=item [code review] look for FIXME statements in the code and add to this file
+Items still to add to github:
 
 =item [defect] new update system has no reset/recheck system
 
 =item [feature] show a graph of percentage hosts under a support contract
 
-=item [feature] show the time remaining on a support contract on the reports page
+=item [feature] show the time remaining on a support contract on the reports
+page
 
-=item [feature] Make a script to check/update cached dns records overnight or a page option that does a async run through of the records (ajax, progressbar) to update them
+=item [feature] Make a script to check/update cached dns records overnight or
+a page option that does a async run through of the records (ajax, progressbar)
+to update them
 
-=item [feature] On the model report page the hosts by model output is long. Make a option to (ajax) display hosts for a model when the model is clicked instead.
+=item [feature] On the model report page the hosts by model output is long.
+Make a option to (ajax) display hosts for a model when the model is clicked
+instead.
 
-=item [feature] Combined with the feature request above, make the full list of hosts by model available to print out if needed.
+=item [feature] Combined with the feature request above, make the full list of
+hosts by model available to print out if needed.
 
-=item [feature] Introduce edit restrictions on the groups (frodos/ups and status)
-      where names mustn't change
+=item [feature] Introduce edit restrictions on the groups (frodos/ups and
+status) where names mustn't change
 
 =item [feature] Ajax - As the user types, show if the name is unique and
-      available or not (tick or cross)
+available or not (tick or cross)
 
 =item [feature] Make problem search run each night as a scheduled job
 
-=item [release] Improve test coverage
-
-=back
-
-=head2
-1.3 ADD FUNCTIONALITY
-
-=over 4
-
-=item [feature] "show a host whose details haven't been checked in the last year"
+=item [feature] "show a host whose details haven't been checked in the last
+year"
  
 =item [feature] "show me a random problem and hint how I might fix it"
  
@@ -89,63 +45,7 @@ file OR boolean column in the models table?
 
 =item [release] add a manual
 
-=back
-
-=head2
-1.4 CONTROLLED UPDATE SYSTEM
-
-=over 4
-
-=item [release] Update system needs lots of work
-
-=over 4
-
-=item Package integrity check (manifest plus sha256) versus files in that
-      release
-     
 =item Ability to have local menu items
      
 =item Ability to have local scripts
      
-=item one button update check
-     
-=item ajax style async update
-     
-=item browsed pages are made not to break when updated (apache distress)
-
-=back
-
-=back
-
-=head1 FURTHER BUGS AND LIMITATIONS
-
-Report any found to <guyjohnedwards@gmail.com>
-
-=head1 AUTHOR
-
-Guy Edwards, maintained by <guyjohnedwards@gmail.com>
-
-=head1 LICENSE AND COPYRIGHT
-
-Network Device Inventory - keep a database of devices to feed other systems
-(such as monitoring software). Copyright 2007 University of Oxford
-
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
-Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-The University of Oxford agrees to the release under the GPL of in the program
-`Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
-Oxford University Computer Services.
-
-Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
-also agreed to the code release under the GPL.
