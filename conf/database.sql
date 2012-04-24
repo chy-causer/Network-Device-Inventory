@@ -203,6 +203,7 @@ CREATE TABLE sshkeys (
     PRIMARY KEY(id)
 );
 ALTER TABLE ONLY sshkeys ADD CONSTRAINT sshkeys_host_id_fkey FOREIGN KEY (host_id) REFERENCES hosts(id);
+ALTER TABLE sshkeys ADD CONSTRAINT dedupe_sshkey_perhost UNIQUE (host_id,fingerprint);
 
 CREATE TABLE interfaces_to_services (
     id             serial NOT NULL,
