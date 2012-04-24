@@ -148,16 +148,9 @@ function pieHover(event, pos, obj) {
 
   [% counter=0 %]
   [% previous_rows_manufacturerid='none' %]
-  [% FOR model IN models %]
-    [% IF previous_rows_manufacturerid != model.manufacturer_id %]
-       [% IF previous_rows_manufacturerid !='none' %]
-       </tbody>
-       [% END %]
-       <tbody>
-    [% END %]
-
-    [% counter = counter +1 %]
-       [% id = model.id %]
+  [%- FOR model IN models -%]
+    [%- counter = counter +1 -%]
+       [%- id = model.id -%]
        [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
     
     [% IF 1 > count_sum %]
@@ -175,7 +168,6 @@ function pieHover(event, pos, obj) {
         <span class="status-instock">[% 0 + (host_counts.$id.instock || 0)   | html_entity %] </span> / 
         <span class="status-decommissioned">[% 0 + (host_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
-     [% previous_rows_manufacturerid=model.manufacturer_id %]
   </tr>
   [% END %]
 </tbody>
