@@ -103,25 +103,9 @@ $(document).ready(function(){
     <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
   </tfoot>
 
-  [% counter=0 %]
-  [% previous_rows_manufacturerid='none' %]
+  <tbody>
   [% FOR model IN models %]
-    [% IF previous_rows_manufacturerid != model.manufacturer_id %]
-       [% IF previous_rows_manufacturerid !='none' %]
-       </tbody>
-       [% END %]
-       <tbody>
-    [%- END -%]
-
-    [%- counter = counter +1 -%]
-       [%- id = model.id -%]
-       [%- count_sum = (host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
-    
-    [% IF counter % 2 > 0 %]
-      <tr class="stripe">
-    [% ELSE %]
       <tr>
-    [% END %]
       <td>[% model.name | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %]</td>
       <td>[% model.dateeol | html_entity %]</td>
@@ -129,10 +113,9 @@ $(document).ready(function(){
         <a href="models?model_id=[% model.id | html_entity %]">edit model</a> /
         <a href="manufacturers?manufacturer_id=[% model.manufacturer_id | html_entity %]">edit manufacturer</a> 
       </td>
-     [% previous_rows_manufacturerid=model.manufacturer_id %]
   </tr>
   [% END %]
-</tbody>
+  </tbody>
 
 </table>
 
