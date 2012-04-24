@@ -203,10 +203,10 @@ sub upload_photos {
     my $fh = CGI::upload("$type$upload_extension");
     if ( defined $fh ) {
 
+        my $md5 = Digest::MD5->new->addfile(*$fh)->hexdigest;
+        
         my $host_id  = $POSTS{'host_id'};
         my $filename = "$md5.$extension";
-
-        my $md5 = Digest::MD5->new->addfile(*$fh)->hexdigest;
 
         # FIXME md5 causes the file read to fail
         seek $fh, 0, 0;
