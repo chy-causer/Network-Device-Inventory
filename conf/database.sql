@@ -165,6 +165,10 @@ CREATE TABLE hosts_to_upshost (
 );
 ALTER TABLE ONLY hosts_to_upshost ADD CONSTRAINT hosts_to_hostups_host_id_fkey FOREIGN KEY (host_id) REFERENCES hosts(id);
 ALTER TABLE ONLY hosts_to_upshost ADD CONSTRAINT hosts_to_hostups_ups_id_fkey FOREIGN KEY (ups_id) REFERENCES hosts(id);
+-- only allow one foo -> bar pairing
+ALTER TABLE hosts_to_upshost ADD CONSTRAINT host_ups_unique UNIQUE(host_id,ups_id);
+-- dont allow foo -> foo pairing
+ALTER TABLE hosts_to_upshost ADD CONSTRAINT host_not_ownups CHECK (host_id != ups_id);
 
 CREATE TABLE services (
     id          serial NOT NULL,
