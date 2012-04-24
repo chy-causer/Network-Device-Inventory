@@ -11,6 +11,7 @@ our @EXPORT_OK = qw(
   get_models_waps
   get_frodo_models
   count_hosts_permodel
+  delete_models
 );
 
 use DBI;
@@ -273,6 +274,31 @@ sub get_models_waps {
     }
 
     return @return_array;
+}
+
+sub delete_models {
+
+    # delete a single location
+    my ( $dbh, $id ) = @_;
+    my %message;
+
+    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
+
+        # could be an error we've made or someone trying to be clever with
+        # altering the submission.
+        $message{'ERROR'} =
+          'Programming Error: Possible issue with the submission form';
+        return \%message;
+    }
+
+    my $sth = $dbh->prepare('DELETE FROM models WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        $message{'ERROR'} =
+          "Internal Error: That model could not be deleted, it's probably in use by a host entry";
+        return \%message;
+    }
+
+    $message{'SUCCESS'} = 'The specificed entry was deleted';
 }
 
 1;

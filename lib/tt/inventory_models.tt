@@ -25,7 +25,7 @@
 [% END %]
 
 [% IF edit %]
-<form action="" method="post">
+<form action="models" method="post">
  <fieldset><legend>Edit an existing entry</legend>
   [% FOR model IN models %]
       [% IF edit == model.id %]
@@ -43,13 +43,31 @@
          </select>
          </td></tr>
         <tr><th>End of Life Date</th><td><input type="text" id="dateeol_edit" name="model_dateeol" maxlength="15" value="[% model.dateeol | html_entity %]" /> (if known)</td></tr>
-        <tr><td colspan="2"><input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
+        <tr><td colspan="2">
+        
+        <input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
+        <input type="hidden" name="action" value="edit" />
         <input type="submit" value="Submit Changes" /></td></tr>
         </table>
       [% END %]
   [% END %]
   </fieldset>
 </form>
+
+[% ELSIF delete %]
+
+  [% FOR model IN models %]
+      [% IF delete == model.id %]
+<form action="models" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry &quot;[% model.name | html_entity %]&quot;?
+ <br />
+ <input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="models">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
 [% END %]
 
 [% IF manufacturers.size < 1 %]
@@ -62,7 +80,7 @@
 </div>
 
 [% ELSE %]
-<form action="" method="post">
+<form action="models" method="post">
  <fieldset><legend>Enter a new model</legend>
   <table>
       <tr><th>Model Name </th><td><input type="text" name="model_name" maxlength="35" /></td></tr>
@@ -73,13 +91,18 @@
           [% END %]
           </select></td></tr>
        <tr><th>End of Life Date </th><td><input type="text" id="dateeol" name="model_dateeol" maxlength="15" /> (if known)</td</tr>
-      <tr><td colspan="2"><input type="submit" value="Create Entry" /></td></tr>
+      <tr><td colspan="2">
+        <input type="hidden" name="create" value="edit" />
+        <input type="submit" value="Create Entry" />
+        </td></tr>
       </table>
   </fieldset>
 </form>
 [% END %]
 
-<h3>Current Models</h3>
+<form method="get" action="models">
+<fieldset><legend>Known Models</legend>
+
 [% IF models.size > 0 %]
 
 <script type="text/javascript">
@@ -89,13 +112,15 @@ $(document).ready(function(){
 ); 
 </script>
 
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+
 <table id="allresults">
   <thead>
   <tr>
+    <th></th>
     <th>Model Name</th>
     <th>Manufacturer</th>
     <th>End of life</th>
-    <th>Options</th>
   </tr>
   </thead>
 
@@ -105,19 +130,20 @@ $(document).ready(function(){
 
   <tbody>
   [% FOR model IN models %]
-      <tr>
+    <tr>
+      <td><input type="radio" name="model_id" value="[% model.id  | html_entity %]" /></td>
       <td>[% model.name | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %]</td>
       <td>[% model.dateeol | html_entity %]</td>
-      <td>
-        <a href="models?model_id=[% model.id | html_entity %]">edit model</a> /
-        <a href="manufacturers?manufacturer_id=[% model.manufacturer_id | html_entity %]">edit manufacturer</a> 
-      </td>
-  </tr>
+    </tr>
   [% END %]
   </tbody>
 
 </table>
+
+</fieldset>
+</form>
+
 
 [% ELSE %]
 
