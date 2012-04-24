@@ -111,11 +111,11 @@ $(document).ready(function(){
        </tbody>
        [% END %]
        <tbody>
-    [% END %]
+    [%- END -%]
 
-    [% counter = counter +1 %]
-       [% id = model.id %]
-       [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+    [%- counter = counter +1 -%]
+       [%- id = model.id -%]
+       [%- count_sum = (host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
     
     [% IF counter % 2 > 0 %]
       <tr class="stripe">

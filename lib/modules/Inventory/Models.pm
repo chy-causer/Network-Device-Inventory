@@ -28,16 +28,19 @@ sub create_models {
     my ( $dbh, $posts ) = @_;
 
     my %message;
+    
+    # remove leading and trailing whitespace to make life easier for
+    # people pasting in model names
+    if ( exists $posts->{'model_name'} ) {
+        $posts->{'model_name'} =~ s/[\s]+$//g;
+        $posts->{'model_name'} =~ s/^[\s]+//g;
+    }
 
     if (
            !exists $posts->{'model_name'}
         || $posts->{'model_name'} =~ m/[^\w\s\-]/x
         || length( $posts->{'model_name'} ) < 1
         || length( $posts->{'model_name'} ) > 35
-
-        || !exists $posts->{'manufacturer_id'}
-        || $posts->{'manufacturer_id'} =~ m/\D/x
-        || length( $posts->{'manufacturer_id'} ) < 1
       )
     {
 
@@ -70,20 +73,25 @@ sub edit_models {
     my ( $dbh, $posts ) = @_;
 
     my %message;
+    
+    # remove leading and trailing whitespace to make life easier for
+    # people pasting in model names
+    if ( exists $posts->{'model_name'} ) {
+        $posts->{'model_name'} =~ s/[\s]+$//g;
+        $posts->{'model_name'} =~ s/^[\s]+//g;
+    }
+
+    # can't input "" as undef into postgres, it has to be a real undef
+    if ( exists $posts->{'model_dateeol'} && length $posts->{'model_dateeol'} < 1 ) {
+        $posts->{'model_dateeol'} = undef;
+    }
 
     if (   !exists $posts->{'model_name'}
         || $posts->{'model_name'} =~ m/[^\w\s\-]/x
         || length( $posts->{'model_name'} ) < 1
-        || length( $posts->{'model_name'} ) > 35
-        || !exists $posts->{'manufacturer_id'}
-        || $posts->{'manufacturer_id'} =~ m/\D/x
-        || length( $posts->{'manufacturer_id'} ) < 1
-        || !exists $posts->{'model_id'}
-        || $posts->{'model_id'} =~ m/\D/x
-        || length( $posts->{'model_id'} ) < 1 )
+        || length( $posts->{'model_name'} ) > 35 )
     {
 
-        # dont wave bad inputs at the database
         $message{'ERROR'} =
           'Input Error: Please check your input is alpha numeric and complete';
         return \%message;
