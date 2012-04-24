@@ -43,7 +43,17 @@
 
 <script type="text/javascript">
 $(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+        $("#allresults").tablesorter(
+            { 
+            headers: { 
+               4: { 
+                // disable sorting on host status breakdown 
+                sorter: false } 
+               }, 
+
+           textExtraction:"complex",
+        
+        }); 
     } 
 ); 
 </script>
