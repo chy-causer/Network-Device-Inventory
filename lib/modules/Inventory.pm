@@ -77,7 +77,7 @@ sub is_superuser {
 
     return if !defined $officer || length($officer) == 0;
 
-    my @superusers = split m/,/x, $config->{superusers}->{users};
+    my @superusers = split m/,/x, $config->{general}->{superusers};
     foreach my $superuser (@superusers) {
         return $TRUE if defined $superuser and ( "$officer" eq "$superuser" );
     }
