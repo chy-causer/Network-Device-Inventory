@@ -98,11 +98,6 @@ my @models = Inventory::Models::get_models_info($dbh);
 # list all the manufacturers in order to populate dropdown (array of hashes)
 my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
 
-print "<pre class=\"debug\">";
-use Data::Dumper;
-print Dumper $models[0];
-print "</pre>";
-
 $tt->process(
     'inventory_models.tt',
     {
