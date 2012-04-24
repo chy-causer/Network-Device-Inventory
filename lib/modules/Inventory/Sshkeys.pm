@@ -30,16 +30,14 @@ sub create_sshkeys {
 
     if (
         !exists $posts{'sshkey_fingerprint'}
-        || $posts{'sshkey_fingerprint'} =~
-        m/[^\w\:]/x    #not perfect but ok for now
+        || $posts{'sshkey_fingerprint'} !~ m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
         || length( $posts{'sshkey_fingerprint'} ) < 1
         || length( $posts{'sshkey_fingerprint'} ) > 48
       )
     {
 
         # dont wave bad inputs at the database
-        $message{'ERROR'} =
-"Programming or Input Error: invalid sshkey in Inventory::Sshkeys::create_sshkeys";
+        $message{'ERROR'} = "Did you enter an invalid sshkey?";
         return \%message;
     }
 
@@ -65,7 +63,6 @@ sub create_sshkeys {
         return \%message;
     }
 
-    $message{'DEBUG'} = "INSERT INTO sshkeys(fingerprint,host_id) VALUES($posts{'sshkey_fingerprint'}, $posts{'host_id'})";
     $message{'SUCCESS'} =
       "The SSH key creation $posts{'sshkey_fingerprint'} was successful";
     return \%message;
@@ -75,29 +72,19 @@ sub edit_sshkeys {
     my ( $dbh, $posts ) = @_;
     my %message;
 
-    # dump bad inputs
     if (
-           !exists $posts->{'host_id'}
-        || $posts->{'host_id'} =~ m/\D/x
-        || length( $posts->{'host_id'} ) < 1
-
-        || !exists $posts->{'sshkey_fingerprint'}
-        || $posts->{'sshkey_fingerprint'} =~ m/[^\w\:]/x    # fast, imperfect
+        !exists $posts->{'sshkey_fingerprint'}
+        || $posts->{'sshkey_fingerprint'} !~ m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
         || length( $posts->{'sshkey_fingerprint'} ) < 1
         || length( $posts->{'sshkey_fingerprint'} ) > 48
-
-        || !exists $posts->{'sshkey_id'}
-        || $posts->{'sshkey_id'} =~ m/\D/x
-        || length( $posts->{'sshkey_id'} ) < 1
       )
     {
 
         # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          "Input Error: One of the supplied inputs was invalid.";
+        $message{'ERROR'} = "Did you enter an invalid sshkey?";
         return \%message;
     }
-
+    
     my $sth =
       $dbh->prepare('UPDATE sshkeys SET host_id=?,fingerprint=? WHERE id=?');
     if (

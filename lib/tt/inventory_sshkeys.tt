@@ -22,13 +22,44 @@
   [% END %]
 [% END %]
 
+
+<script type="text/javascript">
+<!--  
+
+function validatesshkey(formname) {
+
+    var x=document.forms[formname]["sshkey_fingerprint"].value;
+
+    // Matches ssh keys including the dot that's sometimes added and any
+    // whitespace, both of which we can strip that off later without
+    // bothering the user in order to make pasting simpler. Note that this
+    // regex also exists in the module.
+
+    if ( ! x.match(/^(\s)*([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})(.)*(\s)*$/ )){
+        document.forms[formname]["sshkey_fingerprint"].style.borderColor="red";
+        document.forms[formname]["sshkey_fingerprint"].style.borderWidth="2px";
+        document.forms[formname]["sshkey_fingerprint"].style.color="red";
+        return false;
+    }
+    else {
+        document.forms[formname]["sshkey_fingerprint"].style.borderColor="none";
+        document.forms[formname]["sshkey_fingerprint"].style.borderWidth="";
+        document.forms[formname]["sshkey_fingerprint"].style.color="";
+    }
+
+}
+-->
+
+</script>
+
+
 [% IF edit %]
-<form action="" method="post">
+<form action="sshkeys" method="post" name="editkey">
   <fieldset><legend>Enter an existing record</legend>
   [% FOR sshkey IN sshkeys %]
       [% IF edit == sshkey.id %]
        <p>SSH Keys Fingerprint
-       <input type="text" name="sshkey_fingerprint" maxlength="48" value="[% sshkey.fingerprint | html_entity %]" />
+       <input type="text" name="sshkey_fingerprint" maxlength="48" value="[% sshkey.fingerprint | html_entity %]" onchange="return validatesshkey('editkey')" />
        belongs to host:
          <select name="host_id">
             [% FOR host IN hosts %]
@@ -69,10 +100,10 @@
     <p class="input-warning">It's not possible to add a new sshkey until you've created some hosts on the <a href="hosts">hosts input page</a>.</p>
 [% ELSE %]
 
-<form action="" method="post">
+<form action="sshkeys" method="post" name="newkey">
   <fieldset><legend>Enter a new record</legend>
        <p>SSH Key fingerprint
-       <input type="text" maxlength="48" name="sshkey_fingerprint" />
+       <input type="text" maxlength="48" name="sshkey_fingerprint" onchange="return validatesshkey('newkey')" />
        belongs to:
          <select name="host_id">
             [% FOR host IN hosts %]
