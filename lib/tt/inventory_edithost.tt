@@ -49,27 +49,32 @@
     [%- ELSIF posts.device_type=="frodo" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">Frodo<br />
+                 document.getElementById('ups').style.display=''">FroDo Switch<br />
     <input type="radio" name="device_type" value="secdist"
     [%- IF posts.exists('device_type') AND posts.device_type=="secdist" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">Secure Distributor Switch<br />
+                 document.getElementById('ups').style.display=''">VOIP Distributor Switch<br />
     <input type="radio" name="device_type" value="secpoe"
     [%- IF posts.exists('device_type') AND posts.device_type=="secpoe" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">Secure PoE Switch<br />
+                 document.getElementById('ups').style.display=''">VOIP PoE Switch<br />
     <input type="radio" name="device_type" value="secups"
     [%- IF posts.exists('device_type') AND posts.device_type=="secups" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display='none'">Secure UPS<br />
+                 document.getElementById('ups').style.display='none'">VOIP UPS<br />
     <input type="radio" name="device_type" value="secvg"
     [%- IF posts.exists('device_type') AND posts.device_type=="secvg" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='none';
                  document.getElementById('ups').style.display=''">Cisco VG224<br />
+    <input type="radio" name="device_type" value="voipgateway"
+    [%- IF posts.exists('device_type') AND posts.device_type=="voipgateway" %] checked="checked" [% END -%]
+        onclick="document.getElementById('fn').style.display='none';
+                 document.getElementById('mod').style.display='';
+                 document.getElementById('ups').style.display=''">VOIP Gateway<br />
     </td>
   </tr>
 
