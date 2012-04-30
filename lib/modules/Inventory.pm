@@ -69,7 +69,6 @@ boolean test to see if the user is priviliged superuser according to config file
 
 =cut
 
-
 sub is_superuser {
     my ( $officer, $config ) = @_;
 
@@ -119,7 +118,6 @@ sub dbconnect {
 
 =cut
 
-
 sub populate_query_fields {
 
     # this lets us use %get
@@ -143,7 +141,6 @@ is an RFC2616 that suggests that we should. I do so for behaviour not security
 reasons.
 
 =cut
-
 
 sub acl_checker {
     my $tt          = shift;
@@ -180,10 +177,8 @@ Catch a non existant configuration file to avoid messy failure
 
 =cut
 
-
 sub abort_ifnofile {
     my $test = @_;
-
 
     if ( not defined $test or length($test) == 0 ) {
         print

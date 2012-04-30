@@ -29,7 +29,7 @@ sub create_models {
     my ( $dbh, $posts ) = @_;
 
     my %message;
-    
+
     # remove leading and trailing whitespace to make life easier for
     # people pasting in model names
     if ( exists $posts->{'model_name'} ) {
@@ -37,12 +37,10 @@ sub create_models {
         $posts->{'model_name'} =~ s/^[\s]+//g;
     }
 
-    if (
-           !exists $posts->{'model_name'}
+    if (   !exists $posts->{'model_name'}
         || $posts->{'model_name'} =~ m/[^\w\s\-]/x
         || length( $posts->{'model_name'} ) < 1
-        || length( $posts->{'model_name'} ) > 35
-      )
+        || length( $posts->{'model_name'} ) > 35 )
     {
 
         # dont wave bad inputs at the database
@@ -51,10 +49,15 @@ sub create_models {
         return \%message;
     }
 
-    my $sth =
-      $dbh->prepare('INSERT INTO models(name,manufacturer_id,dateeol) VALUES(?,?,?)');
+    my $sth = $dbh->prepare(
+        'INSERT INTO models(name,manufacturer_id,dateeol) VALUES(?,?,?)');
 
-    if ( !$sth->execute( $posts->{'model_name'}, $posts->{'manufacturer_id'}, $posts->{'model_dateeol'} ) )
+    if (
+        !$sth->execute(
+            $posts->{'model_name'}, $posts->{'manufacturer_id'},
+            $posts->{'model_dateeol'}
+        )
+      )
     {
         $message{'ERROR'} =
           "Internal Error: The model creation was unsuccessful";
@@ -74,7 +77,7 @@ sub edit_models {
     my ( $dbh, $posts ) = @_;
 
     my %message;
-    
+
     # remove leading and trailing whitespace to make life easier for
     # people pasting in model names
     if ( exists $posts->{'model_name'} ) {
@@ -83,7 +86,9 @@ sub edit_models {
     }
 
     # can't input "" as undef into postgres, it has to be a real undef
-    if ( exists $posts->{'model_dateeol'} && length $posts->{'model_dateeol'} < 1 ) {
+    if ( exists $posts->{'model_dateeol'}
+        && length $posts->{'model_dateeol'} < 1 )
+    {
         $posts->{'model_dateeol'} = undef;
     }
 
@@ -98,11 +103,11 @@ sub edit_models {
         return \%message;
     }
 
-    my $sth =
-      $dbh->prepare('UPDATE models SET name=?,manufacturer_id=?,dateeol=? WHERE id=?');
+    my $sth = $dbh->prepare(
+        'UPDATE models SET name=?,manufacturer_id=?,dateeol=? WHERE id=?');
     if (
         !$sth->execute(
-            $posts->{'model_name'}, $posts->{'manufacturer_id'},
+            $posts->{'model_name'},    $posts->{'manufacturer_id'},
             $posts->{'model_dateeol'}, $posts->{'model_id'}
         )
       )
@@ -294,11 +299,13 @@ sub delete_models {
     my $sth = $dbh->prepare('DELETE FROM models WHERE id=?');
     if ( !$sth->execute($id) ) {
         $message{'ERROR'} =
-          "Internal Error: That model could not be deleted, it's probably in use by a host entry";
+"Internal Error: That model could not be deleted, it's probably in use by a host entry";
         return \%message;
     }
 
     $message{'SUCCESS'} = 'The specificed entry was deleted';
+
+    return \%message;
 }
 
 1;

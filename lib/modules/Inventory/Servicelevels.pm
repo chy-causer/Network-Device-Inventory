@@ -39,7 +39,7 @@ sub create_servicelevels {
     }
 
     my $sth = $dbh->prepare(
-'INSERT INTO servicelevels(name,description,supplier_id) VALUES(?,?,?)'
+        'INSERT INTO servicelevels(name,description,supplier_id) VALUES(?,?,?)'
     );
 
     if (
@@ -81,7 +81,7 @@ sub edit_servicelevels {
     }
 
     my $sth = $dbh->prepare(
-'UPDATE servicelevels SET name=?,description=?,supplier_id=? WHERE id=?'
+        'UPDATE servicelevels SET name=?,description=?,supplier_id=? WHERE id=?'
     );
     if (
         !$sth->execute(
@@ -98,7 +98,8 @@ sub edit_servicelevels {
         return \%message;
     }
 
-    $message{'SUCCESS'} = 'Your servicelevel changes were commited successfully';
+    $message{'SUCCESS'} =
+      'Your servicelevel changes were commited successfully';
     return \%message;
 }
 

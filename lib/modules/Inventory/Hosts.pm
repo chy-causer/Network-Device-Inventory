@@ -552,7 +552,7 @@ sub delete_hosts {
 }
 
 sub hash_hosts_permodel {
-    my ( $dbh ) = @_;
+    my ($dbh) = @_;
 
     return if !defined $dbh;
 
@@ -592,8 +592,8 @@ sub hash_hosts_permodel {
 
     my %return;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        if(!exists($return{$ref->{'model_name'}})){
-            my @data = ( $ref );
+        if ( !exists( $return{ $ref->{'model_name'} } ) ) {
+            my @data = ($ref);
             $return{ $ref->{'model_name'} } = \@data;
         }
         else {
@@ -651,7 +651,7 @@ sub hosts_bymodel_name {
         push @return_array, $reference;
     }
     return @return_array;
- 
+
 }
 
 1;

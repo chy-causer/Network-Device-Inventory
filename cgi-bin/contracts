@@ -29,15 +29,15 @@ my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
 $CONFIG = Config::Tiny->read("$CONFIG_FILE");
 
-my $dbhost           = $CONFIG->{'database'}->{db_host};
-my $dbname           = $CONFIG->{'database'}->{db_name};
-my $dbuser           = $CONFIG->{'database'}->{db_user};
-my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
-my $valid_users      = $CONFIG->{'general'}->{allowed_users};
-my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $dbhost      = $CONFIG->{'database'}->{db_host};
+my $dbname      = $CONFIG->{'database'}->{db_name};
+my $dbuser      = $CONFIG->{'database'}->{db_user};
+my $dbpass      = $CONFIG->{'database'}->{db_pass};
+my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
@@ -50,22 +50,25 @@ my $q = CGI->new();
 print $q->header();
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
 # print the stock header (banner and title)
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle  => 'Contracts',
-        baseurl    => $BASEURL,
-        groupname  => $CONFIG->{'general'}->{groupname},
-        appname    => $CONFIG->{'general'}->{appname},
-        companyname=> $CONFIG->{'general'}->{companyname},
+        pagetitle   => 'Contracts',
+        baseurl     => $BASEURL,
+        groupname   => $CONFIG->{'general'}->{groupname},
+        appname     => $CONFIG->{'general'}->{appname},
+        companyname => $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
+}
 
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
@@ -80,11 +83,15 @@ my $edit;
 my $delete;
 if ( $gets{'contract_id'} && $gets{'contract_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
-        $logger->info("$ENV{REMOTE_USER} takes first step to edit a contract ID $gets{'contract_id'}");
+        $logger->info(
+"$ENV{REMOTE_USER} takes first step to edit a contract ID $gets{'contract_id'}"
+        );
         $edit = $gets{'contract_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
-        $logger->info("$ENV{REMOTE_USER} takes first step to delete a contract ID $gets{'contract_id'}");
+        $logger->info(
+"$ENV{REMOTE_USER} takes first step to delete a contract ID $gets{'contract_id'}"
+        );
         $delete = $gets{'contract_id'};
     }
 }
@@ -94,7 +101,9 @@ my %message;    # communicate success or failure, sink or swim
 # are we creating/editing or deleting?
 if ( $POSTS{'contract_id'} ) {
     if ( exists $POSTS{'action'} and $POSTS{'action'} eq 'delete' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to delete a contract ID $POSTS{'contract_id'}");
+        $logger->info(
+"$ENV{REMOTE_USER} posts to delete a contract ID $POSTS{'contract_id'}"
+        );
         %message = %{
             Inventory::Contracts::delete_contracts( $dbh,
                 $POSTS{'contract_id'} )
@@ -106,7 +115,7 @@ if ( $POSTS{'contract_id'} ) {
     }
 }
 elsif ( exists $POSTS{'action'} and $POSTS{'action'} eq 'create' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to create a new contract ID");
+    $logger->info("$ENV{REMOTE_USER} posts to create a new contract ID");
     %message = %{ Inventory::Contracts::create_contracts( $dbh, \%POSTS ) };
 }
 

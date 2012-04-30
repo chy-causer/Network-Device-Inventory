@@ -28,15 +28,15 @@ my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
 $CONFIG = Config::Tiny->read("$CONFIG_FILE");
 
-my $dbhost           = $CONFIG->{'database'}->{db_host};
-my $dbname           = $CONFIG->{'database'}->{db_name};
-my $dbuser           = $CONFIG->{'database'}->{db_user};
-my $dbpass           = $CONFIG->{'database'}->{db_pass};
-my $dbh              = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
-my $valid_users      = $CONFIG->{'general'}->{allowed_users};
-my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $dbhost      = $CONFIG->{'database'}->{db_host};
+my $dbname      = $CONFIG->{'database'}->{db_name};
+my $dbuser      = $CONFIG->{'database'}->{db_user};
+my $dbpass      = $CONFIG->{'database'}->{db_pass};
+my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 my @message_store;    # communicate success or failure, sink or swim
 
@@ -48,22 +48,25 @@ my $q = CGI->new();
 print $q->header();
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
 # print the stock header (banner and title)
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle  => 'Group Memberships',
-        baseurl    => $BASEURL,
-        groupname  => $CONFIG->{'general'}->{groupname},
-        appname    => $CONFIG->{'general'}->{appname},
-        companyname=> $CONFIG->{'general'}->{companyname},
+        pagetitle   => 'Group Memberships',
+        baseurl     => $BASEURL,
+        groupname   => $CONFIG->{'general'}->{groupname},
+        appname     => $CONFIG->{'general'}->{appname},
+        companyname => $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
+}
 
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
@@ -82,18 +85,22 @@ if ( $gets{'membership_id'} && $gets{'membership_id'} !~ m/\D/x ) {
 
 if ( $POSTS{'membership_id'} ) {
     if ( $POSTS{'submit'} eq 'Delete Entry' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to delete ID $POSTS{'membership_id'}");
+        $logger->info(
+            "$ENV{REMOTE_USER} posts to delete ID $POSTS{'membership_id'}");
         @message_store =
           Inventory::Memberships::delete_memberships( $dbh, \%POSTS );
     }
     else {
-        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'membership_id'}");
+        $logger->info(
+            "$ENV{REMOTE_USER} posts to edit ID $POSTS{'membership_id'}");
         @message_store =
           Inventory::Memberships::edit_memberships( $dbh, \%POSTS );
     }
 }
 elsif ( $POSTS{'hostgroup_id'} ) {
-    $logger->info("$ENV{REMOTE_USER} posts to create a new membership, hostgroup_id $POSTS{'hostgroup_id'}");
+    $logger->info(
+"$ENV{REMOTE_USER} posts to create a new membership, hostgroup_id $POSTS{'hostgroup_id'}"
+    );
     @message_store =
       Inventory::Memberships::create_memberships( $dbh, \%POSTS );
 }

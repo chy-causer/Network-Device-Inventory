@@ -34,7 +34,7 @@ my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $CGIDIR            = $CONFIG->{'locations'}->{cgidir};
 my $manifest          = $CONFIG->{'locations'}->{manifest};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
@@ -49,7 +49,8 @@ my $q = CGI->new();
 print $q->header();
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
 # print the stock header (banner and title)
 $tt->process(

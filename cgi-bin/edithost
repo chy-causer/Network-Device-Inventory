@@ -51,9 +51,9 @@ my $dbh          = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users  = $CONFIG->{'general'}->{allowed_users};
 my $netdisco_url = $CONFIG->{'links'}->{netdisco_url};
 my $nagios_url   = $CONFIG->{'links'}->{nagios_url};
-my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
@@ -67,22 +67,25 @@ print $q->header();
 my $script = $q->url( -relative => 1 );
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
 # print the stock header (banner and title)
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle  => 'Add or Edit Hosts',
-        baseurl    => $BASEURL,
-        groupname  => $CONFIG->{'general'}->{groupname},
-        appname    => $CONFIG->{'general'}->{appname},
-        companyname=> $CONFIG->{'general'}->{companyname},
+        pagetitle   => 'Add or Edit Hosts',
+        baseurl     => $BASEURL,
+        groupname   => $CONFIG->{'general'}->{groupname},
+        appname     => $CONFIG->{'general'}->{appname},
+        companyname => $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
+}
 
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
@@ -115,13 +118,15 @@ my %hostname_mapping = (
 
 # form submission triggers a whole update of all data
 
-if ( ($POSTS{'device_type'}) and (not defined $POSTS{'arec_x'} or length $POSTS{'arec_x'} < 1) ) {
-        my %message;
-        $message{'ERROR'} = 'No name was provided';
-        push @message_store, \%message;
+if (    ( $POSTS{'device_type'} )
+    and ( not defined $POSTS{'arec_x'} or length $POSTS{'arec_x'} < 1 ) )
+{
+    my %message;
+    $message{'ERROR'} = 'No name was provided';
+    push @message_store, \%message;
 }
 elsif ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
-    
+
     # need to set host_name, cname_x and interface_x_role for the user
     # if they are doing quickadd on a templated device
     if (    $POSTS{'script_mode'}
@@ -165,11 +170,13 @@ elsif ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
         }
     }
 
-    $logger->info("$ENV{REMOTE_USER} posts to edit or create $POSTS{'host_name'}");
+    $logger->info(
+        "$ENV{REMOTE_USER} posts to edit or create $POSTS{'host_name'}");
 
     @message_store = Inventory::Edithost::do_update_all( $dbh, \%POSTS );
 
     if ( not exists $message_store[0]->{'ERROR'} ) {
+
         # successful host creation, at least
         $gets{'shortname'} ||= $POSTS{'host_name'};
     }
@@ -276,12 +283,14 @@ $tt->process(
         models       => \@models,
         frodo_models => \@frodo_models,
         status       => \@status,
-        
-        baseurl      => $BASEURL,
 
-        posts        => \%POSTS,
+        baseurl => $BASEURL,
+
+        posts => \%POSTS,
     }
-) || die "Programming Error: Couldn't load the page template due to ". $tt->error() ."\n";
+  )
+  || die "Programming Error: Couldn't load the page template due to "
+  . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

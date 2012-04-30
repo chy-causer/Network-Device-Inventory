@@ -28,12 +28,11 @@ sub create_sshkeys {
         $posts{'sshkey_fingerprint'} =~ s/\.$//g;
     }
 
-    if (
-        !exists $posts{'sshkey_fingerprint'}
-        || $posts{'sshkey_fingerprint'} !~ m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
+    if ( !exists $posts{'sshkey_fingerprint'}
+        || $posts{'sshkey_fingerprint'} !~
+        m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
         || length( $posts{'sshkey_fingerprint'} ) < 1
-        || length( $posts{'sshkey_fingerprint'} ) > 48
-      )
+        || length( $posts{'sshkey_fingerprint'} ) > 48 )
     {
 
         # dont wave bad inputs at the database
@@ -72,19 +71,18 @@ sub edit_sshkeys {
     my ( $dbh, $posts ) = @_;
     my %message;
 
-    if (
-        !exists $posts->{'sshkey_fingerprint'}
-        || $posts->{'sshkey_fingerprint'} !~ m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
+    if ( !exists $posts->{'sshkey_fingerprint'}
+        || $posts->{'sshkey_fingerprint'} !~
+        m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
         || length( $posts->{'sshkey_fingerprint'} ) < 1
-        || length( $posts->{'sshkey_fingerprint'} ) > 48
-      )
+        || length( $posts->{'sshkey_fingerprint'} ) > 48 )
     {
 
         # dont wave bad inputs at the database
         $message{'ERROR'} = "Did you enter an invalid sshkey?";
         return \%message;
     }
-    
+
     my $sth =
       $dbh->prepare('UPDATE sshkeys SET host_id=?,fingerprint=? WHERE id=?');
     if (

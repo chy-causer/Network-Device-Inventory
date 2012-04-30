@@ -37,10 +37,10 @@ sub create_contracts {
           'Input Error: Please check your input is alpha numeric and complete';
         return \%message;
     }
-    if( $input->{'invoice_id'} eq '' ){
+    if ( $input->{'invoice_id'} eq '' ) {
         $input->{'invoice_id'} = undef;
     }
-    if( $input->{'servicelevel_id'} eq '' ){
+    if ( $input->{'servicelevel_id'} eq '' ) {
         $input->{'servicelevel_id'} = undef;
     }
 
@@ -90,10 +90,10 @@ sub edit_contracts {
           'Input Error: Please check your input is alpha numeric and complete';
         return \%message;
     }
-    if( $input->{'invoice_id'} eq '' ){
+    if ( $input->{'invoice_id'} eq '' ) {
         $input->{'invoice_id'} = undef;
     }
-    if( $input->{'servicelevel_id'} eq '' ){
+    if ( $input->{'servicelevel_id'} eq '' ) {
         $input->{'servicelevel_id'} = undef;
     }
 
@@ -214,7 +214,6 @@ sub get_contracts_info {
 
     return @return_array;
 }
-
 
 1;
 

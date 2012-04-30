@@ -24,10 +24,10 @@ my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
 $CONFIG = Config::Tiny->read("$CONFIG_FILE");
 
-my $valid_users      = $CONFIG->{'general'}->{allowed_users};
-my $htmltemplatepath = $CONFIG->{'locations'}->{tt_dir};
+my $valid_users       = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
+my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
@@ -40,22 +40,25 @@ my $q = CGI->new();
 print $q->header();
 
 # this just loads the default site settings
-my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
 # print the stock header (banner and title)
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle  => 'Administration Options',
-        baseurl    => $BASEURL,
-        groupname  => $CONFIG->{'general'}->{groupname},
-        appname    => $CONFIG->{'general'}->{appname},
-        companyname=> $CONFIG->{'general'}->{companyname},
+        pagetitle   => 'Administration Options',
+        baseurl     => $BASEURL,
+        groupname   => $CONFIG->{'general'}->{groupname},
+        appname     => $CONFIG->{'general'}->{appname},
+        companyname => $CONFIG->{'general'}->{companyname},
     }
 );
 
 # invalid users get no further than the next line
-if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
+}
 
 $tt->process( 'inventory_admin.tt', {} );
 $tt->process('inventory_footer.tt');

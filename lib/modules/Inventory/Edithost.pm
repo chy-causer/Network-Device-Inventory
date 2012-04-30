@@ -20,7 +20,7 @@ sub do_update_all {
     my $messages = [];
 
     _create_or_update_host( $dbh, $POSTS, $messages );
-    
+
     return @{$messages} if exists $messages->[-1]->{'ERROR'};
 
     _update_ups( $dbh, $POSTS, $messages );
@@ -62,15 +62,17 @@ sub _create_or_update_host {
     }
     else {
 
-        if ( not exists $POSTS->{'host_name'} ){
+        if ( not exists $POSTS->{'host_name'} ) {
             my %errors;
             $errors{'ERROR'} = 'No host name was suppplied';
             push @{$messages}, \%errors;
             return @{$messages};
         }
         else {
-            my @result = Inventory::Hosts::get_hosts_info_by_name( $dbh, $POSTS->{'host_name'} );
-            if ( $result[0]->{'id'} ){
+            my @result =
+              Inventory::Hosts::get_hosts_info_by_name( $dbh,
+                $POSTS->{'host_name'} );
+            if ( $result[0]->{'id'} ) {
                 my %errors;
                 $errors{'ERROR'} = 'That host already exists';
                 push @{$messages}, \%errors;

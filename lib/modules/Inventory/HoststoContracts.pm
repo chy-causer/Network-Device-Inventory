@@ -20,18 +20,13 @@ sub create_hoststocontracts {
     my ( $dbh, $input ) = @_;
     my %message;
 
-    my $sth = $dbh->prepare('INSERT INTO 
+    my $sth = $dbh->prepare(
+        'INSERT INTO 
                                hoststocontracts(host_id,contract_id)
                              VALUES(?,?)'
-                           );
+    );
 
-    if (
-        !$sth->execute(
-            $input->{'host_id'},
-            $input->{'contract_id'},
-        )
-      )
-    {
+    if ( !$sth->execute( $input->{'host_id'}, $input->{'contract_id'}, ) ) {
         $message{'ERROR'} =
           "Internal Error: The host to contract mapping was unsuccessful";
         return \%message;
@@ -49,12 +44,12 @@ sub edit_hoststocontracts {
     my ( $dbh, $input ) = @_;
     my %message;
 
-    my $sth = $dbh->prepare('UPDATE hoststocontracts SET host_id=?,contract_id=? WHERE id=?' );
+    my $sth = $dbh->prepare(
+        'UPDATE hoststocontracts SET host_id=?,contract_id=? WHERE id=?');
 
     if (
         !$sth->execute(
-            $input->{'host_id'},
-            $input->{'contract_id'},
+            $input->{'host_id'}, $input->{'contract_id'},
             $input->{'hosttocontract_id'},
         )
       )
@@ -64,7 +59,8 @@ sub edit_hoststocontracts {
         return \%message;
     }
 
-    $message{'SUCCESS'} = 'Your host to contract mapping changes were commited successfully';
+    $message{'SUCCESS'} =
+      'Your host to contract mapping changes were commited successfully';
     return \%message;
 }
 
@@ -93,7 +89,7 @@ sub get_hoststocontracts_info {
     return if !defined $dbh;
 
     if ( defined $id ) {
-        $sth = $dbh->prepare('
+        $sth = $dbh->prepare( '
         SELECT 
            hoststocontracts.id,
            hoststocontracts.host_id,
@@ -115,7 +111,7 @@ sub get_hoststocontracts_info {
         return if !$sth->execute($id);
     }
     else {
-        $sth = $dbh->prepare('
+        $sth = $dbh->prepare( '
         SELECT 
            hoststocontracts.id,
            hoststocontracts.host_id,
@@ -147,7 +143,8 @@ sub count_hosts_percontract {
     my %message;
 
     if ( !defined $dbh ) {
-        $message{'ERROR'} = 'Internal Error: List the database, things can only go downhill from here';
+        $message{'ERROR'} =
+'Internal Error: List the database, things can only go downhill from here';
         return \%message;
     }
 

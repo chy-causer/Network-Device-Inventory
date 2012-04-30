@@ -42,7 +42,7 @@ sub create_locations {
 sub edit_locations {
     my ( $dbh, $posts ) = @_;
     my %message;
-    
+
     if ( !defined $dbh ) {
         $message{'ERROR'} = 'Internal Error: lost database connectivity';
         return \%message;
@@ -130,11 +130,13 @@ sub delete_locations {
     my $sth = $dbh->prepare('DELETE FROM locations WHERE id=?');
     if ( !$sth->execute($id) ) {
         $message{'ERROR'} =
-          "Internal Error: The location could not be deleted, it's probably in use by a host entry";
+"Internal Error: The location could not be deleted, it's probably in use by a host entry";
         return \%message;
     }
 
     $message{'SUCCESS'} = 'The specificed entry was deleted';
+
+    return \%message;
 }
 
 1;

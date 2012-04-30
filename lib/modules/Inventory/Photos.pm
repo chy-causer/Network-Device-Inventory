@@ -204,7 +204,7 @@ sub upload_photos {
     if ( defined $fh ) {
 
         my $md5 = Digest::MD5->new->addfile(*$fh)->hexdigest;
-        
+
         my $host_id  = $POSTS{'host_id'};
         my $filename = "$md5.$extension";
 
