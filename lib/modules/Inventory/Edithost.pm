@@ -89,7 +89,9 @@ sub _create_or_update_host {
       Inventory::Hosts::get_hosts_info_by_name( $dbh, $POSTS->{'host_name'} );
     $POSTS->{host_id} = $new_host[0]->{id};
 
-    push @{$messages}, Inventory::Hosts::update_time( $dbh, $POSTS );
+#    not desirable - when editing one field we don't want to automatically
+#    confirm all the hosts details.
+#    push @{$messages}, Inventory::Hosts::update_time( $dbh, $POSTS );
 
     return @{$messages};
 }
