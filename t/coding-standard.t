@@ -48,6 +48,7 @@ my %testfiles = (
 
     'coding-standard.t' => 'test',
 
+    "$CGIDIR/about"               => 'script',
     "$CGIDIR/admin"               => 'script',
     "$CGIDIR/bashrc"              => 'script',
     "$CGIDIR/cnames"              => 'script',

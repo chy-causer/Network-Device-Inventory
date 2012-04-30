@@ -4,6 +4,7 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = qw('1.0.0');
 
+use Carp;
 use CGI;
 use Config::Tiny;
 use Data::Dumper;
@@ -40,6 +41,7 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 my $message;
+my $TIMEOUT_WEB_SECONDS=10;
 
 #############################################################################
 #                                     main                                  #
@@ -67,6 +69,15 @@ $tt->process(
 # invalid users get no further than the next line
 if ( !exists $CONFIG->{general}->{demo} ) {
     Inventory::acl_checker( $tt, $valid_users );
+}
+
+# show a helpful error if we're setup wrong
+if( ! defined $manifest ){
+    $logger->error('[locations] manifest = filepath missing from ini file');
+    $message = 'INTERNAL ERROR: site settings missing an entry';
+    $tt->process( 'inventory_about.tt', {  message => $message, } );
+    $tt->process('inventory_footer.tt');
+    exit;
 }
 
 # I differenciate between get and post, not everyone agrees with this but
@@ -112,15 +123,15 @@ sub file_details {
       'https://raw.github.com/guyed/Network-Device-Inventory/master';
 
     if ( not defined $file ) {
-        warn "file_details called incorrectly";
+        Carp::carp "file_details called incorrectly";
         return;
     }
     if ( not defined $directory ) {
-        warn "file_details called incorrectly";
+        Carp::carp "file_details called incorrectly";
         return;
     }
 
-    if ( $file =~ m/\.tt$/ && $file !~ m/^inventory_/ ) {
+    if ( $file =~ m/\.tt$/x && $file !~ m/^inventory_/x ) {
 
         # tt file belonging to other project
         return;
@@ -140,7 +151,7 @@ sub file_details {
         'github_url'      => "$GIT_HUB_URL/cgi-bin/$file",
     );
 
-    if ( $file =~ m/\.tt$/ ) {
+    if ( $file =~ m/\.tt$/x ) {
         $details{'type'}       = 'template';
         $details{'github_url'} = "$GIT_HUB_URL/lib/tt/$file";
     }
@@ -148,7 +159,7 @@ sub file_details {
         $details{'type'}       = 'module';
         $details{'github_url'} = "$GIT_HUB_URL/lib/modules/$file";
     }
-    elsif ( $file =~ m/\.pm$/ ) {
+    elsif ( $file =~ m/\.pm$/x ) {
         $details{'type'}       = 'module';
         $details{'github_url'} = "$GIT_HUB_URL/lib/modules/Inventory/$file";
     }
@@ -158,14 +169,14 @@ sub file_details {
     $details{'local_sha1'} = $l_sha->hexdigest;
 
     my $ua = LWP::UserAgent->new;
-    $ua->timeout(10);
+    $ua->timeout($TIMEOUT_WEB_SECONDS);
     $ua->env_proxy;
 
     my $response = $ua->get( $details{'github_url'} );
 
     if ( not $response->is_success ) {
         $details{'github_sha1'} = 'unretrieved';
-        die $response->status_line;
+        Carp::croak $response->status_line;
     }
     else {
         my $g_sha = Digest::SHA->new();
@@ -176,8 +187,9 @@ sub file_details {
     my @lines = File::Slurp::read_file("$directory/$file");
     foreach my $line (@lines) {
 
-        next if $line !~ m/^#/;
-        if ( $line =~ m/^#[\s]*\$Id:\s(\S+)\s(\S+)\s(\S+)\s/ ) {
+        next if $line !~ m/^#/x;
+
+        if ( $line =~ m/^#[\s]*\$Id:\s(\S+)\s(\S+)\s(\S+)\s/x ) {
 
             # everything worked
             $details{'error'} = 0;
@@ -205,7 +217,7 @@ sub create_manifest {
 
     # colate our data
     foreach my $dirname (@dirs) {
-        opendir DIR, $dirname or die "cant opendir $dirname: $!";
+        opendir DIR, $dirname or Carp::croak "cant opendir $dirname: $!";
 
         while ( defined( my $filename = readdir DIR ) ) {
             my $ref = file_details( $filename, $dirname );
@@ -235,7 +247,7 @@ sub create_manifest {
     }
 
     File::Slurp::write_file( "$filelist", @output )
-      or die "Can't write $filelist : $!";
+      or Carp::croak "Can't write $filelist : $!";
 
     return;
 }
@@ -248,7 +260,7 @@ sub read_manifest {
     foreach my $line (@lines) {
 
         # skip blank lines
-        if ( $line =~ m/^\s*$/ ) {
+        if ( $line =~ m/^\s*$/x ) {
             next;
         }
 
@@ -275,8 +287,7 @@ sub update_file {
     my %current = %{ read_manifest($filelist) };
 
     if ( not exists $current{$updatef} ) {
-        return
-"Internal Error: That file doesn't seem to be part of the application I know about";
+        return 'Possible Programming Error: I do not recognise that file';
     }
 
     # if it is, retrieve it
@@ -287,7 +298,7 @@ sub update_file {
     my $response = $ua->get( $current{$updatef}{'github_url'} );
 
     if ( not $response->is_success ) {
-        warn
+        Carp::carp
           "Unable to download $current{$updatef}{'github_url'} due to : $!\n";
         return "Internal Error: I don't seem to be able to download that file";
     }
@@ -295,7 +306,7 @@ sub update_file {
     # overwrite the existing file
     my @output = $response->decoded_content;
     if ( not eval { File::Slurp::write_file( "$updatef", @output ) } ) {
-        warn "Couldn't update $updatef with downloaded content : $!\n";
+        Carp::carp "Couldn't update $updatef with downloaded content : $!\n";
         return
 "Internal Error: I couldn't overwrite that file - probably a permissions issue";
     }
