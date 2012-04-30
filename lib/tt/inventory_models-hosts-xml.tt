@@ -1,0 +1,19 @@
+[%- IF hosts.size < 1 %]
+<p>There are no hosts of that model type</p>
+   [%- STOP %]
+[%- END %]
+
+<h5>Hosts of Model type [% hosts.0.model_name | html_entity %]</h5>
+
+<table class="report">
+  [%- FOR host IN hosts %]
+    [%- IF host.status != 'ACTIVE' %]
+       <tr class="block-status-inactive">
+    [%- ELSE %]
+       <tr>
+    [%- END %]
+   <td>[% host.name | html_entity %]</td>
+   <td>[% host.description | html_entity %]</td>
+  </tr>
+  [%- END %]
+</table>

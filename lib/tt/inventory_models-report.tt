@@ -56,9 +56,22 @@ $(document).ready(function(){
         }); 
     } 
 ); 
-</script>
 
-<script type="text/javascript">
+function gethosts(model_name){
+   
+    var ajax_load="Ajax loading...";
+
+    var loadUrl="[% BASEURL %]/models-hosts?model_name=" + model_name;
+    
+    $("#host-list").html(ajax_load);  
+    $.get(  
+        loadUrl, {},  
+        function(responseText){  
+        
+        $("#host-list").html( responseText );  
+       }
+}
+
 $(function () {
     var data = [
 
@@ -94,18 +107,26 @@ $.plot($("#modelgraph"), data,
         },
         grid: {
             hoverable: true,
+            clickable: true,
         },
         legend: {
             show: false
         }
 });
 $("#modelgraph").bind("plothover", pieHover);
+$("#modelgraph").bind("plotclick", pieClick);
 
 function pieHover(event, pos, obj) {
     if (!obj)
              return;
     percent = parseFloat(obj.series.percent).toFixed(2);
-    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
+    $("#hover").html('<span style="font-weight: bold;">'+obj.series.label+' ('+percent+'%)</span>');
+}
+
+function pieClick(event, pos, obj) {
+    if (!obj)
+             return;
+    gethosts('+obj.series.label+');
 }
 
 });
@@ -118,25 +139,8 @@ function pieHover(event, pos, obj) {
     <div id="hover"></div>
 
  <h4>Specific Hosts by Model</h4>
+    <div id="hosts-bymodel">Select a model above</div>
 
- <table class="report">
-    <tr><th>Model</th><th>Hosts</th></tr>
- [% FOREACH modelname IN hosts.keys.sort -%]
-    [% id = hosts.$modelname.0.model_id %]   
-       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
-    [%- IF 1 > count_sum -%]
-      <tr class="block-status-inactive">
-    [%- ELSE -%]
-      <tr>
-    [%- END -%]
-    <td>[% modelname | html_entity %]</td><td>
-       [%- FOREACH host IN hosts.$modelname -%]
-          [%- host.name | html_entity %] [% IF host.description %]([% host.description | html_entity %])[% END %] [% IF host.status_name %] ([% host.status_name | html_entity %]) [% END -%]
-          <br />
-       [%- END -%]
-    </td></tr>
- [%- END -%]
- </table>
 </div> <!-- right column -->
 
 <h4>All Models</h4>

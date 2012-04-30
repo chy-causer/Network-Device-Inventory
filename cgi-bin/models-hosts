@@ -1,23 +1,22 @@
-#!/usr/bin/perl
+#!/usr/bin/perl 
 
 use warnings FATAL => 'all';
 use strict;
 our $VERSION = qw('1.0.0');
 
-use Carp;
 use CGI;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use Log::Log4perl;
 use Template;
 
 use Inventory;
+use Inventory::Hosts;
 use Inventory::Models;
-use Inventory::Manufacturers;
 
-my $HOSTNAME = CGI::url( -base => 1 );
-my $BASEURL = $HOSTNAME;
+my $BASEURL = CGI::url( -base => 1 );
+my $HOSTNAME = $BASEURL;
 
 # remove everything from the first . onwards
 $HOSTNAME =~ s/\..*$//gx;
@@ -42,8 +41,6 @@ my $logconfigfile    = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
-my %message;    # communicate success or failure, sink or swim
-
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -54,60 +51,30 @@ print $q->header();
 # this just loads the default site settings
 my $tt = Template->new( { INCLUDE_PATH => [$localtemplatepath, $htmltemplatepath] } );
 
-# print the stock header (banner and title)
-$tt->process(
-    'inventory_header.tt',
-    {
-        pagetitle  => 'Hardware Models',
-        baseurl    => $BASEURL,
-        groupname  => $CONFIG->{'general'}->{groupname},
-        appname    => $CONFIG->{'general'}->{appname},
-        companyname=> $CONFIG->{'general'}->{companyname},
-    }
-);
-
 # invalid users get no further than the next line
 if(! exists $CONFIG->{general}->{demo} ){ Inventory::acl_checker( $tt, $valid_users ); }
 
 # I differenciate between get and post, not everyone agrees with this but
 # there is an RFC2616 that suggests that we should. I do so for behaviour not
 # security reasons.
-my %gets = Inventory::populate_query_fields();  # not strictly a get field
+my %gets = Inventory::populate_query_fields(); # not strictly a get field
 
-# list all the models (array of hashes)
-my @models = Inventory::Models::get_models_info($dbh);
+if ( not exists $gets{'model_id'} ){
+    print '0';
+}
+else {
+    my @hosts = Inventory::Hosts::hosts_bymodel_id( $dbh, $gets{'model_id'} );
+}
 
-# list all the manufacturers in order to populate dropdown (array of hashes)
-my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
-
-# number of models per manufacturer
-my %host_count = %{ Inventory::Models::count_hosts_permodel($dbh) };
-
-my $hosts = Inventory::Hosts::hash_hosts_permodel($dbh);
-
-#print '<pre class="debug">';
-#use Data::Dumper;
-#print Dumper $hosts;
-#print "</pre>";
-
-$tt->process(
-    'inventory_models-report.tt',
-    {
-        models        => \@models,
-        manufacturers => \@manufacturers,
-        message       => \%message,
-        host_counts   => \%host_count,
-        hosts         => $hosts,
-        baseurl    => $BASEURL,
-    }
-) || Carp::croak $tt->error();
-$tt->process( 'inventory_footer.tt', {} );
+$tt->process( 'inventory_models-hosts-xml.tt', { hosts => \@hosts, } );
 
 __END__
 
+=pod
+
 =head1 NAME
 
-models-report
+model-hosts
 
 =head1 VERSION
 
@@ -117,22 +84,29 @@ This documentation refers to version 1.0.0
 
 =head1 REQUIRED ARGUMENTS
 
+model_id=$id
+
 =head1 OPTIONS
+
+none
 
 =head1 DESCRIPTION
 
-Lets the user view helpful meta information in the inventory based on model
-type.
+Ajax interface to return a list of hosts that have the model type that the
+page was called with
 
 =head1 DIAGNOSTICS
 
-error messages
+No error messages will be seen.
 
 =head1 CONFIGURATION
 
-/srv/www/$HOSTNAME/lib/inventory.ini
+configuration via /srv/www/$HOSTNAME/lib/inventory.ini
 
 =head1 DEPENDENCIES
+
+Inventory, CGI, Config::Tiny, DBD::Pg, DBI;
+
 
 =head1 INCOMPATIBILITIES
 

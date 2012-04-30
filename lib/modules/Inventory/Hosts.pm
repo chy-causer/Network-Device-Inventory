@@ -13,6 +13,8 @@ our @EXPORT_OK = qw(
   host_info_wrapper
   update_time
   get_hosts_byinvoice
+  hash_hosts_permodel
+  hosts_bymodel_name
 );
 
 use DBI;
@@ -602,6 +604,55 @@ sub hash_hosts_permodel {
     return \%return;
 }
 
+sub hosts_bymodel_name {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE models.name=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return unless $sth->execute($name);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+ 
+}
 
 1;
 __END__

@@ -447,7 +447,7 @@ function nameexists(){
         return;
     }
 
-    var loadUrl="https://overlord.oucs.ox.ac.uk/inventory/hostname-check?hostname=" + hostname;
+    var loadUrl="[% BASEURL %]/hostname-check?hostname=" + hostname;
     $("#fn-check").html(ajax_load);  
     $.get(  
         loadUrl, {},  
