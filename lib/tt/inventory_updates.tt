@@ -1,0 +1,144 @@
+[%- errorcount=0 -%]
+
+[%- FOR file IN files.keys -%]
+   [%- IF files.$file.error == '1' -%]
+     [%- errorcount= errorcount+1 -%]
+   [%- END -%]
+[%- END -%]
+
+[%- IF errorcount==0 -%]
+   <p class="block-success">There are no version issues detected (currently only checks svn properties)</p>
+[%- ELSE -%]
+   <p class="block-warning">There are [% errorcount %] version issues that may need attention</p>
+[%- END -%]
+
+[%- IF message && message.length > 0 -%]
+   <p class="block-warning">[% message | html_entity %]</p>
+[%- END -%]
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#tabs").tabs();
+    } 
+); 
+</script>
+
+<div id="tabs">
+<ul>
+  <li><a href="#scripts"><span>Scripts</span></a></li>
+  <li><a href="#modules"><span>Modules</span></a></li>
+  <li><a href="#templates"><span>Templates</span></a></li>
+</ul>
+
+<div id="scripts">
+
+<h4>Scripts</h4>
+
+<table>
+<tr>
+   <th>Filename</th>
+   <th colspan="2">Matches version on github?</th>
+</tr>
+[%- FOR file IN files.keys.sort -%]
+   [%- NEXT IF files.$file.type == 'template' -%] 
+   [%- NEXT IF files.$file.type == 'module' -%] 
+   [%- IF files.$file.error == '1' -%]
+     <tr class="warning">
+   [%- ELSE -%]
+   <tr>
+   [%- END -%]
+     <td>[% files.$file.name | html_entity %]</td>
+     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
+     <td class="block-success" colspan="2">Matches</td>
+     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
+      <td class="block-error" colspan="2">Error contacting github</td>
+     [%- ELSE -%]
+     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
+     <td>
+        <form action="" method="POST">
+          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
+          <input type="submit" value="download from github" />
+        </form>
+     </td>
+     [%- END -%]
+   </tr>
+[%- END -%]
+</table>
+</div> <!-- scripts -->
+
+<div id="modules">
+
+<h4>Modules</h4>
+
+<table>
+<tr>
+   <th>Filename</th>
+   <th colspan="2">Matches version on github?</th>
+</tr>
+
+[%- FOR file IN files.keys.sort -%]
+   [%- NEXT IF files.$file.type != 'module' -%] 
+   [%- IF files.$file.error == '1' -%]
+     <tr class="warning">
+   [%- ELSE -%]
+   <tr>
+   [%- END -%]
+     <td>[% files.$file.name | html_entity %]</td>
+     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
+     <td class="block-success" colspan="2">Matches</td>
+     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
+      <td class="block-error" colspan="2">Error contacting github</td>
+     [%- ELSE -%]
+     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
+     <td>
+        <form action="" method="POST">
+          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
+          <input type="submit" value="download from github" />
+        </form>
+     </td>
+     [%- END -%]
+   </tr>
+[%- END -%]
+</table>
+</div> <!-- modules -->
+
+<div id="templates">
+<h4>Templates</h4>
+
+<table>
+<tr>
+   <th>Filename</th>
+   <th colspan="2">Matches version on github?</th>
+</tr>
+
+[%- FOR file IN files.keys.sort -%]
+   [%- NEXT IF files.$file.type != 'template' -%]
+   [%- IF files.$file.error == '1' -%]
+     <tr class="warning">
+   [%- ELSE -%]
+   <tr>
+   [%- END -%]
+     <td>[% files.$file.name | html_entity %]</td>
+     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
+     <td class="block-success" colspan="2">Matches</td>
+     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
+      <td class="block-error" colspan="2">Error contacting github</td>
+     [%- ELSE -%]
+     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
+     <td>
+        <form action="" method="POST">
+          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
+          <input type="submit" value="download from github" />
+        </form>
+     </td>
+     [%- END -%]
+   </tr>
+[%- END -%]
+</table>
+</div> <!-- templates -->
+
+</div> <!-- tabs -->
+
+<form action="updates" method="post">
+   <p>The updates facility is a work in progress. During this development period for the new feature, if you think the manifest is out of sync with the data on the server you can manually tell the interface the rebuild the data. Be aware this will take a few seconds. <input type="submit" name="reset" value="Reset the data" /></p>
+</form>
