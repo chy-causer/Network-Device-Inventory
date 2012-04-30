@@ -65,8 +65,8 @@
   <div class="daily">
   <h3>Changes</h3>
   <ul>
-    <li><a href="quickdevice">Add a Device</a></li>
-    <li><a href="quickadd">Add a Server</a></li>
+    <li><a href="quickdevice">Add a Device</a><br/ >(e.g. FroDo or VOIP switch)</li>
+    <li><a href="quickadd">Add anything</a></li>
     <li><a href="quickcnames">Frodo CNAMES</a></li>
   </ul>
 
