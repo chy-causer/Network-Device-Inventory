@@ -151,8 +151,7 @@ sub file_details {
 
     my %details = (
         'name'            => "$directory/$file",
-        'revision'        => 'svn header missing?',
-        'lastchangeddate' => 'svn header missing?',
+        'revision'        => 'version header missing?',
         'error'           => '1',
         'type'            => 'script',
         'github_url'      => "$GIT_HUB_URL/cgi-bin/$file",
@@ -196,21 +195,10 @@ sub file_details {
 
         next if $line !~ m/^#/x;
 
-        if ( $line =~ m/^#[\s]*\$Id:\s(\S+)\s(\S+)\s(\S+)\s/x ) {
-
+        if ( $line =~ m/^our \$VERSION = '([\d\.]+)';$/x ) {
             # everything worked
             $details{'error'} = 0;
-
-            if ( $1 ne $file ) {
-
-                # spoke too soon
-                $details{'name'} =
-                  "Error: SVN properties not correctly set on $file";
-                $details{'error'} = 1;
-            }
-            $details{'revision'}        = $2;
-            $details{'lastchangeddate'} = $3;
-
+            $details{'revision'}        = $1;
             last;
         }
     }
