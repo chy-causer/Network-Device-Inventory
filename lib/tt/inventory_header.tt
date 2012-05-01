@@ -65,17 +65,17 @@
   <div class="daily">
   <h3>Changes</h3>
   <ul>
-    <li><a href="quickdevice">Add a Device</a><br/ >(e.g. FroDo or VOIP switch)</li>
+    <li><a href="quickdevice">Add a device</a></li>
     <li><a href="quickadd">Add anything</a></li>
-    <li><a href="quickcnames">Frodo CNAMES</a></li>
+    <li><a href="quickcnames">FroDo CNAMES</a></li>
   </ul>
 
   <h3>Reference</h3>
   <ul>
-   <li><a href="viewhost">Quick Search</a></li>
-   <li><a href="frodo">Frodo Project Overview</a></li>
+   <li><a href="viewhost">Quick search</a></li>
+   <li><a href="frodo">FroDo project overview</a></li>
    <li><a href="bashrc">Bashrc output</a></li>
-   <li><a href="https://github.com/guyed/Network-Device-Inventory/wiki">Online Manual</a>
+   <li><a href="https://github.com/guyed/Network-Device-Inventory/wiki">Online manual</a>
   </ul>
  </div> <!-- daily -->
 
