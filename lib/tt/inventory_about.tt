@@ -25,14 +25,11 @@ $(document).ready(function(){
 
 <div id="tabs">
 <ul>
-  <li><a href="#history"><span>History</span></a></li>
-  <li><a href="#license"><span>License</span></a></li>
-  <li><a href="#scripts"><span>Scripts</span></a></li>
-  <li><a href="#modules"><span>Modules</span></a></li>
-  <li><a href="#templates"><span>Templates</span></a></li>
+  <li><a href="#tabs-1"><span>History</span></a></li>
+  <li><a href="#tabs-2"><span>License</span></a></li>
 </ul>
 
-<div id="history">
+<div id="tabs-1">
   <p>This inventory system was written in 2007 to support a backbone network and services team for a university.</p>
 
   <p>The team ran ~70 servers but information in multiple locations such as wiki pages and spreadsheets.</p>
@@ -40,9 +37,9 @@ $(document).ready(function(){
   <p>The inventory was created to centralise that information and to feed it into the configuration of a seperate service/network monitoring system</p>
 
   <p>In February 2012, after request from the author, the software was approved for release under the GPL</p>
-</div>
+</div> <!-- end history -->
 
-<div id="license">
+<div id="tabs-2">
     
     <h3>Inventory version 1.0.0, Copyright (C) 2007 Oxford University Computing Services</h3>
     
@@ -57,111 +54,6 @@ $(document).ready(function(){
 
     <p>Oliver Gorwits, who contributed sections of the hostgroups programming also
     disclaims all copyright interest in the program.</p>
-</div>
+</div> <!-- end license -->
 
-<div id="scripts">
-
-<h4>Scripts</h4>
-
-<table>
-<tr>
-   <th>Filename</th>
-   <th colspan="2">Matches version on github?</th>
-</tr>
-[%- FOR file IN files.keys.sort -%]
-   [%- NEXT IF files.$file.type == 'template' -%] 
-   [%- NEXT IF files.$file.type == 'module' -%] 
-   [%- IF files.$file.error == '1' -%]
-     <tr class="warning">
-   [%- ELSE -%]
-   <tr>
-   [%- END -%]
-     <td>[% files.$file.name | html_entity %]</td>
-     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
-     <td class="block-success" colspan="2">Matches</td>
-     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
-      <td class="block-error" colspan="2">Error contacting github</td>
-     [%- ELSE -%]
-     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
-     <td>
-        <form action="" method="POST">
-          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
-          <input type="submit" value="download from github" />
-        </form>
-     </td>
-     [%- END -%]
-   </tr>
-[%- END -%]
-</table>
-</div>
-
-<div id="modules">
-
-<h4>Modules</h4>
-
-<table>
-<tr>
-   <th>Filename</th>
-   <th colspan="2">Matches version on github?</th>
-</tr>
-
-[%- FOR file IN files.keys.sort -%]
-   [%- NEXT IF files.$file.type != 'module' -%] 
-   [%- IF files.$file.error == '1' -%]
-     <tr class="warning">
-   [%- ELSE -%]
-   <tr>
-   [%- END -%]
-     <td>[% files.$file.name | html_entity %]</td>
-     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
-     <td class="block-success" colspan="2">Matches</td>
-     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
-      <td class="block-error" colspan="2">Error contacting github</td>
-     [%- ELSE -%]
-     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
-     <td>
-        <form action="" method="POST">
-          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
-          <input type="submit" value="download from github" />
-        </form>
-     </td>
-     [%- END -%]
-   </tr>
-[%- END -%]
-</table>
-</div>
-
-<div id="templates">
-<h4>Templates</h4>
-
-<table>
-<tr>
-   <th>Filename</th>
-   <th colspan="2">Matches version on github?</th>
-</tr>
-
-[%- FOR file IN files.keys.sort -%]
-   [%- NEXT IF files.$file.type != 'template' -%]
-   [%- IF files.$file.error == '1' -%]
-     <tr class="warning">
-   [%- ELSE -%]
-   <tr>
-   [%- END -%]
-     <td>[% files.$file.name | html_entity %]</td>
-     [%- IF  files.$file.local_sha1 == files.$file.github_sha1 -%]
-     <td class="block-success" colspan="2">Matches</td>
-     [%- ELSIF ! files.$file.github_sha1 || files.$file.github_sha1 == 'unretrieved' -%]
-      <td class="block-error" colspan="2">Error contacting github</td>
-     [%- ELSE -%]
-     <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
-     <td>
-        <form action="" method="POST">
-          <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
-          <input type="submit" value="download from github" />
-        </form>
-     </td>
-     [%- END -%]
-   </tr>
-[%- END -%]
-</table>
-</div>
+</div> <!-- end jQuery tabs -->

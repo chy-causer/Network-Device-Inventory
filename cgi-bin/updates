@@ -95,12 +95,14 @@ if ( $POSTS{'file'} ) {
 }
 elsif ( $POSTS{'reset'} ) {
     $logger->info("$ENV{REMOTE_USER} posts to recreate the file manifest");
+    $message = 'Rebuilding another manifest on request...';
     create_manifest( $manifest,
         ( $CGIDIR, $htmltemplatepath, '/usr/local/lib/site_perl/Inventory' ) );
 }
 
 if ( not check_manifest($manifest) ) {
     $logger->info("Something wrong with the manifest, building another");
+    $message = 'Rebuilding another manifest due to detected issue...';
     create_manifest( $manifest,
         ( $CGIDIR, $htmltemplatepath, '/usr/local/lib/site_perl/Inventory' ) );
 }
@@ -333,8 +335,6 @@ sub check_manifest {
     }
 
     # TODO: if older than X ....
-
-    debug("check_manifest thinks the manifest looks fine.");
 
     return 1;
 }

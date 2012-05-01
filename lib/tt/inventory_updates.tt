@@ -139,6 +139,6 @@ $(document).ready(function(){
 
 </div> <!-- tabs -->
 
-<form action="updates" method="post">
+<form id="reset" action="updates" method="post">
    <p>The updates facility is a work in progress. During this development period for the new feature, if you think the manifest is out of sync with the data on the server you can manually tell the interface the rebuild the data. Be aware this will take a few seconds. <input type="submit" name="reset" value="Reset the data" /></p>
 </form>
