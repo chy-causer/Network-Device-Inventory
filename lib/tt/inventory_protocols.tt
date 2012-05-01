@@ -111,12 +111,12 @@ $(document).ready(function(){
     [% counter = counter +1 %]
       <td><a href="protocols?protocol_id=[% protocol.id | html_entity %]">[% protocol.shortname | html_entity %]</a></td>
       <td>[% protocol.longname | html_entity %]</td>
-      <td>[% 0 + service_count.$id.protocol_total | html_entity %]</td>
+      <td>[% (service_count.$id.protocol_total||0) | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + interface_count.$id.active | html_entity %]</span>
-        / <span class="status-inactive">[% 0 + interface_count.$id.inactive | html_entity %]</span> 
-        / <span class="status-instock">[% 0 + interface_count.$id.instock | html_entity %]</span>
-        / <span class="status-decommissioned">[% 0 + interface_count.$id.decommissioned | html_entity %]</span> 
+        <span class="status-active">[% (interface_count.$id.active||0) | html_entity %]</span>
+        / <span class="status-inactive">[% (interface_count.$id.inactive||0) | html_entity %]</span> 
+        / <span class="status-instock">[% (interface_count.$id.instock||0) | html_entity %]</span>
+        / <span class="status-decommissioned">[% (interface_count.$id.decommissioned||0) | html_entity %]</span> 
       </td>
   </tr>
   [% END %]

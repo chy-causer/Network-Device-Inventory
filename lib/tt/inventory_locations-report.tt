@@ -52,7 +52,7 @@ $(document).ready(function(){
   [% FOR location IN locations %]
     [% id = location.id %]
     [% counter = counter +1 %]
-    [% sum = location_counts.$id.active + location_counts.$id.instock + location_counts.$id.decommissioned %]
+    [% sum = (location_counts.$id.active||0) + (location_counts.$id.instock||0) + (location_counts.$id.decommissioned||0) %]
 
     [% class="" %]
     [% IF sum < 1 %]
@@ -66,10 +66,10 @@ $(document).ready(function(){
       <td><a href="locations?location_id=[% location.id | html_entity %]">[% location.name | html_entity %]</a></td>
       <td>[% sum | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + location_counts.$id.active | html_entity %]</span>
-        / <span class="status-inactive">[% 0 + location_counts.$id.inactive | html_entity %]</span> 
-        / <span class="status-instock">[% 0 + location_counts.$id.instock | html_entity %]</span>
-        / <span class="status-decommissioned">[% 0 + location_counts.$id.decommissioned | html_entity %]</span> 
+        <span class="status-active">[% (location_counts.$id.active||0) | html_entity %]</span>
+        / <span class="status-inactive">[% (location_counts.$id.inactive||0) | html_entity %]</span> 
+        / <span class="status-instock">[% (location_counts.$id.instock||0) | html_entity %]</span>
+        / <span class="status-decommissioned">[% (location_counts.$id.decommissioned||0) | html_entity %]</span> 
       </td>
   </tr>
   [% END %]

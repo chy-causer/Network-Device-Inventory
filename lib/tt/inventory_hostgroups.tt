@@ -119,7 +119,7 @@ $(document).ready(function(){
   [% FOREACH hostgroup IN hostgroups %]
       [% counter = counter +1 %]
       [% name = hostgroup.name %]
-      [% count_sum = group_summary.$name.active + group_summary.$name.inactive + group_summary.$name.instock %]
+      [% count_sum = (group_summary.$name.active||0) + (group_summary.$name.inactive||0) + (group_summary.$name.instock||0) %]
     
     [% IF 1 > count_sum %]
       <tr class="block-status-inactive">
@@ -134,10 +134,10 @@ $(document).ready(function(){
       <td>[% hostgroup.description | html_entity %]</td>
       <td>[% count_sum | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + group_summary.$name.active | html_entity %]</span>
-        / <span class="status-inactive">[% 0 + group_summary.$name.inactive | html_entity %]</span> 
-        / <span class="status-instock">[% 0 + group_summary.$name.instock | html_entity %]</span>
-        / <span class="status-decommissioned">[% 0 + group_summary.$name.decommissioned | html_entity %]</span> 
+        <span class="status-active">[% (group_summary.$name.active||0) | html_entity %]</span>
+        / <span class="status-inactive">[% (group_summary.$name.inactive||0) | html_entity %]</span> 
+        / <span class="status-instock">[% (group_summary.$name.instock||0) | html_entity %]</span>
+        / <span class="status-decommissioned">[% (group_summary.$name.decommissioned||0) | html_entity %]</span> 
       </td>
   </tr>
   [% END %]

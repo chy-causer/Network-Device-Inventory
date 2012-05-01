@@ -177,10 +177,10 @@ function pieClick(event, pos, obj) {
       <td>[% model.dateeol | html_entity %]</td>
       <td>[% count_sum | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + (host_counts.$id.active || 0)      | html_entity %] </span> / 
-        <span class="status-inactive">[% 0 + (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
-        <span class="status-instock">[% 0 + (host_counts.$id.instock || 0)   | html_entity %] </span> / 
-        <span class="status-decommissioned">[% 0 + (host_counts.$id.decommissioned || 0) | html_entity %] </span>
+        <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 
+        <span class="status-inactive">[% (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
+        <span class="status-instock">[% (host_counts.$id.instock || 0)   | html_entity %] </span> / 
+        <span class="status-decommissioned">[% (host_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
   </tr>
   [% END %]

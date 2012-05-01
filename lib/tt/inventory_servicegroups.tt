@@ -116,7 +116,7 @@ $(document).ready(function(){
   [% FOREACH servicegroup IN servicegroups %]
       [% counter = counter +1 %]
       [% name = servicegroup.name %]
-      [% count_sum = group_summary.$name.active + group_summary.$name.inactive + group_summary.$name.instock %]
+      [% count_sum = (group_summary.$name.active||0) + (group_summary.$name.inactive||0) + (group_summary.$name.instock||0) %]
     
     [% IF counter % 2 > 0 %]
       <tr class="stripe">

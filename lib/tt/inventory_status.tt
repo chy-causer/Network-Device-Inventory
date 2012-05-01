@@ -75,7 +75,7 @@ $(document).ready(function(){
     [% id = entry.id %]
     [% name = entry.state %]
     
-    [% IF 0 + states_total.$name < 1 %]
+    [% IF (states_total.$name||0) < 1 %]
       <tr class="block-status-inactive">
     [% ELSIF counter % 2 > 0 %]
       <tr class="stripe">
@@ -85,7 +85,7 @@ $(document).ready(function(){
     [% counter = counter +1 %]
       <td><a href="status?status_id=[% entry.id | html_entity %]">[% entry.state | html_entity %]</a></td>
       <td>[% entry.description | html_entity %]</td>
-      <td>[% 0 + states_total.$name | html_entity %]</td>
+      <td>[% (states_total.$name||0) | html_entity %]</td>
   </tr>
   [% END %]
   </tbody>

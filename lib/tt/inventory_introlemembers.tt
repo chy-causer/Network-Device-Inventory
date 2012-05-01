@@ -145,10 +145,10 @@ document.getElementById(d).style.display = "";
         [% truesum | html_entity %] 
     </td>
     <td>
-        <span class="status-active">[% 0 + ( group_summary.$group.active || 0)  | html_entity %]</span>
-        / <span class="status-inactive">[% 0 + ( group_summary.$group.inactive || 0) | html_entity %]</span> 
-        / <span class="status-instock">[% 0 + ( group_summary.$group.instock || 0) | html_entity %]</span>
-        / <span class="status-decommissioned">[% 0 + ( group_summary.$group.decommissioned || 0) | html_entity %]</span> 
+        <span class="status-active">[% ( group_summary.$group.active || 0)  | html_entity %]</span>
+        / <span class="status-inactive">[% ( group_summary.$group.inactive || 0) | html_entity %]</span> 
+        / <span class="status-instock">[% ( group_summary.$group.instock || 0) | html_entity %]</span>
+        / <span class="status-decommissioned">[% ( group_summary.$group.decommissioned || 0) | html_entity %]</span> 
     </td>
     <td>
       <a href="javascript:InsertContent('group[% group_summary.$group.hostgroup_id | html_entity %]')">Show members</a> / 
