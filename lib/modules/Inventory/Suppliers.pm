@@ -2,7 +2,7 @@ package Inventory::Suppliers;
 use strict;
 use warnings;
 
-our $VERSION = qw('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_suppliers

@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = qw('1.0.0');
+our $VERSION = '1.00';
 
 use CGI;
 use Template;
@@ -14,20 +14,20 @@ use NetAddr::IP;
 use Regexp::Common 'net';
 use URI::Escape;
 
-use Inventory;
-use Inventory::Cnames;
-use Inventory::Hosts;
-use Inventory::Introles;
-use Inventory::Models;
-use Inventory::Interfaces;
-use Inventory::Locations;
-use Inventory::Introlemembers;
-use Inventory::Photos;
-use Inventory::Sshkeys;
-use Inventory::Status;
-use Inventory::Ups;
-use Inventory::Edithost;
-use Inventory::Invoices;
+use Inventory 1.0;
+use Inventory::Cnames 1.0;
+use Inventory::Hosts 1.0;
+use Inventory::Introles 1.0;
+use Inventory::Models 1.0;
+use Inventory::Interfaces 1.0;
+use Inventory::Locations 1.0;
+use Inventory::Introlemembers 1.0;
+use Inventory::Photos 1.0;
+use Inventory::Sshkeys 1.0;
+use Inventory::Status 1.0;
+use Inventory::Ups 1.0;
+use Inventory::Edithost 1.0;
+use Inventory::Invoices 1.0;
 
 my $PAGE     = 'search hosts';
 my $BASEURL  = CGI::url( -base => 1 );

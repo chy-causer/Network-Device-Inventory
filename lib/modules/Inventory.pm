@@ -17,7 +17,7 @@ Inventory - Networks team inventory module
 
 =head2 VERSION
 
-This document describes Inventory version 1.0.0
+This document describes Inventory version 1.00
 
 =head1 SYNOPSIS
 
@@ -47,7 +47,7 @@ the module is only passed the database handle.
 
 =cut
 
-our $VERSION = qw('0.0.2');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   dbconnect

@@ -3,7 +3,7 @@ package Inventory::Op2devices;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_devices
@@ -13,9 +13,10 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Inventory::Hosts qw(get_hosts_info);
 use Oxford::Directory;
 use Regexp::Common qw /net/;
+
+use Inventory::Hosts 1.0;
 
 sub clean_inputs {
     my %input     = %{ shift() };

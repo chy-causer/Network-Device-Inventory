@@ -2,7 +2,7 @@ package Inventory::Interfaces;
 use strict;
 use warnings;
 
-our $VERSION = qw('1.0.2');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_interfaces

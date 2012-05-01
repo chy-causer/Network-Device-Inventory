@@ -2,7 +2,7 @@ package Inventory::Introlemembers;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_memberships
@@ -16,7 +16,7 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Inventory::Introles;
+use Inventory::Introles 1.0;
 
 sub internal_checkinput {
     my $posts = shift;
@@ -478,7 +478,7 @@ Inventory::Memberships - Realationships of hosts to hostgroups
 
 =head2 VERSION
 
-This document describes Inventory::Memberships version 1.0.0
+This document describes Inventory::Memberships version 1.00
 
 =head1 SYNOPSIS
 

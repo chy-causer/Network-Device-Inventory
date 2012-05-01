@@ -2,7 +2,7 @@ package Inventory::Models;
 use strict;
 use warnings;
 
-our $VERSION = qw('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_models
@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(
 use DBI;
 use DBD::Pg;
 use Regexp::Common qw /net/;
-use Inventory::Hosts qw(get_hosts_info);
+use Inventory::Hosts 1.0;
 
 sub create_models {
 

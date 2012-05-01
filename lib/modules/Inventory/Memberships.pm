@@ -2,7 +2,7 @@ package Inventory::Memberships;
 use strict;
 use warnings;
 
-our $VERSION = qw('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_memberships
@@ -17,8 +17,8 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Inventory::Hosts;
-use Inventory::Hostgroups;
+use Inventory::Hosts 1.0;
+use Inventory::Hostgroups 1.0;
 
 sub internal_checkinput {
     my $posts = @_;

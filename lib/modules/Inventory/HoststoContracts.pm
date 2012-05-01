@@ -2,7 +2,7 @@ package Inventory::HoststoContracts;
 use strict;
 use warnings;
 
-our $VERSION = qw('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hoststocontracts
@@ -13,8 +13,6 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-
-my $MAX_NAME_LENGTH = 128;
 
 sub create_hoststocontracts {
     my ( $dbh, $input ) = @_;

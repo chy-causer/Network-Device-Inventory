@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = qw('1.0.0');
+our $VERSION = '1.00';
 
 use Carp;
 use CGI;
@@ -15,7 +15,7 @@ use Log::Log4perl;
 use LWP::UserAgent;
 use Template;
 
-use Inventory;
+use Inventory 1.0;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;

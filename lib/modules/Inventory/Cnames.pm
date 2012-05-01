@@ -2,7 +2,7 @@ package Inventory::Cnames;
 use strict;
 use warnings;
 
-our $VERSION = qw('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_cnames
@@ -15,9 +15,9 @@ our @EXPORT_OK = qw(
 use DBI;
 use DBD::Pg;
 use Regexp::Common qw /net/;
-use Inventory::Hosts qw(get_hosts_info);
+use Inventory::Hosts 1.0;
 
-sub internal_checkinput {
+sub _internal_checkinput {
     my %posts = %{ shift() };
     my @message_store;    # need to put all these messages somewhere
 
@@ -68,7 +68,7 @@ sub create_cnames {
     my %message;
 
     # validate input
-    my @message_store = internal_checkinput($posts);
+    my @message_store = _internal_checkinput($posts);
 
     foreach my $message (@message_store) {
         my %temp_hash = %{$message};
@@ -163,7 +163,7 @@ sub edit_cnames {
     my %message;
 
     # validate input
-    my @message_store = internal_checkinput($posts);
+    my @message_store = _internal_checkinput($posts);
 
     foreach my $message (@message_store) {
         my %temp_hash = %{$message};

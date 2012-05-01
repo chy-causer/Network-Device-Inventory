@@ -2,7 +2,7 @@ package Inventory::Hosts;
 use strict;
 use warnings;
 
-our $VERSION = qw('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hosts
@@ -20,7 +20,6 @@ our @EXPORT_OK = qw(
 use DBI;
 use DBD::Pg;
 use Regexp::Common qw /net/;
-use Socket;    # in order to lookup a host by dns name
 use Net::DNS;
 
 sub create_hosts {
@@ -663,7 +662,7 @@ Inventory::Hosts - Networks team inventory module
 
 =head2 VERSION
 
-This document describes Inventory version 1.0.0
+This document describes Inventory version 1.00
 
 =head1 SYNOPSIS
 

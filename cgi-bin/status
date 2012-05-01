@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = qw('1.0.0');
+our $VERSION = '1.00';
 
 use CGI;
 use Config::Tiny;
@@ -11,9 +11,8 @@ use DBD::Pg;
 use Log::Log4perl;
 use Template;
 
-use Inventory;
-use Inventory::Status
-  qw(edit_status create_status get_status_info count_states);
+use Inventory 1.0;
+use Inventory::Status 1.0;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;

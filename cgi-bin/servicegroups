@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = qw('1.0.0');
+our $VERSION = '1.00';
 
 use CGI;
 use Template;
@@ -10,9 +10,8 @@ use Config::Tiny;
 use DBI;
 use DBD::Pg;
 
-use Inventory;
-use Inventory::Servicegroups
-  qw(create_servicegroups edit_servicegroups get_servicegroups_info);
+use Inventory 1.0;
+use Inventory::Servicegroups 1.0;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;

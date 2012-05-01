@@ -2,7 +2,7 @@ package Inventory::Ups;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('0.0.1');
+our $VERSION = '1.00';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_ups
@@ -16,8 +16,8 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Inventory::Hosts;
-use Inventory::Introles;
+use Inventory::Hosts 1.0;
+use Inventory::Introles 1.0;
 
 sub create_ups {
     my ( $dbh, $posts ) = @_;

@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = qw('1.0.0');
+our $VERSION = '1.00';
 
 use CGI;
 use Config::Tiny;
@@ -11,10 +11,10 @@ use DBD::Pg;
 use Log::Log4perl;
 use Template;
 
-use Inventory;
-use Inventory::Invoices;
-use Inventory::Suppliers;
-use Inventory::Contacts;
+use Inventory 1.0;
+use Inventory::Invoices 1.0;
+use Inventory::Suppliers 1.0;
+use Inventory::Contacts 1.0;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
