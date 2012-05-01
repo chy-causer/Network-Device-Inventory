@@ -141,7 +141,7 @@ function pieHover(event, pos, obj) {
 
 <h4>Contracts</h4>
 
-[%- IF !hosts.keys.sort || hosts.keys.sort.size < 1 -%]
+[%- IF !contracts || contracts.size < 1 -%]
    <p>There are no contracts to display.</p>
 [%- ELSE -%]
 
@@ -161,15 +161,10 @@ function pieHover(event, pos, obj) {
     <tr><td colspan="5">There were [% contracts.size | html_entity %] contracts returned by the database</td></tr>
   </tfoot>
 
+  <tbody>
   [% counter=0 %]
   [% previous_rows_manufacturerid='none' %]
   [% FOR contract IN contracts %]
-    [% IF previous_rows_supplierid != contract.supplier_id %]
-       [% IF previous_rows_supplierid !='none' %]
-       </tbody>
-       [% END %]
-       <tbody>
-    [% END %]
 
     [% counter = counter +1 %]
        [% id = contract.id %]
@@ -186,10 +181,9 @@ function pieHover(event, pos, obj) {
       <td>[% contract.enddate             | html_entity %]</td>
       <td>[% contract.invoice_description | html_entity %]</td>
       <td>[% contract.servicelevel_name   | html_entity %]</td>
-     [% previous_rows_supplierid=contract.supplier_id %]
-  </tr>
+    </tr>
   [% END %]
-</tbody>
+  </tbody>
 
 </table>
 [%- END -%]

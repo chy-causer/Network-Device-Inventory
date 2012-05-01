@@ -13,6 +13,7 @@ use Template;
 use Readonly;
 
 use Inventory 1.0;
+use Inventory::Hosts 1.0;
 use Inventory::Contracts 1.0;
 use Inventory::Suppliers 1.0;
 use Inventory::Servicelevels 1.0;
@@ -88,11 +89,6 @@ my @suppliers = Inventory::Suppliers::get_suppliers_info($dbh);
 # number of contracts per manufacturer
 # my %host_count = %{ Inventory::Contracts::count_hosts_percontract($dbh) };
 # my $hosts = Inventory::Hosts::hash_hosts_percontract($dbh);
-
-#print '<pre class="debug">';
-#use Data::Dumper;
-#print Dumper $hosts;
-#print "</pre>";
 
 $tt->process(
     'inventory_contracts-report.tt',
