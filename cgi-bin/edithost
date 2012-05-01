@@ -29,9 +29,12 @@ use Inventory::Ups 1.0;
 use Inventory::Edithost 1.0;
 use Inventory::Invoices 1.0;
 
-my $PAGE     = 'search hosts';
-my $BASEURL  = CGI::url( -base => 1 );
-my $HOSTNAME = $BASEURL;
+my $BASEURL      = CGI::url( -base => 1 );
+my $pagename     = CGI::url( -relative => 1);
+my $pagelocation = CGI::url( -path_info=>1);
+my $HOSTNAME     = $BASEURL;
+my $DIRECTORY    = $pagelocation;
+$DIRECTORY       =~ s/$pagename//x;
 
 # remove everything from the first . onwards
 $HOSTNAME =~ s/\..*$//gx;
@@ -284,7 +287,8 @@ $tt->process(
         frodo_models => \@frodo_models,
         status       => \@status,
 
-        baseurl => $BASEURL,
+        baseurl   => $BASEURL,
+        directory => $DIRECTORY,
 
         posts => \%POSTS,
     }

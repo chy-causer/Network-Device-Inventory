@@ -89,7 +89,7 @@
   <tr id="fn">
     <th>Friendly Name</th>
       <td>
-        <input type="text" size="25" name="arec_x" value="[%- IF posts.exists('arec_x') -%][%- posts.arec_x | html_entity -%][%- END -%]" onchange="highlightname(); submitcheck;" />
+        <input type="text" size="25" name="arec_x" value="[%- IF posts.exists('arec_x') -%][%- posts.arec_x | html_entity -%][%- END -%]" onchange="highlightname(); submitcheck(); " />
         <span id="fn-essential" class="essential-text"> &#42; required <br /></span>
         <span id="fn-check">No name check performed yet <br /></span>
         <span id="fn-warning">(e.g. begbroke-iat,  <em>not frodo-xxx</em>)</span>
@@ -357,17 +357,19 @@
 function validatename() {
 
     var x=document.forms["edithost"]["arec_x"].value;
-    if ( x.match(/^[Ff]rodo-/ )){
+    if ( x.match(/^[Ff]rodo-/ ) ){
         document.getElementById('fn-warning').style.fontWeight='bold';
         document.getElementById('fn-essential').style.display='';
         return false;
     }
     else if (x.length > 0 ){
+        // any name is fine
         document.getElementById('fn-essential').style.display='none';
         document.getElementById('fn-warning').style.fontWeight='';
         return true;
     }
     else {
+        // they are blanking the form
         document.getElementById('fn-essential').style.display='';
         document.getElementById('fn-warning').style.fontWeight='';
         return true;
@@ -385,7 +387,7 @@ function validateip() {
     }
 }
 
-highlightip(){
+function highlightip(){
     if( validateip() ){
         document.getElementById('ip-essential').style.display='none';
         document.forms["edithost"]["interface_x_ip"].style.borderColor="";
@@ -426,7 +428,14 @@ function validatedropdown(fieldname)  {
 }
 
 function highlightdropdown(fieldname){
-     if( validatedropdown(fieldname){
+    
+    // css names
+    var id        = fieldname + '_id';
+    var alt       = fieldname + '_x';
+    var warning   = fieldname + '-warning';
+    var essential = fieldname + '-essential';
+    
+    if( validatedropdown(fieldname) ){
         document.getElementById(essential).style.display ='none';
         document.forms["edithost"][id].style.borderColor ="";
         document.forms["edithost"][id].style.borderWidth ="";
@@ -452,7 +461,7 @@ function submitcheck (){
      }
 }
 
-function namehighlight() {
+function highlightname() {
     var hostname=document.forms["edithost"]["arec_x"].value;
     if( hostname==null ) {
         document.forms["edithost"]["arec_x"].style.borderColor ="";
@@ -462,7 +471,7 @@ function namehighlight() {
         return;
     }
     
-    if( validatename() && !nameexists() ){
+    if( validatename() && ! nameexists() ){
         document.forms["edithost"]["arec_x"].style.borderColor ="green";
         document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
         document.forms["edithost"]["arec_x"].style.color       ="black";
@@ -479,38 +488,44 @@ function nameexists(){
     var ajax_load="Ajax loading...";
     var hostname=document.forms["edithost"]["arec_x"].value;
     
+    var retValue=false;
+    
     if( hostname==null ) {
         // they are just blanking the entry
-        return false;
+        return retValue;
     }
+    
+    var loadUrl="[% directory %]/hostname-check?hostname=" + hostname;
+    $("#fn-check").html(ajax_load);
 
-    var loadUrl="[% BASEURL %]/hostname-check?hostname=" + hostname;
-    $("#fn-check").html(ajax_load);  
-    $.get(  
-        loadUrl, {},  
-        function(responseText){  
+    $.ajax({
+        url: loadUrl,
+        type: 'get',
+        dataType: 'html',
+        // we want to wait for the response - this goes against ajax ideals
+        // but we really want to know the result before taking an action
+        async: false,
+        // function to run on success
+        success: function performcheck( responseText ){  
            regexp_zero=/^0$/;
            regexp_digit=/^[0-9]*$/;
     
-           if( regexp_zero.test( responseText) ){
-               $("#fn-check").html( 'This name is free' );  
-               document.forms["edithost"]["fn-check"].style.color     ="green";
-               return false;
+           if( regexp_zero.test( responseText ) ){
+               $("#fn-check").html( '<span style="color:green">This name is free</span>' );  
+               retValue=false;
            }
-           else if( regexp_digit.test( responseText) ) {
-               $("#fn-check").html( 'This name is <a style="text-decoration:underline;" href="viewhost?host_id=' +responseText +'">taken</a>' );  
-               document.forms["edithost"]["fn-check"].style.color     ="red";
-               return true;
+           else if( regexp_digit.test( responseText ) ) {
+               $("#fn-check").html( '<span style="color:red;">This name is <a style="text-decoration:underline; color:red;" href="viewhost?host_id=' +responseText +'">taken</a></span>' );  
+               retValue=true;
            }
            else {
                // alert("Debug: something unexpected " + responseText );
-               return false;
            }
            
-        },  
-        "html"  
-    );  
+        },
+    });
 
+    return retValue;
 }
 
 //-->
