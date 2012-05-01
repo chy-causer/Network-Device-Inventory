@@ -65,8 +65,6 @@ sub create_interfaces {
     $posts{'interface_address'} =~ s/\/.*$//x;
 
     # automatically regenerate the dns on edit
-    my $address;
-    my $hostname;
 
     # ipv6 enable the subroutine
     if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
@@ -79,17 +77,17 @@ sub create_interfaces {
 
     my $object_address = NetAddr::IP->new( $posts{'interface_address'} );
 
-    my $res   = Net::DNS::Resolver->new;
-    my $query = $res->search( $object_address->addr() );
+    my $res       = Net::DNS::Resolver->new;
+    my $query     = $res->search( $object_address->addr() );
 
-    my @answer;
+    my @name;
     if ($query) {
        foreach my $rr ( $query->answer ) {
             next unless $rr->type eq "A";
-            push @answer, $rr->name;
+            push @name, $rr->name;
        }
     }
-    my $hostname = $answer[0] || 'UNRESOLVED' );
+    my $hostname = $name[0] || 'UNRESOLVED';
 
 #    my $subaddress = inet_aton($bareip);
 #    if ($subaddress) {
@@ -109,7 +107,7 @@ sub create_interfaces {
 'INSERT INTO interfaces(address,host_id,lastresolvedfqdn,lastresolveddate,isprimary) VALUES(?,?,?,NOW(),?)'
     );
 
-    if ( !$sth->execute( $bareip, $posts{'host_id'}, $hostname, $isprimary ) ) {
+    if ( !$sth->execute( $posts{'interface_address'}, $posts{'host_id'}, $hostname, $isprimary ) ) {
         $message{'ERROR'} =
           'Internal Error: The interface creation was unsuccessful';
         return \%message;
@@ -172,8 +170,6 @@ sub edit_interfaces {
     $posts{'interface_address'} =~ s/\/.*$//x;
 
     # automatically regenerate the dns on edit
-    my $address;
-    my $hostname;
 
     # ipv6 enable the subroutine
     if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
@@ -189,14 +185,14 @@ sub edit_interfaces {
     my $res   = Net::DNS::Resolver->new;
     my $query = $res->search( $object_address->addr() );
 
-    my @answer;
+    my @name;
     if ($query) {
        foreach my $rr ( $query->answer ) {
             next unless $rr->type eq "A";
-            push @answer, $rr->name;
+            push @name, $rr->name;
        }
     }
-    my $hostname = $answer[0] || 'UNRESOLVED' );
+    my $hostname = $name[0] || 'UNRESOLVED' ;
     
     # my $subaddress = inet_aton($bareip);
     # if ($subaddress) {

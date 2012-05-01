@@ -51,7 +51,7 @@ $(document).ready(function(){
   [% counter=0 %]
   [% FOR manufacturer IN manufacturers %]
     [% id = manufacturer.id %]
-    [% count_sum = host_counts.$id.active + host_counts.$id.inactive + host_counts.$id.instock %]
+    [% count_sum = (host_counts.$id.active||0) + (host_counts.$id.inactive||0) + (host_counts.$id.instock||0) %]
     
     [% IF 1 > count_sum %]
       <tr class="block-status-inactive">
@@ -68,10 +68,10 @@ $(document).ready(function(){
        </td>
       <td>[% count_sum | html_entity %]</td>
       <td>
-        <span class="status-active">[% 0 + host_counts.$id.active      | html_entity %] </span>     / 
-        <span class="status-inactive">[% 0 + host_counts.$id.inactive  | html_entity %] </span> / 
-        <span class="status-instock">[% 0 + host_counts.$id.instock    | html_entity %] </span>   / 
-        <span class="status-decommissioned">[% 0 + host_counts.$id.decommissioned | html_entity %] </span>
+        <span class="status-active">[% ( host_counts.$id.active || 0)     | html_entity %] </span>     / 
+        <span class="status-inactive">[% ( host_counts.$id.inactive || 0)  | html_entity %] </span> / 
+        <span class="status-instock">[% (host_counts.$id.instock || 0)    | html_entity %] </span>   / 
+        <span class="status-decommissioned">[% ( host_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
    </tr>
   

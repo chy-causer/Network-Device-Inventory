@@ -18,7 +18,7 @@ use Inventory::Suppliers;
 use Inventory::Servicelevels;
 
 my $hostname = CGI::url( -base => 1 );
-my Readonly $BASEURL => $HOSTNAME;
+Readonly my $BASEURL => $hostname;
 
 # remove everything from the first . onwards
 $hostname =~ s/\..*$//gx;
@@ -44,7 +44,7 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 my %message;    # communicate success or failure, sink or swim
-my Readonly $PAGETITLE => 'Hardware Support Contracts Overview';
+Readonly my $PAGETITLE => 'Hardware Support Contracts Overview';
 
 #############################################################################
 #                                     main                                  #
