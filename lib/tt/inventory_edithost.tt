@@ -490,40 +490,40 @@ function nameexists(){
     
     var retValue=false;
     
-    if( hostname==null ) {
+    if( hostname==null || hostname.length < 1) {
         // they are just blanking the entry
-        return retValue;
+        $("#fn-check").html( '' );  
     }
-    
-    var loadUrl="[% directory %]/hostname-check?hostname=" + hostname;
-    $("#fn-check").html(ajax_load);
+    else {
+        var loadUrl="[% directory %]/hostname-check?hostname=" + hostname;
+        $("#fn-check").html(ajax_load);
 
-    $.ajax({
-        url: loadUrl,
-        type: 'get',
-        dataType: 'html',
-        // we want to wait for the response - this goes against ajax ideals
-        // but we really want to know the result before taking an action
-        async: false,
-        // function to run on success
-        success: function performcheck( responseText ){  
-           regexp_zero=/^0$/;
-           regexp_digit=/^[0-9]*$/;
+        $.ajax({
+           url: loadUrl,
+           type: 'get',
+           dataType: 'html',
+           // we want to wait for the response - this goes against ajax ideals
+           // but we really want to know the result before taking an action
+           async: false,
+           // function to run on success
+           success: function performcheck( responseText ){  
+              regexp_zero=/^0$/;
+              regexp_digit=/^[0-9]*$/;
     
-           if( regexp_zero.test( responseText ) ){
-               $("#fn-check").html( '<span style="color:green">This name is free</span>' );  
-               retValue=false;
-           }
-           else if( regexp_digit.test( responseText ) ) {
-               $("#fn-check").html( '<span style="color:red;">This name is <a style="text-decoration:underline; color:red;" href="viewhost?host_id=' +responseText +'">taken</a></span>' );  
-               retValue=true;
-           }
-           else {
-               // alert("Debug: something unexpected " + responseText );
-           }
-           
-        },
-    });
+              if( regexp_zero.test( responseText ) ){
+                  $("#fn-check").html( '<span style="color:green">This name is free</span>' );  
+                  retValue=false;
+              }
+              else if( regexp_digit.test( responseText ) ) {
+                  $("#fn-check").html( '<span style="color:red;">This name is <a style="text-decoration:underline; color:red;" href="viewhost?host_id=' +responseText +'">taken</a></span>' );  
+                  retValue=true;
+              }
+              else {
+                  // alert("Debug: something unexpected " + responseText );
+              }
+           },
+       });
+    }
 
     return retValue;
 }
