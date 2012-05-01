@@ -247,7 +247,7 @@ sub host_info_wrapper {
         # if it's a dns name we can resolve it and use the ipaddress lookup
         # as the search
         my $res   = Net::DNS::Resolver->new;
-        my $query = $res->search($value);
+        my $query = $res->query($value);
 
         my @ip_addresses;
         if ($query) {

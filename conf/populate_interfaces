@@ -20,7 +20,7 @@ use Config::Tiny;
 use DBI;
 use DBD::Pg;
 use Inventory;
-use Net::DNS::Resolver;
+use Net::DNS;
 
 my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = '/srv/www/overlord/lib/inventory.ini';
@@ -64,7 +64,7 @@ foreach my $hashref (@data) {
     my $possible_fqdn = "$entry{'name'}.$DOMAIN";
 
     my $res   = Net::DNS::Resolver->new;
-    my $query = $res->search( $possible_fqdn );
+    my $query = $res->query( $possible_fqdn );
     my @ipaddreses;
     if ($query) {
        foreach my $rr ( $query->answer ) {

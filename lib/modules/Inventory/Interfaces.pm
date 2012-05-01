@@ -15,7 +15,7 @@ use DBI;
 use DBD::Pg;
 use Regexp::Common qw /net/;
 use NetAddr::IP;
-use Net::DNS::Resolver;
+use Net::DNS;
 
 sub create_interfaces {
     my ( $dbh, $post_ref ) = @_;
@@ -66,7 +66,6 @@ sub create_interfaces {
 
     # automatically regenerate the dns on edit
 
-    # ipv6 enable the subroutine
     if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
 
         # ok, it's not an address
@@ -74,31 +73,20 @@ sub create_interfaces {
 'Input Error: The input does not seem to be an IPv4/6 address or a resolvable hostname';
         return \%message;
     }
-
-    my $object_address = NetAddr::IP->new( $posts{'interface_address'} );
-
-    my $res       = Net::DNS::Resolver->new;
-    my $query     = $res->search( $object_address->addr() );
-
+    
+    my $address_obj = NetAddr::IP->new( $posts{'interface_address'} );
+    my $res   = Net::DNS::Resolver->new;
+    my $query = $res->query( $address_obj->addr() );
+    
     my @name;
     if ($query) {
        foreach my $rr ( $query->answer ) {
-            next unless $rr->type eq "A";
-            push @name, $rr->name;
+            next unless $rr->type eq "PTR";
+            push @name, $rr->ptrdname;
        }
     }
-    my $hostname = $name[0] || 'UNRESOLVED';
 
-#    my $subaddress = inet_aton($bareip);
-#    if ($subaddress) {
-#        my $realaddress = inet_ntoa($subaddress);
-#        $hostname =
-#          ( ( ( gethostbyaddr inet_aton($realaddress), AF_INET )[0] )
-#              || 'UNRESOLVED' );
-#    }
-#    else {
-#        $hostname = 'UNRESOLVED';
-#    }
+    my $hostname = $name[0] || 'UNRESOLVED';
 
     # table constraints mean that false ids will be rejected, so I've not done
     # a belts and braces check of the same thing beforehand
@@ -171,7 +159,6 @@ sub edit_interfaces {
 
     # automatically regenerate the dns on edit
 
-    # ipv6 enable the subroutine
     if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
 
         # ok, it's not an address
@@ -180,30 +167,20 @@ sub edit_interfaces {
         return \%message;
     }
 
-    my $object_address = NetAddr::IP->new( $posts{'interface_address'} );
-
+    my $address_obj = NetAddr::IP->new( $posts{'interface_address'} );
     my $res   = Net::DNS::Resolver->new;
-    my $query = $res->search( $object_address->addr() );
-
+    my $query = $res->query( $address_obj->addr() );
+    
     my @name;
     if ($query) {
        foreach my $rr ( $query->answer ) {
-            next unless $rr->type eq "A";
-            push @name, $rr->name;
+            next unless $rr->type eq "PTR";
+            push @name, $rr->ptrdname;
        }
     }
+
     my $hostname = $name[0] || 'UNRESOLVED' ;
     
-    # my $subaddress = inet_aton($bareip);
-    # if ($subaddress) {
-    #    my $realaddress = inet_ntoa($subaddress);
-    #    $hostname =
-    #      ( ( ( gethostbyaddr inet_aton($realaddress), AF_INET )[0] )
-    #          || 'UNRESOLVED' );
-    #}
-    #else {
-    #    $hostname = 'UNRESOLVED';
-    #}
 
     my $sth = $dbh->prepare(
 'UPDATE interfaces SET host_id=?,address=?,lastresolvedfqdn=?,lastresolveddate=NOW(),isprimary=? WHERE id=?'
