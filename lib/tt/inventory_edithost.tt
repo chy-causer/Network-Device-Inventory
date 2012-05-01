@@ -153,7 +153,7 @@
   
   <tr>
     <th>Serial Number</th>
-      <td><input type="text" size="25" name="host_serial" value="[% IF host.exists('serial') %] [% hosts.serial | html_entity %][%- ELSIF posts.exists('host_serial') -%][%- posts.host_serial | html_entity -%][%- END -%]" /></td>
+      <td><input type="text" size="25" name="host_serial" value="[% IF host.exists('serial') %] [% host.serial | html_entity %][%- ELSIF posts.exists('host_serial') -%][%- posts.host_serial | html_entity -%][%- END -%]" /></td>
   </tr>
    
   <tr>
