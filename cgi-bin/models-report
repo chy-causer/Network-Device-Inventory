@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 use Carp;
 use CGI;
@@ -12,9 +12,9 @@ use DBD::Pg;
 use Log::Log4perl;
 use Template;
 
-use Inventory 1.0;
-use Inventory::Models 1.0;
-use Inventory::Manufacturers 1.0;
+use Inventory 1.01;
+use Inventory::Models 1.01;
+use Inventory::Manufacturers 1.01;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -86,7 +86,7 @@ my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
 # number of models per manufacturer
 my %host_count = %{ Inventory::Models::count_hosts_permodel($dbh) };
 
-my $hosts = Inventory::Hosts::hash_hosts_permodel($dbh);
+my $hosts = Inventory::Models::hash_hosts_permodel($dbh);
 
 #print '<pre class="debug">';
 #use Data::Dumper;
@@ -114,7 +114,7 @@ models-report
 
 =head1 VERSION
 
-This documentation refers to version 1.0.0 
+This documentation refers to version 1.01 
 
 =head1 USAGE
 

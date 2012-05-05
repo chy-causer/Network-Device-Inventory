@@ -3,7 +3,7 @@ package Inventory::Op2devices;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_devices
@@ -18,6 +18,17 @@ use Regexp::Common qw /net/;
 
 use Inventory::Hosts 1.0;
 
+my $ENTRY          = 'Owl Phase II device';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
 sub clean_inputs {
     my %input     = %{ shift() };
     my $amspecial = shift();
@@ -27,7 +38,7 @@ sub clean_inputs {
     if ( !defined $input{'mac'} || length( $input{'mac'} ) < 1 ) {
         my %message;
         $message{'ERRORmac'} = 'No mac address was passed on';
-        $message{'FATAL'}    = 'The error was fatal';
+        $message{'FATAL'}    = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store, \%input;
     }
@@ -55,7 +66,7 @@ sub clean_inputs {
         if ( $input{'mac'} !~ m/^$RE{net}{MAC}$/ ) {
             my %message;
             $message{ERRORmac} = 'Badly formatted Mac addess';
-            $message{'FATAL'} = 'The error was fatal';
+            $message{'FATAL'} = $MSG_FATAL_ERR;
             push @message_store, \%message;
             return \@message_store, \%input;
         }
@@ -79,7 +90,7 @@ sub clean_inputs {
         my %message;
         $message{'ERRORunit'} =
           'No unit was received to be associated with the device';
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store, \%input;
     }
@@ -116,7 +127,7 @@ sub clean_inputs {
         my %message;
         $message{'ERRORunit'} =
 "You ($ENV{'REMOTE_USER'}) are not known to be associated with the submitted unit for the device";
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store, \%input;
     }
@@ -179,7 +190,7 @@ sub create_devices {
         my %message;
         $message{'ERROR'} =
 'Internal Error: Unable to check if this record already exists due to a programming mistake or similar';
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store;
     }
@@ -192,7 +203,7 @@ sub create_devices {
         my %message;
         $message{'ERROR'} =
 "The mac address $posts{'mac'} has already been added, it will not be added more than once";
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store;
     }
@@ -219,7 +230,7 @@ sub create_devices {
         my %message;
         $message{'ERROR'} =
           'Internal Error: The device creation was unsuccessful';
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store;
     }

@@ -2,7 +2,27 @@ package Inventory::HoststoContracts;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::HoststoContracts
+
+=head2 VERSION
+
+This document describes Inventory::HoststoContracts version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::HoststoContracts;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Hosts table related data
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hoststocontracts
@@ -13,34 +33,36 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
+my $ENTRY          = 'host to contract mapping';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
 
 sub create_hoststocontracts {
     my ( $dbh, $input ) = @_;
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     my $sth = $dbh->prepare(
-        'INSERT INTO 
-                               hoststocontracts(host_id,contract_id)
-                             VALUES(?,?)'
-    );
+        'INSERT INTO hoststocontracts(host_id,contract_id) VALUES(?,?)');
 
     if ( !$sth->execute( $input->{'host_id'}, $input->{'contract_id'}, ) ) {
-        $message{'ERROR'} =
-          "Internal Error: The host to contract mapping was unsuccessful";
-        return \%message;
+        return {'ERROR'} => $MSG_CREATE_ERR;
     }
 
-    $message{'SUCCESS'} = 'The host to contract mapping was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub edit_hoststocontracts {
-
-    # similar to creating a contract except we already (should) have a vaild
-    # database id for the entry
-
     my ( $dbh, $input ) = @_;
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     my $sth = $dbh->prepare(
         'UPDATE hoststocontracts SET host_id=?,contract_id=? WHERE id=?');
@@ -52,32 +74,24 @@ sub edit_hoststocontracts {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The host to contract mapping edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} =
-      'Your host to contract mapping changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
 sub delete_hoststocontracts {
-
-    # delete a single hoststocontract
-
     my ( $dbh, $id ) = @_;
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM hoststocontracts WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The host to contract mapping could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
-    return \%message;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 sub get_hoststocontracts_info {
@@ -138,13 +152,6 @@ sub get_hoststocontracts_info {
 
 sub count_hosts_percontract {
     my $dbh = shift;
-    my %message;
-
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: List the database, things can only go downhill from here';
-        return \%message;
-    }
 
     my $sth;
 
@@ -174,9 +181,7 @@ sub count_hosts_percontract {
 
 __END__
 
-=head1 NAME
-
-Inventory::HoststoContracts - Manipulate HoststoContracts
+=pod
 
 =head1 AUTHOR
 

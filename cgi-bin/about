@@ -69,12 +69,7 @@ if ( !exists $CONFIG->{general}->{demo} ) {
     Inventory::acl_checker( $tt, $valid_users );
 }
 
-$tt->process(
-    'inventory_about.tt',
-    {
-        message => $message,
-    }
-);
+$tt->process( 'inventory_about.tt', { message => $message, } );
 
 $tt->process('inventory_footer.tt');
 

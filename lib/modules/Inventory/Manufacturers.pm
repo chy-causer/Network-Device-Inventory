@@ -2,71 +2,118 @@ package Inventory::Manufacturers;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Manufacturers
+
+=head2 VERSION
+
+This document describes Inventory::Manufacturers version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Manufacturers;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Manufacturer related data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_manufacturers
   edit_manufacturers
   get_manufacturers_info
+  delete_manufacturers
   count_models_permanufacturer
   count_hosts_permanufacturer
+  hash_hosts_permanufacturer
+  hosts_bymanufacturer_id
+  hosts_bymanufacturer_name
 );
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
 use Inventory::Hosts 1.0;
+
+my $ENTRY          = 'manufacturer';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
+=pod
+
+=head1 SUBROUTINES
+
+=head2 create_manufacturers
+
+Main creation sub.
+create_manufacturers($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+The sub checks for missing database handles and bad name inputs.
+
+=cut
 
 sub create_manufacturers {
     my ( $dbh, $posts ) = @_;
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $posts->{'manufacturer_name'}
         || $posts->{'manufacturer_name'} =~ m/[^\w\s]/x
         || length( $posts->{'manufacturer_name'} ) < 1
-        || length( $posts->{'manufacturer_name'} ) > 35 )
+        || length( $posts->{'manufacturer_name'} ) > $MAX_NAME_LENGTH )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = 'Input Error: Check your input is alpha numeric';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
     my $sth = $dbh->prepare('INSERT INTO manufacturers(name) VALUES(?)');
 
     if ( !$sth->execute( $posts->{'manufacturer_name'} ) ) {
-        $message{'ERROR'} =
-          'Internal Error: The manufacturer creation was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The manufacturer creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
+
+=pod
+
+=head2 edit_manufacturers
+
+Main edit sub.
+  edit_manufacturers ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+The sub checks for missing database handles and bad name inputs.
+
+=cut
 
 sub edit_manufacturers {
     my ( $dbh, $posts ) = @_;
-    my %message;
 
-    # dump bad inputs
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
     if (
-           !exists $posts->{'manufacturer_id'}
-        || $posts->{'manufacturer_id'} =~ m/\D/x
-        || length( $posts->{'manufacturer_id'} ) < 1
-
         || !exists $posts->{'manufacturer_name'}
         || $posts->{'manufacturer_name'} =~ m/[^\w\s]/x
         || length( $posts->{'manufacturer_name'} ) < 1
-        || length( $posts->{'manufacturer_name'} ) > 35
+        || length( $posts->{'manufacturer_name'} ) > $MAX_NAME_LENGTH
       )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: One of the supplied inputs was invalid.';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare('UPDATE manufacturers SET name=? WHERE id=?');
@@ -77,57 +124,71 @@ sub edit_manufacturers {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The interface edit was unsuccessful.';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
+=pod
+
+=head2 get_manufacturers_info
+
+Main individual record retrieval sub. 
+ get_manufacturers_info ( $dbh, $manufacturer_id )
+
+Returns the details in a hash.
+
+=cut
+
 sub get_manufacturers_info {
-    my ( $dbh, $manufacturer_id ) = @_;
+    my ( $dbh, $id ) = @_;
     my $sth;
+    my @return_array;
 
     return if !defined $dbh;
 
-    if ( defined $manufacturer_id ) {
+    if ( defined $id ) {
         $sth = $dbh->prepare(
             'SELECT id,name FROM manufacturers WHERE id=? ORDER BY name');
-        return if !$sth->execute($manufacturer_id);
+        return if !$sth->execute($id);
     }
     else {
         $sth = $dbh->prepare('SELECT id,name FROM manufacturers ORDER BY name');
         return if !$sth->execute();
     }
 
-    my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
         push @return_array, $reference;
     }
     return @return_array;
 }
 
+=pod
+
+=head2 count_models_permanufacturer
+
+Return total numers of models per manufacturer.
+
+ count_models_permanufacturer($dbh)
+
+Returns a slightly complex has that includes state.
+
+  %return{$manufacturer_id}
+               {model_total}{$number_of_models}
+               {manufacturer_name}{$manufacturer_name}
+
+=cut
+
 sub count_models_permanufacturer {
     my $dbh = shift;
-    my %message;
-
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
-    }
-
-    my $sth;
-
-    # models, in the raw, phoar!
-    my @raw_models = Inventory::Models::get_models_info($dbh);
-
     my %return_hash;
 
-    # cycle through the raw data
-    # by model total up models per manf
+    if ( !defined $dbh ) { return; }
+
+    # if ( !defined $dbh ) { return {'ERROR' => $MSG_DBH_ERR }; }
+
+    my @raw_models = Inventory::Models::get_models_info($dbh);
 
     foreach (@raw_models) {
         my %dbdata            = %{$_};
@@ -136,32 +197,36 @@ sub count_models_permanufacturer {
         my $manufacturer_id   = $dbdata{'manufacturer_id'};
 
         $return_hash{$manufacturer_id}{'model_total'}++;
-        $return_hash{$manufacturer_id}{'model_name'} = $model_name;
         $return_hash{$manufacturer_id}{'manufacturer_name'} =
           $manufacturer_name;
     }
     return \%return_hash;
 }
 
+=pod
+
+=head2 count_hosts_permanufacturer
+
+Return total numers of hosts per manufacturer.
+
+ count_hosts_permanufacturer($dbh)
+
+Returns a slightly complex has that includes state.
+
+  %return{$location_id}
+               {$state}{$number_of_hosts}
+               {location_name}{$location_name}
+
+=cut
+
 sub count_hosts_permanufacturer {
     my $dbh = shift;
-    my %message;
-
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
-    }
-
-    my $sth;
-
-    # hosts, in the... mmm never mind
-    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
-
     my %return_hash;
 
-    # cycle through the raw data
-    # by host total up occurances per manf
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
+    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
+
     foreach (@raw_hosts) {
         my %dbdata = %{$_};
 
@@ -169,7 +234,6 @@ sub count_hosts_permanufacturer {
         my $manufacturer_id   = $dbdata{'manufacturer_id'};
         my $state             = lc $dbdata{'status_state'};
 
-        # this isn't exactly pretty but it'll work
         $return_hash{$manufacturer_id}{$state}++;
         $return_hash{$manufacturer_id}{'manufacturer_name'} =
           $manufacturer_name;
@@ -179,65 +243,259 @@ sub count_hosts_permanufacturer {
     return \%return_hash;
 }
 
+=pod
+
+=head2 delete_manufacturers
+
+Delete a single manufacturer.
+
+ delete_manufacturer( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and entry id.
+
+=cut
+
+sub delete_manufacturer {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+
+    my $sth = $dbh->prepare('DELETE FROM manufacturer WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
+
+=pod
+
+=head2 hash_hosts_permanufacturer
+
+return all hosts indexed by manufacturer name
+
+ hash_hosts_permanufacturer ($dbh)
+
+returns a hash
+
+ $manufacturer_name => @hosts
+
+where @ hosts is an array of individual hashes, each has containing a hosts
+data.
+
+=cut
+
+sub hash_hosts_permanufacturer {
+    my ($dbh) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return if not $sth->execute($name);
+
+    my %index;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        if ( !exists( $index{ $ref->{'manufacturers_name'} } ) ) {
+            my @data = ($ref);
+            $index{ $ref->{'manufacturers_name'} } = \@data;
+        }
+        else {
+            push @{ $index{ $ref->{'manufacturers_name'} } }, $ref;
+        }
+    }
+
+    return \%index;
+}
+
+=pod
+
+=head2 hosts_bymanufacturer_id
+
+Return all hosts for a given manufacturer (based on id).
+
+  hosts_bymanufacturer_id ( $dbh, $id )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bymanufacturer_id {
+    my ( $dbh, $id ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $id;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE manufacturer.id=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return unless $sth->execute($id);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
+=pod
+
+=head2 hosts_bymanufacturer_name
+
+Return all hosts for a given manufacturer (based on name).
+
+  hosts_bymanufacturer_id ( $dbh, $name )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bymanufacturer_name {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE manufacturer.name=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return unless $sth->execute($id);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
 1;
 __END__
 
-=head1 NAME
+=pod
 
-Inventory::Manufacturers - Information on Manufacturers
+=head1 DIAGNOSTICS
 
-=head2 VERSION
-
-This document describes Inventory::Manufacturers version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory::Manufacturers qw(create_manufacturers edit_manufacturers show_manufacturers_info);
-  # There are no special setup requirements
-
-=head1 PURPOSE
-
-If you wish to investigate what manufacturers exist in the database or want to
-investigate how popular each manufacturer is, then this module assists in that
-process. A subroutine is provided for each of: creating, editing, listing all
-entries, and listing summary totals of the relationships.
-
-=head1 DESCRIPTION
-
-The module aims to hide the tasks of raw SQL queries to the database from wou
-when performing common tasks which involve the relationhips of manufacturers
-to models in the inventory table.
-
-The data returned from a query should be generous, as well as the ids of the
-hosts involved the names, statuses and similar are returned. Each subroutine
-should also give a descriptive success or failure message.
-
-=head2 Main Subroutines
-
-=head3 create_manufacturers($dbh,$hashref)
-
-$dbh is the database handle for the Inventory Database
-
-This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g.
-$message{'SUCCESS'} = 'Your changes were commited successfully';
-
-=head3 edit_manufacturers($dbh,$hashref)
-=head3 list_manufacturers_info($dbh,$optional_manufacturersid)
-=head3 create_manufacturers($dbh,$hashref)
-=head3 count_hosts_permanufacturer($dbh)
-=head3 count_models_permanufacturer($dbh)
+Via error messages where present.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
-DBI;
-DBD::Pg;
-Inventory;
-Inventory::Hosts;
-Inventory::Models;
+DBI
+DBD::Pg
+Inventory::Hosts 1.0
+
+=head1 INCOMPATIBILITIES
+
+None known
 
 =head1 BUGS AND LIMITATIONS
 

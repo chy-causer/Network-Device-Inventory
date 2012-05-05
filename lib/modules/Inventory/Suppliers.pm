@@ -2,7 +2,23 @@ package Inventory::Suppliers;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Suppliers
+
+=head1 VERSION
+
+This document refers to version 1.01
+
+=head1 DESCRIPTION
+
+Manipulate the invenotry data relating to suppliers
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_suppliers
@@ -15,27 +31,28 @@ use DBI;
 use DBD::Pg;
 
 my $MAX_NAME_LENGTH = 128;
+my $ENTRY           = 'supplier';
+my $MSG_DBH_ERR     = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR   = 'Input Error: Please check your input';
+my $MSG_CREATE_OK   = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR  = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK     = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR    = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK   = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR  = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR   = 'The error was fatal, processing stopped';
 
 sub create_suppliers {
-
-    # respond to a request to create a supplier
-    # 1. validate input
-    # 2. make the database entry
-    # 3. return success or fail
-    #
     my ( $dbh, $input ) = @_;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $input->{'supplier_name'}
         || $input->{'supplier_name'} !~ m/^[\w\s\-]+$/x
         || length $input->{'supplier_name'} < 1
         || length $input->{'supplier_name'} > $MAX_NAME_LENGTH )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -50,13 +67,10 @@ sub create_suppliers {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The supplier creation was unsuccessful";
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The supplier creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub edit_suppliers {
@@ -66,6 +80,7 @@ sub edit_suppliers {
 
     my ( $dbh, $input ) = @_;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (
 
@@ -80,10 +95,7 @@ sub edit_suppliers {
       )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -101,40 +113,24 @@ sub edit_suppliers {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The supplier entry edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your supplier changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
 sub delete_suppliers {
-
-    # delete a single supplier
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM suppliers WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The supplier entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
-    return \%message;
+    return { 'ERROR' => $MSG_DELETE_OK };
 }
 
 sub get_suppliers_info {

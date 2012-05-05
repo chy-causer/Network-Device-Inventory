@@ -2,7 +2,27 @@ package Inventory::Models;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Models
+
+=head2 VERSION
+
+This document describes Inventory::Models version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Models;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Model related data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_models
@@ -12,26 +32,51 @@ our @EXPORT_OK = qw(
   get_frodo_models
   count_hosts_permodel
   delete_models
+  hosts_bymodel_id
+  hosts_bymodel_name
+  hash_hosts_permodel
 );
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
-use Inventory::Hosts 1.0;
+use Inventory::Hosts 1.01;
+
+my $MAX_NAME_LENGTH = 45;
+my $ENTRY           = 'model';
+my $MSG_DBH_ERR     = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR   = 'Input Error: Please check your input';
+my $MSG_CREATE_OK   = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR  = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK     = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR    = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK   = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR  = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR   = 'The error was fatal, processing stopped';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_models
+
+Main creation sub.
+create_models($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+For the model name we strip leading and trailing whitespace to make life
+easier for people pasting in model names from manufacturers websites and
+similar.
+
+Checks for a missing database handle and basic model name sanity.
+
+=cut
 
 sub create_models {
-
-    # respond to a request to create a model
-    # 1. validate input
-    # 2. make the database entry
-    # 3. return success or fail
-    #
     my ( $dbh, $posts ) = @_;
 
-    my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    # remove leading and trailing whitespace to make life easier for
-    # people pasting in model names
     if ( exists $posts->{'model_name'} ) {
         $posts->{'model_name'} =~ s/[\s]+$//g;
         $posts->{'model_name'} =~ s/^[\s]+//g;
@@ -40,13 +85,9 @@ sub create_models {
     if (   !exists $posts->{'model_name'}
         || $posts->{'model_name'} =~ m/[^\w\s\-]/x
         || length( $posts->{'model_name'} ) < 1
-        || length( $posts->{'model_name'} ) > 35 )
+        || length( $posts->{'model_name'} ) > $MAX_NAME_LENGTH )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -59,27 +100,34 @@ sub create_models {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The model creation was unsuccessful";
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The model creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
-sub edit_models {
+=pod
 
-    # similar to creating a model
-    # except we already (should) have a vaild database id
-    # for the entry
-    #
+=head2 edit_models
+
+Main edit sub.
+  edit_models ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+For the model name we strip leading and trailing whitespace to make life
+easier for people pasting in model names from manufacturers websites and
+similar.
+
+Currently the only error check is for a missing database handle.
+
+=cut
+
+sub edit_models {
     my ( $dbh, $posts ) = @_;
 
-    my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    # remove leading and trailing whitespace to make life easier for
-    # people pasting in model names
     if ( exists $posts->{'model_name'} ) {
         $posts->{'model_name'} =~ s/[\s]+$//g;
         $posts->{'model_name'} =~ s/^[\s]+//g;
@@ -95,12 +143,9 @@ sub edit_models {
     if (   !exists $posts->{'model_name'}
         || $posts->{'model_name'} =~ m/[^\w\s\-]/x
         || length( $posts->{'model_name'} ) < 1
-        || length( $posts->{'model_name'} ) > 35 )
+        || length( $posts->{'model_name'} ) > $MAX_NAME_LENGTH )
     {
-
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -112,14 +157,22 @@ sub edit_models {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The model entry edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your model changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 get_models_info
+
+Main individual record retrieval sub. 
+ get_models_info ( $dbh, $model_id )
+
+Returns the details in a hash.
+
+=cut
 
 sub get_models_info {
     my ( $dbh, $model_id ) = @_;
@@ -171,24 +224,31 @@ sub get_models_info {
     return @return_array;
 }
 
+=pod
+
+=head2 count_hosts_permodel
+
+Return total numers of hosts per model.
+
+ count_hosts_permodel($dbh)
+
+Returns a slightly complex has that includes state.
+
+  %return{$model_id}
+               {$state}{$number_of_hosts}
+               {model_name}{$model_name}
+
+=cut
+
 sub count_hosts_permodel {
     my $dbh = shift;
-    my %message;
+    my %return_hash;
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
-    }
-
-    my $sth;
+    # if ( !defined $dbh ) { return {'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $dbh ) { return; }
 
     my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
 
-    my %return_hash;
-
-    # cycle through the raw data
-    # by host total up occurances per model
     foreach (@raw_hosts) {
         my %dbdata = %{$_};
 
@@ -196,7 +256,6 @@ sub count_hosts_permodel {
         my $model_id   = $dbdata{'model_id'};
         my $state      = lc $dbdata{'status_state'};
 
-        # this isn't exactly pretty but it'll work
         $return_hash{$model_id}{$state}++;
         $return_hash{$model_id}{'model_name'} = $model_name;
 
@@ -205,11 +264,22 @@ sub count_hosts_permodel {
     return \%return_hash;
 }
 
+=pod
+
+=head2 get_frodo_models
+
+Return all model types associated with the FroDo project
+
+https://github.com/guyed/Network-Device-Inventory/issues/33
+FIXME: 'Cisco', '3750' and similar values should be in a config file or
+database table, not hardcoded. 
+
+=cut
+
 sub get_frodo_models {
     my $dbh = shift;
     my $sth;
 
-    #  FIXME: Cisco and 3750 should be in a config file
     return if !defined $dbh;
 
     $sth = $dbh->prepare(
@@ -250,6 +320,19 @@ sub get_frodo_models {
     return @return_array;
 }
 
+=pod
+
+=head2 get_models_waps
+
+Return all model types associated with the Wireless Access Points in the OWL
+phase II project.
+
+https://github.com/guyed/Network-Device-Inventory/issues/33
+FIXME: 'Cisco', '3750' and similar values should be in a config file or
+database table, not hardcoded. 
+
+=cut
+
 sub get_models_waps {
     my $dbh = shift;
 
@@ -281,93 +364,253 @@ sub get_models_waps {
     return @return_array;
 }
 
+=pod
+
+=head2 delete_models
+
+Delete a single model.
+
+ delete_models( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_models {
-
-    # delete a single location
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM models WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-"Internal Error: That model could not be deleted, it's probably in use by a host entry";
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
 
-    return \%message;
+=pod
+
+=head2 hash_hosts_permodel
+
+return all hosts indexed by modelname
+
+ hash_hosts_permodel ($dbh)
+
+returns a hash
+
+ $model_name => @hosts
+
+where @ hosts is an array of individual hashes, each has containing a hosts
+data.
+
+=cut
+
+sub hash_hosts_permodel {
+    my ($dbh) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return if not $sth->execute($name);
+
+    my %index;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        if ( !exists( $index{ $ref->{'model_name'} } ) ) {
+            my @data = ($ref);
+            $index{ $ref->{'model_name'} } = \@data;
+        }
+        else {
+            push @{ $index{ $ref->{'model_name'} } }, $ref;
+        }
+    }
+
+    return \%index;
+}
+
+=pod
+
+=head2 hosts_bymodel_name
+
+Return all hosts for a given model (based on name).
+
+  hosts_bymodel_name ( $dbh, $name )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bymodel_name {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE models.name=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return unless $sth->execute($name);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
+=pod
+
+=head2 hosts_bymodel_id
+
+Return all hosts for a given model (based on id).
+
+  hosts_bymodel_id ( $dbh, $id )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bymodel_id {
+    my ( $dbh, $id ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $id;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE models.id=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return unless $sth->execute($id);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
 }
 
 1;
 __END__
 
-=pod
+=head1 DIAGNOSTICS
 
-=head1 NAME
-
-Inventory::Models - Information on Models
-
-=head2 VERSION
-
-This document describes Inventory::Models version 1.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory::Models;
-
-=head1 PURPOSE
-
-If you wish to investigate what models exist in the database or want to
-investigate how popular each model is, then this module assists in that
-process. A subroutine is provided for each of: creating, editing, listing all
-entries, and listing summary totals of the relationships.
-
-=head1 DESCRIPTION
-
-The module aims to hide the tasks of raw SQL queries to the database from wou
-when performing common tasks which involve the relationhips of models to hosts
-in the inventory table.
-
-The data returned from a query should be generous, as well as the ids of the
-models involved the names, statuses and similar are available. Each subroutine
-should also give a descriptive success or failure message.
-
-=head2 Main Subroutines
-
-=head3 create_models($dbh,$hashref)
-
-$dbh is the database handle for the Inventory Database
-
-This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g.
-$message{'SUCCESS'} = 'Your changes were commited successfully';
-
-=head3 edit_models($dbh,$hashref)
-=head3 list_models_info($dbh,$optional_manufacturersid)
-=head3 count_hosts_permodel($dbh)
+Via error messages where present.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected by the overall
-Inventory module is required. Other configuration is at the application level
-via a configuration file loaded via Config::Tiny in the calling script, but
-this module itself is only passed the resulting database handle.
+A postgres database with the database layout that's defined inthe conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
-DBI;
-DBD::Pg;
-Inventory;
-Inventory::Hosts;
+DBI
+DBD::Pg
+Inventory::Hosts 1.0
 
 =head1 INCOMPATIBILITIES
 

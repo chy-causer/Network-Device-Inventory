@@ -2,7 +2,27 @@ package Inventory::Photos;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Photos
+
+=head2 VERSION
+
+This document describes Inventory::Photos version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Photos;
+
+=head1 DESCRIPTION
+
+Module for manipulation of the photos table
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_photos
@@ -17,13 +37,23 @@ use Carp;
 use DBI;
 use DBD::Pg;
 use Digest::MD5;
-use Regexp::Common qw /net/;
 use File::Basename;
+
+my $ENTRY          = 'photo';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
 
 sub create_photos {
     my ( $dbh, $posts ) = @_;
-    my %message;
 
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
     if (
         !exists $posts->{'photo_url'}
         || $posts->{'photo_url'} =~
@@ -36,11 +66,7 @@ sub create_photos {
         || length( $posts->{'host_id'} ) < 1
       )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          "Input Error: check your input or query a possible programming error";
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     # table constraints mean that false ids will be rejected, so I've not done
@@ -48,18 +74,16 @@ sub create_photos {
     my $sth = $dbh->prepare('INSERT INTO photos(host_id,url) VALUES(?,?)');
 
     if ( !$sth->execute( $posts->{'host_id'}, $posts->{'photo_url'} ) ) {
-        $message{'ERROR'} =
-          "Internal Error: The interface creation was unsuccessful";
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = "The interface creation was successful";
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub edit_photos {
     my ( $dbh, $posts ) = @_;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     # dump bad inputs
     if (
@@ -80,10 +104,7 @@ sub edit_photos {
       )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          "Input Error: One of the supplied inputs was invalid.";
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare('UPDATE photos SET host_id=?,url=? WHERE id=?');
@@ -94,13 +115,10 @@ sub edit_photos {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The interface edit was unsuccessful.";
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = "Your changes were commited successfully";
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
 sub get_photos_info {
@@ -186,6 +204,8 @@ sub upload_photos {
     my $image_path       = shift;
     my %POSTS            = %{ shift() };
 
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
     my $query = CGI->new();
 
     my $original_name = $query->param("$type$upload_extension");
@@ -235,49 +255,23 @@ sub upload_photos {
 }
 
 sub delete_photos {
-
-    # delete a single photo
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM photos WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The photo url entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specified photo url entry was deleted';
-    return \%message;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 1;
 
 __END__
 
-=head1 NAME
-
-Inventory - Networks team inventory module
-
-=head2 VERSION
-
-This document describes Inventory version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory;
-
-=head1 DESCRIPTION
 
 =head2 Main Subroutines
 
@@ -289,7 +283,8 @@ This document describes Inventory version 0.0.1
 =head2 Returns
  All returns from lists are arrays of hashes
 
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+ All creates and edits return a hash, the key gives success or failure, the
+ value gives the human message of what went wrong.
 
 =head1 SUBROUTINES/METHODS
 
@@ -297,16 +292,14 @@ This document describes Inventory version 0.0.1
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+A postgres database with the database layout that's expected is required.
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
-Since I'm talking to a postgres database
 DBI
 DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
 
 =head1 INCOMPATIBILITIES
 

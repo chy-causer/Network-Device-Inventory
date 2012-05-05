@@ -2,7 +2,27 @@ package Inventory::Introlemembers;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Introlemembers
+
+=head2 VERSION
+
+This document describes Inventory::Introlemembers version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Introlemembers;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Interfaces table related data
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_memberships
@@ -17,6 +37,16 @@ our @EXPORT_OK = qw(
 use DBI;
 use DBD::Pg;
 use Inventory::Introles 1.0;
+my $ENTRY          = 'interface role membership';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
 
 sub internal_checkinput {
     my $posts = shift;
@@ -47,18 +77,18 @@ sub internal_checkinput {
     return @message_store;
 }
 
+# delete an existing entry of a host to a hostgroup
 sub delete_memberships {
-
-    # delete an existing entry of a host to a hostgroup
     my ( $dbh, $posts ) = @_;
-    my @message_store;    # need to put all these messages somewhere
+    my @message_store;
+    my %message;
+
+    # if we fail here we make it fatal
+    $message{'FATAL'} = $MSG_FATAL_ERR;
 
     # catch calling errors
     if ( !$dbh ) {
-        my %message;
-        $message{'ERROR'} =
-'Internal Error: The database died or otherwise vanished before I could add the entry';
-        $message{'FATAL'} = "The error was fatal";
+        $message{'ERROR'} = $MSG_DBH_ERR;
         push @message_store, \%message;
         return @message_store;
     }
@@ -68,28 +98,19 @@ sub delete_memberships {
         || $posts->{'membership_id'} =~ m/\D/x
         || length $posts->{'membership_id'} < 1 )
     {
-        my %message;
-        $message{'ERROR'} =
-          'Input Error: The membership_id supplied was non numeric';
-        $message{'FATAL'} = "The error was fatal";
+        $message{'ERROR'} = $MSG_INPUT_ERR;
         push @message_store, \%message;
         return @message_store;
     }
 
     my $sth = $dbh->prepare('DELETE FROM interfaces_to_introles WHERE id = ?');
     if ( !$sth->execute( $posts->{'membership_id'} ) ) {
-        my %message;
-        $message{'ERROR'} = 'Internal Error: The delete was unsuccessful';
+        $message{'ERROR'} = $MSG_DELETE_ERR;
         push @message_store, \%message;
         return @message_store;
     }
 
-    my %message;
-    $message{'SUCCESS'} =
-      'Your interface role membership delete was commited successfully';
-    push @message_store, \%message;
-
-    return @message_store;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 sub create_memberships {
@@ -99,9 +120,9 @@ sub create_memberships {
     # create a new entry of a host to a hostgroup
 
     # XXX XXX XXX
-    # the host_id is actually an interface id since we switched to linking
-    # roles to interfaces instead of hosts. also the hostgroup_id is an
-    # interface_role id. sorry about that.
+    # the posted host_id is actually an interface id since we switched to
+    # linking roles to interfaces instead of hosts. also the hostgroup_id is
+    # an interface_role id. sorry about that.
     # XXX XXX XXX
 
     # validate input
@@ -110,8 +131,8 @@ sub create_memberships {
     # catch calling errors
     if ( !$dbh ) {
         my %message;
-        $message{'FATAL'} =
-'Internal Error: The database died or otherwise vanished before I could add the entry';
+        $message{'ERROR'} = $MSG_DBH_ERR;
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
     }
 
@@ -152,16 +173,14 @@ sub create_memberships {
 'Internal Error: You just tried to assign a role that the interface already has.';
         }
         else {
-            $message{'ERROR'} =
-'Internal Error: The Interface Role Membership creation was unsuccessful.';
+            $message{'ERROR'} = $MSG_CREATE_ERR;
         }
         push @message_store, \%message;
         return @message_store;
     }
 
     my %message;
-    $message{'SUCCESS'} =
-"The Interface Role Membership creation was successful: $host_name now has the $group_name role";
+    $message{'SUCCESS'} = $MSG_CREATE_OK;
     push @message_store, \%message;
     return @message_store;
 }
@@ -175,8 +194,7 @@ sub edit_memberships {
     # catch calling errors
     if ( !$dbh ) {
         my %message;
-        $message{'FATAL'} =
-'Internal Error: The database died or otherwise vanished before I could edit the entry';
+        $message{'FATAL'} = $MSG_DBH_ERR;
         push @message_store, \%message;
     }
 
@@ -193,8 +211,7 @@ sub edit_memberships {
         || length $posts->{'membership_id'} < 1 )
     {
         my %message;
-        $message{'FATAL'} =
-          'Input Error: The membership_id supplied was non numeric';
+        $message{'FATAL'} = $MSG_INPUT_ERR;
         push @message_store, \%message;
         return @message_store;
     }
@@ -220,16 +237,14 @@ sub edit_memberships {
 'Input Error: You just tried to assign a role that the interface already has.';
         }
         else {
-            $message{'ERROR'} =
-'Internal Error: The Interface Role Membership edit was unsuccessful';
+            $message{'ERROR'} = $MSG_EDIT_ERR;
         }
         push @message_store, \%message;
         return @message_store;
     }
 
     my %message;
-    $message{'SUCCESS'} =
-      'Your interface role membership changes were commited successfully';
+    $message{'SUCCESS'} = $MSG_EDIT_OK;
     push @message_store, \%message;
     return @message_store;
 }
@@ -350,16 +365,9 @@ sub count_memberships {
     my ( $dbh, $request ) = @_;
     my %message;
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
-    }
-    if ( !defined $request ) {
-        $message{'ERROR'} =
-'Internal Error: There is a programming error in a call to Inventory::Introlemembers::count_memberships';
-        return \%message;
-    }
+    # Test: are these messages visible?
+    if ( !defined $dbh )     { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $request ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth;
     my @raw_data = Inventory::Introlemembers::get_memberships_info($dbh);
@@ -402,6 +410,10 @@ sub fqdns_bybashgroup {
 
     # this is the main function used for making a bash group
     my $dbh = shift;
+
+    if ( !defined $dbh ) { return; }
+
+    # if ( !defined $dbh ) { return {'ERROR' => $MSG_DBH_ERR }; }
 
     my @groups_info = Inventory::Introles::get_hostgroups_info($dbh);
 
@@ -478,7 +490,7 @@ Inventory::Memberships - Realationships of hosts to hostgroups
 
 =head2 VERSION
 
-This document describes Inventory::Memberships version 1.00
+This document describes Inventory::Memberships version 1.01
 
 =head1 SYNOPSIS
 

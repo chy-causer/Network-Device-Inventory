@@ -2,7 +2,27 @@ package Inventory::Ups;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Ups
+
+=head2 VERSION
+
+This document describes Inventory::Ups version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Ups;
+
+=head1 DESCRIPTION
+
+Module to handle the data relating to UPS protection relationships.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_ups
@@ -19,20 +39,30 @@ use DBD::Pg;
 use Inventory::Hosts 1.0;
 use Inventory::Introles 1.0;
 
+my $ENTRY          = 'ups to host link';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
+=pod
+
+=head2 Main Subroutines
+
+=cut
+
 sub create_ups {
     my ( $dbh, $posts ) = @_;
 
-    # create a new entry of a host to a hostgroup
     my %message;
 
-    # catch calling errors
-    if ( !$dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database died or otherwise vanished before I could add the entry';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    # dont wave bad inputs at the database
     if (
            !exists $posts->{'host_id'}
         || $posts->{'host_id'} =~ m/\D/x
@@ -43,13 +73,9 @@ sub create_ups {
         || length( $posts->{'ups_id'} ) < 1
       )
     {
-        $message{'ERROR'} =
-          'Input Error: One of the supplied ids was non numeric';
-        return \%message;
+        return { 'ERROR' => $MSG_PROG_ERR };
     }
 
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
     my $sth = $dbh->prepare(
         'INSERT INTO hosts_to_upshost (host_id,ups_id) VALUES(?,?)');
 
@@ -64,45 +90,33 @@ sub create_ups {
 'Internal Error: You just tried to add a host to a ups that it is already a linked with.';
         }
         else {
-            $message{'ERROR'} =
-              'Internal Error: The host - ups link creation was unsuccessful.';
+            return { 'ERROR' => $MSG_CREATE_ERR };
         }
         return \%message;
     }
 
-    $message{'SUCCESS'} = 'The host - ups link creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub delete_ups {
-    my ( $dbh, $link_id ) = @_;
+    my ( $dbh, $id ) = @_;
 
-    return { 'ERROR' => 'Programming error' }             if !defined $dbh;
-    return { 'ERROR' => 'Programming error, no link_id' } if !defined $link_id;
-    return { 'ERROR' => "Programming error, $link_id contains non digits" }
-      if $link_id =~ m/\D/x;
-    return { 'ERROR' => 'Programming error, empty link_id' }
-      if length($link_id) < 1;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM hosts_to_upshost WHERE id=?');
-    return {
-        'ERROR' => 'Programming error, database refused to delete the record' }
-      if !$sth->execute($link_id);
+    if ( !$sth->execute($link_id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
+    }
 
-    # congratulations, you made it
-    return { 'SUCCESS' => 'UPS link deleted' };
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 sub edit_ups {
     my ( $dbh, $posts ) = @_;
     my %message;
 
-    # catch calling errors
-    if ( !$dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database died or otherwise vanished before I could edit the entry';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     # dump bad inputs
     if (
@@ -120,11 +134,7 @@ sub edit_ups {
 
       )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: One of the supplied ids was non numeric';
-        return \%message;
+        return { 'ERROR' => $MSG_PROG_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -145,14 +155,12 @@ sub edit_ups {
 'Input Error: You just tried to link a host to a ups that it is already linked with.';
         }
         else {
-            $message{'ERROR'} =
-              'Internal Error: The host to ups link edit was unsuccessful';
+            return { 'ERROR' => $MSG_EDIT_ERR };
         }
         return \%message;
     }
 
-    $message{'SUCCESS'} = 'Your UPS changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
 sub ups_byhostid {
@@ -301,16 +309,8 @@ sub count_ups {
     my ( $dbh, $request ) = @_;
     my %message;
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
-    }
-    if ( !defined $request ) {
-        $message{'ERROR'} =
-'Internal Error: There is a programming error in a call to Inventory::Ups::count_ups';
-        return \%message;
-    }
+    if ( !defined $dbh )     { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $request ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth;
     my @raw_data = Inventory::Ups::get_ups_info($dbh);
@@ -351,104 +351,26 @@ sub count_ups {
 1;
 __END__
 
-=head1 NAME
 
-Inventory::Memberships - Realationships of hosts to hostgroups
+=pod
 
-=head2 VERSION
-
-This document describes Inventory::Memberships version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory::Memberships;
-  # There are no special setup requirements
-
-=head1 PURPOSE
-
-If you wish to investigate what groups a host is in: or conversly to discover
-what hosts are in a hostgroup, then this module assists in that process. A
-subroutine is procided for each of: creating, editing, listing all entries,
-and listing summary totals of the relationships.
-
-=head1 DESCRIPTION
-
-The module aims to hide the tasks of raw SQL queries to the dayabase from wou
-when performing common tasks which involve the relationhips of hosts to
-hostgroups in the inventory table.
-
-The data returned from a query should be generous, as well as the ids of the
-hosts involothe names, statuses and similar are returned. Each subroutine
-should also give a descriptive success or failure message.
-
-=head2 Main Subroutines
-
-=head3 create_memberships($dbh,$hashref)
-
-$dbh is the database handle for the Inventory Database
-$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your %POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
-$hash{'hostgroup_id'}
-$hash{'host_id'}
-Other values can exist in the hash without conflict or other issues.
-    
-This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g.
-$message{'SUCCESS'} = 'Your UPS changes were commited successfully';
-
-
-=head3 edit_memberships($dbh,$hashref)
-
-The edit subroutine is very similar to the create in usage, although the purpose can only be to edit. You can't submit an edit on non existant entry to create one.
-
-$dbh is the database handle for the Inventory Database
-$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your %POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
-
-$hash{'membership_id'}
-$hash{'hostgroup_id'}
-$hash{'host_id'}
-
-=head3 get_memberships_info($dbh,$optional_membershipid)
- 
-The information subroutine returns the information for all entries in the form of an array with each array entry being a hash of the values returned for that row.
-
-Optionally a numerical unique id for the filed you are interested in can be supplied after the database handle. This will return only one specific result. Note that if you pass a (invalid) non numeric id the routine will default back to showing all entries, which might come as a bit of a shock the first time it happens. If you pass a id of the valid format but invalid to the database you'll get no results.
-
-Note that this specific subroutine does not return the hashed error/success messages of style returned by the the other subroutines in this module. This routine will return data or return null.
-
-=head3 count_memberships($dbh,'group' OR 'host')
-
-This subroutine is actually a wrapper to the call for all get_memberships_info, geared towards providing useful summaries of memberships per group or groups per host, depending on the method used to call it.
-
-If no database handle or arguemnt are given, the subroutine will exit with a hash error message as per the 'create' and 'edit' subroutines in this module.
-
-If 'group' is specified, the total hosts per group will be returned with totals per status. This gives a group centric summary of the host to hostgroups mappings in a hash of hashes
-.
-e.g. using the oxmails group as an example, but remmebering all groups will be returned:
-            $returned_hash{'oxmails'}{active}         = 3
-            $returned_hash{'oxmails'}{inactive}       = 9
-            $returned_hash{'oxmails'}{decommissioned} = 2
-            $returned_hash{'oxmails'}{instock}        = 5
-            $returned_hash{'oxmails'}{$hostgroup_id'} = 123;
-        
-If 'host' is specified, the total group memberships per host will be returned. Eg. a host centric summary of the host to hostgroups mappings.
-The host centric summary isn't acutally used at the moment, so its not refined to any purpose. If you change it please document it here and discuss with other members of the group.
-        
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+A postgres database with the database layout that's expected by the overall
+Inventory module is required. Other configuration is at the application level
+via a configuration file loaded via Config::Tiny in the calling script, but
+this module itself is only passed the resulting database handle.
 
 =head1 DEPENDENCIES
 
 DBI;
 DBD::Pg;
 Inventory;
-Inventory::Hosts;
-Inventory::Hostgroups;
+Inventory::Hosts 1.01;
 
 =head1 BUGS AND LIMITATIONS
 
 Report any found to <guyjohnedwards@gmail.com>
-
-As mentioned in the relevant section, the host centric calling method of count_memberships() is provided but not used at this time and so might need further development.
 
 =head1 AUTHOR
 

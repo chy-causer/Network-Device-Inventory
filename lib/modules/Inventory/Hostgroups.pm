@@ -2,7 +2,27 @@ package Inventory::Hostgroups;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Hostgroups
+
+=head2 VERSION
+
+This document describes Inventory::Hostgroups version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Hostgroups;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Hostgroups related data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hostgroups
@@ -12,22 +32,32 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
+
+my $MAX_NAME_LENGTH = 35;
+my $ENTRY           = 'hostgroup';
+my $MSG_DBH_ERR     = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR   = 'Input Error: Please check your input';
+my $MSG_CREATE_OK   = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR  = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK     = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR    = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK   = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR  = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR   = 'The error was fatal, processing stopped';
 
 sub create_hostgroups {
     my $dbh   = shift;
     my %posts = %{ shift() };
 
-    my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
     if (   !exists $posts{'hostgroup_name'}
         || $posts{'hostgroup_name'} =~ m/[^\w\s\.\-]/x
         || length( $posts{'hostgroup_name'} ) < 1
-        || length( $posts{'hostgroup_name'} ) > 25 )
+        || length( $posts{'hostgroup_name'} ) > $MAX_NAME_LENGTH )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = 'Input Error: Check your input is correct';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     if ( exists $posts{'hostgroup_bash'} ) {
@@ -56,31 +86,26 @@ sub create_hostgroups {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The hostgroup creation was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The hostgroup creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub edit_hostgroups {
     my $dbh   = shift;
     my %posts = %{ shift() };
-    my %message;
 
-    if (   !exists $posts{'hostgroup_id'}
-        || $posts{'hostgroup_id'} =~ m/\D/x
-        || !exists $posts{'hostgroup_name'}
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
+    if (   !exists $posts{'hostgroup_name'}
         || $posts{'hostgroup_name'} =~ m/[^\w\s\.\-]/x
         || length( $posts{'hostgroup_name'} ) < 1
-        || length( $posts{'hostgroup_name'} ) > 25 )
+        || length( $posts{'hostgroup_name'} ) > $MAX_NAME_LENGTH )
     {
 
         # dont wave bad inputs at the database
-        $message{'ERROR'} = 'Input Error: Check your input is correct';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     # alphanumeric upper case only, forced
@@ -104,13 +129,10 @@ sub edit_hostgroups {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The hostgroup edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' = $MSG_EDIT_OK };
 }
 
 sub get_hostgroups_info {
@@ -164,31 +186,7 @@ sub get_hostgroups_info {
 1;
 __END__
 
-=head1 NAME
-
-Inventory - Networks team inventory module
-
-=head2 VERSION
-
-This document describes Inventory version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory;
-
-=head1 DESCRIPTION
-
-=head2 Main Subroutines
-
- The main abilities are:
-  - create new types of entry in a table
-  - edit existing entries in a table
-  - list existing entries
-
-=head2 Returns
- All returns from lists are arrays of hashes
-
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
+=pod
 
 =head1 SUBROUTINES/METHODS
 
@@ -196,16 +194,14 @@ This document describes Inventory version 0.0.1
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+A postgres database with the database layout that's expected is required.
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
-Since I'm talking to a postgres database
 DBI
 DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
 
 =head1 INCOMPATIBILITIES
 

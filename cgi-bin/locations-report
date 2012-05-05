@@ -2,7 +2,7 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 use CGI;
 use Config::Tiny;
@@ -12,7 +12,7 @@ use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Locations 1.0;
+use Inventory::Locations 1.01;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -81,7 +81,7 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
 
 # list all the locations (array of hashes)
 my @locations       = Inventory::Locations::get_locations_info($dbh);
-my %location_counts = %{ Inventory::Locations::count_locations_perhost($dbh) };
+my %location_counts = %{ Inventory::Locations::count_hosts_perlocation($dbh) };
 
 $tt->process(
     'inventory_locations-report.tt',
@@ -99,7 +99,7 @@ __END__
 
 =head1 VERSION
 
-This documentation refers to version 1.0.0 
+This documentation refers to version 1.01 
 
 =head1 USAGE
 

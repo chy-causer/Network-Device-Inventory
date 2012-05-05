@@ -2,7 +2,27 @@ package Inventory::Hosts;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Hosts
+
+=head2 VERSION
+
+This document describes Inventory::Hosts version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Hosts;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Hosts table related data
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hosts
@@ -13,56 +33,61 @@ our @EXPORT_OK = qw(
   host_info_wrapper
   update_time
   get_hosts_byinvoice
-  hash_hosts_permodel
-  hosts_bymodel_name
 );
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
 use Net::DNS;
 
+my $ENTRY          = 'host';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
 sub create_hosts {
-    my $dbh   = shift;
-    my %posts = %{ shift() };
-    my %message;
+    my ( $dbh, $posts ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (
-           !exists $posts{'host_name'}
-        || $posts{'host_name'} =~ m/[^\w\s\-]/x
-        || length( $posts{'host_name'} ) < 1
-        || length( $posts{'host_name'} ) > 30
+           !exists $posts->{'host_name'}
+        || $posts->{'host_name'} =~ m/[^\w\s\-]/x
+        || length( $posts->{'host_name'} ) < 1
+        || length( $posts->{'host_name'} ) > 30
 
-        || !exists $posts{'location_id'}
-        || $posts{'location_id'} =~ m/\D/x
-        || length( $posts{'location_id'} ) < 1
+        || !exists $posts->{'location_id'}
+        || $posts->{'location_id'} =~ m/\D/x
+        || length( $posts->{'location_id'} ) < 1
 
-        || !exists $posts{'status_id'}
-        || $posts{'status_id'} =~ m/\D/x
-        || length( $posts{'status_id'} ) < 1
+        || !exists $posts->{'status_id'}
+        || $posts->{'status_id'} =~ m/\D/x
+        || length( $posts->{'status_id'} ) < 1
 
-        || !exists $posts{'model_id'}
-        || $posts{'model_id'} =~ m/\D/x
-        || length( $posts{'model_id'} ) < 1
+        || !exists $posts->{'model_id'}
+        || $posts->{'model_id'} =~ m/\D/x
+        || length( $posts->{'model_id'} ) < 1
       )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: need Name, Status, Model and Location';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
-    $posts{'host_description'} =~ s/[^\w\s\-]//gx
-      if exists $posts{'host_description'}
-          and defined $posts{'host_description'};
-    $posts{'host_name'} = lc $posts{'host_name'};
+    $posts->{'host_description'} =~ s/[^\w\s\-]//gx
+      if exists $posts->{'host_description'}
+          and defined $posts->{'host_description'};
+    $posts->{'host_name'} = lc $posts->{'host_name'};
 
-    if (   not exists $posts{'invoice_id'}
-        or not defined $posts{'invoice_id'}
-        or length $posts{'invoice_id'} < 1 )
+    if (   not exists $posts->{'invoice_id'}
+        or not defined $posts->{'invoice_id'}
+        or length $posts->{'invoice_id'} < 1 )
     {
-        $posts{'invoice_id'} = undef;
+        $posts->{'invoice_id'} = undef;
     }
 
     my $sth = $dbh->prepare(
@@ -81,26 +106,24 @@ sub create_hosts {
 
     if (
         !$sth->execute(
-            $posts{'host_name'},        $posts{'location_id'},
-            $posts{'status_id'},        $posts{'model_id'},
-            $posts{'host_description'}, $posts{'host_asset'},
-            $posts{'host_serial'},      $posts{'invoice_id'},
+            $posts->{'host_name'},        $posts->{'location_id'},
+            $posts->{'status_id'},        $posts->{'model_id'},
+            $posts->{'host_description'}, $posts->{'host_asset'},
+            $posts->{'host_serial'},      $posts->{'invoice_id'},
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The hosts creation was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The hosts creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub edit_hosts {
     my $dbh   = shift;
     my %posts = %{ shift() };
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (
            !exists $posts{'host_name'}
@@ -127,8 +150,7 @@ sub edit_hosts {
     {
 
         # dont wave bad inputs at the database
-        $message{'ERROR'} = 'Input Error: Please check your inputs';
-        return \%message;
+        return { 'ERROR' => 'Input Error: Please check your input' };
     }
 
     if (   not exists $posts{'invoice_id'}
@@ -166,18 +188,18 @@ sub edit_hosts {
         )
       )
     {
-        $message{'ERROR'} = 'Internal Error: The hosts edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => 'Internal Error: The edit was unsuccessful' };
     }
 
-    $message{'SUCCESS'} = 'Your host changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => 'Your host changes were commited successfully' };
 }
 
 sub host_info_wrapper {
     my ( $dbh, $fieldname, $value ) = @_;
     my %results;    # return results
                     # structure is host_id => @hostdetails
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     # generic error
     my $error =
@@ -326,39 +348,25 @@ sub host_info_wrapper {
 
 sub update_time {
     my ( $dbh, $posts ) = @_;
-    my %message;
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-          'Internal Error: Programmer made a mistake in update_time.';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $posts->{'host_id'}
         || $posts->{'host_id'} =~ m/\D/x
         || length( $posts->{'host_id'} ) < 1 )
     {
-        $message{'ERROR'} =
-"Possible Input Error: The supplied host id doesn't appear syntatically valid.";
-        return \%message;
+        return {
+            'ERROR' => 'Programming Error: The supplied host id is invalid' };
     }
 
     # if you've made it this far you are not the weakest link
     my $sth = $dbh->prepare('UPDATE hosts SET lastchecked = NOW() WHERE id=?');
 
     if ( !$sth->execute( $posts->{'host_id'} ) ) {
-        $message{'ERROR'} =
-          "Internal Error: The database appears to have rejected this update";
-        return \%message;
-    }
-    else {
-        $message{'SUCCESS'} = "Thanks for confirming this hosts details";
-        return \%message;
+        return { 'ERROR' => 'Internal Error: The update was unsuccessful' };
     }
 
-    $message{'ERROR'} =
-"Internal Error: Part of the program that's supposed to be logically impossible to reach has just been reached. Things are only likely to go downhill from here.";
-    return \%message;
+    return { 'SUCCESS' => 'Thanks for confirming this hosts details' };
 }
 
 sub get_hosts_info_by_name {
@@ -454,6 +462,8 @@ sub get_hosts_info {
            hosts.invoice_id,
            invoices.date AS invoice_date,
            invoices.description AS invoice_description
+           contracts.id AS contract_id,
+           contracts.name AS contract_name
          FROM hosts
           
           LEFT JOIN locations
@@ -466,6 +476,10 @@ sub get_hosts_info {
           ON manufacturers.id=models.manufacturer_id
           LEFT JOIN invoices
           ON hosts.invoice_id=invoices.id
+          LEFT JOIN hoststocontracts
+          ON hoststocontracts.host_id=hosts.id
+          LEFT JOIN contracts
+          ON hoststocontracts.contract_id=contracts.id
          
          WHERE
            hosts.id=?
@@ -496,6 +510,8 @@ sub get_hosts_info {
            hosts.invoice_id,
            invoices.date AS invoice_date,
            invoices.description AS invoice_description
+           contracts.id AS contract_id,
+           contracts.name AS contract_name
          FROM hosts 
           
           LEFT JOIN locations
@@ -508,6 +524,11 @@ sub get_hosts_info {
           ON manufacturers.id=models.manufacturer_id
           LEFT JOIN invoices
           ON hosts.invoice_id=invoices.id
+          LEFT JOIN hoststocontracts
+          ON hoststocontracts.host_id=hosts.id
+          LEFT JOIN contracts
+          ON hoststocontracts.contract_id=contracts.id
+         
          
          ORDER BY
            hosts.name
@@ -524,158 +545,23 @@ sub get_hosts_info {
 }
 
 sub delete_hosts {
-
-    # delete a single contact
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM hosts WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The contact entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
-    return \%message;
-}
-
-sub hash_hosts_permodel {
-    my ($dbh) = @_;
-
-    return if !defined $dbh;
-
-    my $sth = $dbh->prepare( '
-         SELECT 
-           hosts.id,
-           hosts.name,
-           hosts.description,
-           hosts.location_id,
-           hosts.status_id,
-           hosts.asset,
-           hosts.serial,
-           hosts.model_id,
-           hosts.lastchecked,
-           status.state AS status_state,
-           status.description AS status_description,
-           locations.name AS location_name,
-           models.name AS model_name,
-           manufacturers.name AS manufacturer_name,
-           manufacturers.id AS manufacturer_id
-         FROM hosts
-          
-          LEFT JOIN locations
-          ON hosts.location_id=locations.id
-          LEFT JOIN status
-          ON hosts.status_id=status.id
-          LEFT JOIN models
-          ON hosts.model_id=models.id
-          LEFT JOIN manufacturers
-          ON manufacturers.id=models.manufacturer_id
-         
-         ORDER BY
-           hosts.name
-        
-        ' );
-    return unless $sth->execute();
-
-    my %return;
-    while ( my $ref = $sth->fetchrow_hashref ) {
-        if ( !exists( $return{ $ref->{'model_name'} } ) ) {
-            my @data = ($ref);
-            $return{ $ref->{'model_name'} } = \@data;
-        }
-        else {
-            push @{ $return{ $ref->{'model_name'} } }, $ref;
-        }
-    }
-
-    return \%return;
-}
-
-sub hosts_bymodel_name {
-    my ( $dbh, $name ) = @_;
-
-    return if !defined $dbh;
-    return if !defined $name;
-
-    my $sth = $dbh->prepare( '
-         SELECT 
-           hosts.id,
-           hosts.name,
-           hosts.description,
-           hosts.location_id,
-           hosts.status_id,
-           hosts.asset,
-           hosts.serial,
-           hosts.model_id,
-           hosts.lastchecked,
-           status.state AS status_state,
-           status.description AS status_description,
-           locations.name AS location_name,
-           models.name AS model_name,
-           manufacturers.name AS manufacturer_name,
-           manufacturers.id AS manufacturer_id
-         FROM hosts
-          
-          LEFT JOIN locations
-          ON hosts.location_id=locations.id
-          LEFT JOIN status
-          ON hosts.status_id=status.id
-          LEFT JOIN models
-          ON hosts.model_id=models.id
-          LEFT JOIN manufacturers
-          ON manufacturers.id=models.manufacturer_id
-         
-         WHERE models.name=?
-
-         ORDER BY
-           hosts.name
-        ' );
-
-    return unless $sth->execute($name);
-
-    my @return_array;
-    while ( my $reference = $sth->fetchrow_hashref ) {
-        push @return_array, $reference;
-    }
-    return @return_array;
-
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 1;
 __END__
 
-=head1 NAME
-
-Inventory::Hosts - Networks team inventory module
-
-=head2 VERSION
-
-This document describes Inventory version 1.00
-
-=head1 SYNOPSIS
-
-  use Inventory::Hosts;
-
-=head1 DESCRIPTION
-
-=head2 Main Subroutines
-
- The main abilities are:
-  - create new types of entry in a table
-  - edit existing entries in a table
-  - list existing entries
+=pod
 
 =head2 Returns
  All returns from lists are arrays of hashes
@@ -695,9 +581,6 @@ A postgres database with the database layout that's expected is required. Other 
 Since I'm talking to a postgres database
 DBI
 DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
 
 =head1 INCOMPATIBILITIES
 

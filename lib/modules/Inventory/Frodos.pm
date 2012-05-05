@@ -2,7 +2,27 @@ package Inventory::Frodos;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Frodos
+
+=head2 VERSION
+
+This document describes Inventory::Frodos version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Frodos;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the FroDo project specific data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   ordered_hash_frodos
@@ -156,20 +176,7 @@ sub sort_frodo_results {
 
 __END__
 
-=head1 NAME
-Frodos.pm
-
-=head1 VERSION
-
-This documentation refers to  version 
-
-=head1 USAGE
-
-=head1 REQUIRED ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 DESCRIPTION
+=pod
 
 =head1 DIAGNOSTICS
 

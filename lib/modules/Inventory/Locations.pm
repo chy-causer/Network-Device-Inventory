@@ -2,74 +2,129 @@ package Inventory::Locations;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Locations
+
+=head1 VERSION
+
+This document describes Inventory::Locations version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Locations;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the locations data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_locations
   edit_locations
   get_locations_info
   count_locations_perhost
+  delete_locations
+  hash_hosts_perlocation
+  hosts_bylocation_name
+  hosts_bylocation_id
 );
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
 use Inventory::Hosts 1.0;
+
+my $ENTRY          = 'location';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_locations
+
+Main creation sub.
+  create_locations($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Currently the only error check is for a missing database handle.
+
+=cut
 
 sub create_locations {
     my ( $dbh, $posts ) = @_;
-    my %message;
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} = 'Internal Error: lost database connectivity';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
     my $sth = $dbh->prepare('INSERT INTO locations(name) VALUES(?)');
 
     if ( !$sth->execute( $posts->{'location_name'} ) ) {
-        $message{'ERROR'} =
-          "Internal Error: The location creation was unsuccessful";
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = "The location creation was successful";
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
+
+=pod
+
+=head2 edit_locations
+
+Main edit sub.
+  edit_locations ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Currently the only error check is for a missing database handle.
+
+=cut
 
 sub edit_locations {
     my ( $dbh, $posts ) = @_;
-    my %message;
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} = 'Internal Error: lost database connectivity';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     my $sth = $dbh->prepare('UPDATE locations SET name=? WHERE id=?');
     if ( !$sth->execute( $posts->{'location_name'}, $posts->{'location_id'} ) )
     {
-        $message{'ERROR'} =
-          "Internal Error: The interface edit was unsuccessful.";
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = "Your changes were commited successfully";
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
+=pod
+
+=head2 get_locations_info
+
+Main individual record retrieval sub. 
+ get_locations_info ( $dbh, $location_id )
+
+Returns the details in a hash.
+
+=cut
+
 sub get_locations_info {
-    my ( $dbh, $location_id ) = @_;
+    my ( $dbh, $id ) = @_;
     my $sth;
 
     return if !defined $dbh;
 
-    if ( defined $location_id ) {
+    if ( defined $id ) {
         $sth = $dbh->prepare(
             'SELECT id,name FROM locations WHERE id=? ORDER BY name');
-        return if !$sth->execute($location_id);
+        return if !$sth->execute($id);
     }
     else {
         $sth = $dbh->prepare('SELECT id,name FROM locations ORDER BY name');
@@ -83,22 +138,32 @@ sub get_locations_info {
     return @return_array;
 }
 
-sub count_locations_perhost {
+=pod
+
+=head2 count_hosts_perlocation
+
+Return total numers of hosts per location.
+
+ count_hosts_perlocation($dbh)
+
+Returns a slightly complex has that includes state.
+
+  %return{$location_id}
+               {$state}{$number_of_hosts}
+               {location_name}{$location_name}
+
+=cut
+
+sub count_hosts_perlocation {
     my $dbh = shift;
-    my %message;
-
-    if ( !defined $dbh ) {
-        $message{'ERROR'} = 'Internal Error: lost database connectivity';
-        return \%message;
-    }
-
-    my $sth;
-
-    # hosts, in the raw, phoar!
-    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
     my %return_hash;
 
-    # cycle through the raw data
+    if ( !defined $dbh ) {
+        return;
+    }
+
+    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
+
     foreach (@raw_hosts) {
         my %dbdata        = %{$_};
         my $location_name = $dbdata{'location_name'};
@@ -111,83 +176,257 @@ sub count_locations_perhost {
     return \%return_hash;
 }
 
+=pod
+
+=head2 delete_locations
+
+Delete a single location.
+
+ delete_locations( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_locations {
-
-    # delete a single location
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM locations WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-"Internal Error: The location could not be deleted, it's probably in use by a host entry";
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
 
-    return \%message;
+=pod
+
+=head2 hash_hosts_perlocation
+
+return all hosts indexed by location
+
+ hash_hosts_perlocation ($dbh)
+
+returns a hash
+
+ $location_name => @hosts
+
+where @ hosts is an array of individual hashes, each has containing a hosts
+data.
+
+=cut
+
+sub hash_hosts_perlocation {
+    my ($dbh) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return if not $sth->execute($name);
+
+    my %index;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        if ( !exists( $index{ $ref->{'location_name'} } ) ) {
+            my @data = ($ref);
+            $index{ $ref->{'location_name'} } = \@data;
+        }
+        else {
+            push @{ $index{ $ref->{'location_name'} } }, $ref;
+        }
+    }
+
+    return \%index;
+}
+
+=pod
+
+=head2 hosts_bylocation_name
+
+Return all hosts for a given location (based on name).
+
+  hosts_bylocation_name ( $dbh, $name )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bylocation_name {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE locations.name=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return if not $sth->execute($name);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+
+}
+
+=pod
+
+=head2 hosts_bylocation_id
+
+Return all hosts for a given location (based on id).
+
+  hosts_bylocation_id ( $dbh, $id )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bylocation_id {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE locations.id=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return if not $sth->execute($name);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+
 }
 
 1;
 __END__
 
-=head1 NAME
-
-Locations.pm
-
-=head2 VERSION
-
-This document describes Inventory version 1.00
-
-=head1 SYNOPSIS
-
-  use Inventory;
-
-=head1 DESCRIPTION
-
-=head2 Main Subroutines
-
-The main abilities are:
-  - create new types of entry in a table
-  - edit existing entries in a table
-  - list existing entries
-
-=head2 Returns
-All returns from lists are arrays of hashes
-
-All creates and edits return a hash, the key gives success or failure, the
-value gives the human message of what went wrong.
-
-=head1 SUBROUTINES/METHODS
-
 =head1 DIAGNOSTICS
+
+Via error messages where present.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected is required.
+A postgres database with the database layout that's defined inthe conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
 Other configuration is at the application level via a configuration file, but
 the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
-Since I'm talking to a postgres database
 DBI
 DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
-
+Inventory::Hosts 1.0
 
 =head1 INCOMPATIBILITIES
 

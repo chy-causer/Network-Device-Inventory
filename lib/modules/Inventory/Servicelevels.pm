@@ -2,7 +2,7 @@ package Inventory::Servicelevels;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_servicelevels
@@ -15,16 +15,20 @@ use DBI;
 use DBD::Pg;
 
 my $MAX_NAME_LENGTH = 128;
+my $ENTRY           = 'servicelevel';
+my $MSG_DBH_ERR     = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR   = 'Input Error: Please check your input';
+my $MSG_CREATE_OK   = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR  = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK     = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR    = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK   = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR  = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR   = 'The error was fatal, processing stopped';
 
 sub create_servicelevels {
-
-    # respond to a request to create a servicelevel
-    # 1. validate input
-    # 2. make the database entry
-    # 3. return success or fail
-    #
     my ( $dbh, $input ) = @_;
-    my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $input->{'servicelevel_name'}
         || $input->{'servicelevel_name'} !~ m/^[\w\s\-]+$/x
@@ -32,10 +36,7 @@ sub create_servicelevels {
         || length $input->{'servicelevel_name'} > $MAX_NAME_LENGTH )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -51,22 +52,15 @@ sub create_servicelevels {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The servicelevel creation was unsuccessful";
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The servicelevel creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 sub edit_servicelevels {
-
-    # similar to creating a servicelevel except we already (should) have a vaild
-    # database id for the entry
-
     my ( $dbh, $input ) = @_;
-    my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $input->{'servicelevel_name'}
         || $input->{'servicelevel_name'} !~ m/^[\w\s\-]+$/x
@@ -74,10 +68,7 @@ sub edit_servicelevels {
         || length( $input->{'servicelevel_name'} ) > $MAX_NAME_LENGTH )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare(
@@ -93,41 +84,24 @@ sub edit_servicelevels {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The servicelevel entry edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} =
-      'Your servicelevel changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
 sub delete_servicelevels {
-
-    # delete a single servicelevel
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM servicelevels WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The servicelevel entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
-    return \%message;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 sub get_servicelevels_info {

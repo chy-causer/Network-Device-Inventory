@@ -2,7 +2,27 @@ package Inventory::Sshkeys;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Sshkeys
+
+=head1 VERSION
+
+This document describes Inventory::Sshkeys version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Sshkeys;
+
+=head1 DESCRIPTION
+
+Module for manipulating the hosts sshkeys data
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_sshkeys
@@ -14,73 +34,99 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
+
+my $MAX_KEY_LENGTH = 48;
+
+my $ENTRY          = 'SSH key';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_sshkeys
+
+Main creation sub.
+create_sshkeys($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+For the fingerprint we strip any leading and trailing whitespace as well as
+trailing dot characters to make life easier for people pasting sshkeys from
+terminals
+
+Checks for a missing database handle, host_id and basic sshkey sanity.
+
+=cut
 
 sub create_sshkeys {
-    my $dbh   = shift;
-    my %posts = %{ shift() };
-    my %message;
-
-    # chop off whitespace and the trailing dot you get on bash lines when the
-    # sshkey unknown message is copy/pasted
-    if ( exists $posts{'sshkey_fingerprint'} ) {
-        $posts{'sshkey_fingerprint'} =~ s/\s//g;
-        $posts{'sshkey_fingerprint'} =~ s/\.$//g;
-    }
-
-    if ( !exists $posts{'sshkey_fingerprint'}
-        || $posts{'sshkey_fingerprint'} !~
-        m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
-        || length( $posts{'sshkey_fingerprint'} ) < 1
-        || length( $posts{'sshkey_fingerprint'} ) > 48 )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = "Did you enter an invalid sshkey?";
-        return \%message;
-    }
-
-    if (   !exists $posts{'host_id'}
-        || $posts{'host_id'} =~ m/\D/x
-        || length( $posts{'host_id'} ) < 1 )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-"Programming error: invalid host_id in Inventory::Sshkeys::create_sshkeys";
-        return \%message;
-    }
-
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
-    my $sth =
-      $dbh->prepare('INSERT INTO sshkeys(fingerprint,host_id) VALUES(?,?)');
-
-    if ( !$sth->execute( $posts{'sshkey_fingerprint'}, $posts{'host_id'} ) ) {
-        $message{'ERROR'} =
-          "Internal Error: The SSH key creation was unsuccessful";
-        return \%message;
-    }
-
-    $message{'SUCCESS'} =
-      "The SSH key creation $posts{'sshkey_fingerprint'} was successful";
-    return \%message;
-}
-
-sub edit_sshkeys {
     my ( $dbh, $posts ) = @_;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+
+    if ( exists $posts->{'sshkey_fingerprint'} ) {
+        $posts->{'sshkey_fingerprint'} =~ s/\s//g;
+        $posts->{'sshkey_fingerprint'} =~ s/\.$//g;
+    }
 
     if ( !exists $posts->{'sshkey_fingerprint'}
         || $posts->{'sshkey_fingerprint'} !~
         m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
         || length( $posts->{'sshkey_fingerprint'} ) < 1
-        || length( $posts->{'sshkey_fingerprint'} ) > 48 )
+        || length( $posts->{'sshkey_fingerprint'} ) > $MAX_KEY_LENGTH )
     {
+        return { 'ERROR' => $MSG_INPUT_ERR };
+    }
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = "Did you enter an invalid sshkey?";
-        return \%message;
+    my $sth =
+      $dbh->prepare('INSERT INTO sshkeys(fingerprint,host_id) VALUES(?,?)');
+
+    if ( !$sth->execute( $posts->{'sshkey_fingerprint'}, $posts->{'host_id'} ) )
+    {
+        return { 'ERROR' => $MSG_CREATE_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_CREATE_OK };
+}
+
+=pod
+
+=head2 edit_sshkeys
+
+Main edit sub.
+  edit_sshkeys ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+For the fingerprint we strip any leading and trailing whitespace as well as
+trailing dot characters to make life easier for people pasting sshkeys from
+terminals
+
+Checks for a missing database handle, host_id and basic sshkey sanity.
+
+=cut
+
+sub edit_sshkeys {
+    my ( $dbh, $posts ) = @_;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+
+    if ( !exists $posts->{'sshkey_fingerprint'}
+        || $posts->{'sshkey_fingerprint'} !~
+        m/^([a-zA-Z0-9]{2}:)+([a-zA-Z0-9]{2})$/x
+        || length( $posts->{'sshkey_fingerprint'} ) < 1
+        || length( $posts->{'sshkey_fingerprint'} ) > $MAX_KEY_LENGTH )
+    {
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth =
@@ -92,14 +138,21 @@ sub edit_sshkeys {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The interface edit was unsuccessful.";
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = "Your changes were commited successfully";
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 sshkeys_byhostid
+
+Return all records relating to a specific host_id
+
+Returns the details in a array of hashes.
+
+=cut
 
 sub sshkeys_byhostid {
     my ( $dbh, $host_id ) = @_;
@@ -122,6 +175,17 @@ sub sshkeys_byhostid {
 
     return @return_array;
 }
+
+=pod
+
+=head2 get_sshkeys_info
+
+Main individual record retrieval sub. 
+ get_sshkeys_info ( $dbh, $sshkey_id )
+
+Returns the details in a hash.
+
+=cut
 
 sub get_sshkeys_info {
     my ( $dbh, $sshkey_id ) = @_;
@@ -180,78 +244,56 @@ sub get_sshkeys_info {
     return @return_array;
 }
 
+=pod
+
+=head2 delete_sshkeys
+
+Delete a single entry.
+
+ delete_sshkeys( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_sshkeys {
-
-    # delete a single contact
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM sshkeys WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The contact entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
-    return \%message;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 1;
 __END__
 
-=head1 NAME
-
-Inventory - Networks team inventory module
-
-=head2 VERSION
-
-This document describes Inventory version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory;
-
-=head1 DESCRIPTION
-
-=head2 Main Subroutines
-
- The main abilities are:
-  - create new types of entry in a table
-  - edit existing entries in a table
-  - list existing entries
-
-=head2 Returns
- All returns from lists are arrays of hashes
-
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
-
-=head1 SUBROUTINES/METHODS
 
 =head1 DIAGNOSTICS
 
+Via error messages where present.
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
+A postgres database with the database layout that's defined inthe conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
 
 =head1 DEPENDENCIES
 
-Since I'm talking to a postgres database
 DBI
 DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
 
 =head1 INCOMPATIBILITIES
 

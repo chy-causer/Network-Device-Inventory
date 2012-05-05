@@ -2,7 +2,27 @@ package Inventory::Memberships;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Memberships
+
+=head2 VERSION
+
+This document describes Inventory::Memberships version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Memberships;
+
+=head1 DESCRIPTION
+
+Manage database information relating to relationships of hosts to hostgroups
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_memberships
@@ -17,8 +37,25 @@ our @EXPORT_OK = qw(
 
 use DBI;
 use DBD::Pg;
-use Inventory::Hosts 1.0;
-use Inventory::Hostgroups 1.0;
+use Inventory::Hosts 1.01;
+use Inventory::Hostgroups 1.01;
+
+my $ENTRY          = 'membership';
+my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+
+=pod
+
+=head2 Main Subroutines
+
+=cut
 
 sub internal_checkinput {
     my $posts = @_;
@@ -32,7 +69,7 @@ sub internal_checkinput {
         my %message;
         $message{'ERROR'} =
           'Input Error: The hostgroup_id supplied was non numeric';
-        $message{'FATAL'} = "The error was fatal";
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
     }
 
@@ -42,7 +79,7 @@ sub internal_checkinput {
     {
         my %message;
         $message{'ERROR'} = 'Input Error: The host_id supplied was non numeric';
-        $message{'FATAL'} = "The error was fatal";
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
     }
 
@@ -58,9 +95,8 @@ sub delete_memberships {
     # catch calling errors
     if ( !$dbh ) {
         my %message;
-        $message{'ERROR'} =
-'Internal Error: The database died or otherwise vanished before I could add the entry';
-        $message{'FATAL'} = "The error was fatal";
+        $message{'ERROR'} = $MSG_DBH_ERR;
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return @message_store;
     }
@@ -81,13 +117,13 @@ sub delete_memberships {
     my $sth = $dbh->prepare('DELETE FROM hosts_to_hostgroups WHERE id=?');
     if ( !$sth->execute( $posts->{'membership_id'} ) ) {
         my %message;
-        $message{'ERROR'} = 'Internal Error: The delete was unsuccessful';
+        $message{'ERROR'} = $MSG_DELETE_ERR;
         push @message_store, \%message;
         return @message_store;
     }
 
     my %message;
-    $message{'SUCCESS'} = 'Your delete was commited successfully';
+    $message{'SUCCESS'} = $MSG_DELETE_OK;
     push @message_store, \%message;
 
     return @message_store;
@@ -104,8 +140,7 @@ sub create_memberships {
     # catch calling errors
     if ( !$dbh ) {
         my %message;
-        $message{'FATAL'} =
-'Internal Error: The database died or otherwise vanished before I could add the entry';
+        $message{'FATAL'} = $MSG_DBH_ERR;
         push @message_store, \%message;
     }
 
@@ -168,8 +203,7 @@ sub edit_memberships {
     # catch calling errors
     if ( !$dbh ) {
         my %message;
-        $message{'FATAL'} =
-'Internal Error: The database died or otherwise vanished before I could edit the entry';
+        $message{'FATAL'} = $MSG_DBH_ERR;
         push @message_store, \%message;
     }
 
@@ -220,7 +254,7 @@ sub edit_memberships {
     }
 
     my %message;
-    $message{'SUCCESS'} = 'Your changes were commited successfully';
+    $message{'SUCCESS'} = $MSG_EDIT_OK;
     push @message_store, \%message;
     return @message_store;
 }
@@ -339,17 +373,12 @@ sub get_memberships_info {
 
 sub count_memberships {
     my ( $dbh, $request ) = @_;
-    my %message;
 
     if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
+        return { 'ERROR' => $MSG_DBH_ERR };
     }
     if ( !defined $request ) {
-        $message{'ERROR'} =
-'Internal Error: There is a programming error in a call to Inventory::Memberships::count_memberships';
-        return \%message;
+        return { 'ERROR' => $MSG_PROG_ERR };
     }
 
     my $sth;
@@ -455,56 +484,31 @@ sub fqdns_bybashgroup {
 1;
 __END__
 
-=head1 NAME
-
-Inventory::Memberships - Realationships of hosts to hostgroups
-
-=head2 VERSION
-
-This document describes Inventory::Memberships version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory::Memberships;
-  # There are no special setup requirements
-
-=head1 PURPOSE
-
-If you wish to investigate what groups a host is in: or conversly to discover
-what hosts are in a hostgroup, then this module assists in that process. A
-subroutine is procided for each of: creating, editing, listing all entries,
-and listing summary totals of the relationships.
-
-=head1 DESCRIPTION
-
-The module aims to hide the tasks of raw SQL queries to the dayabase from wou
-when performing common tasks which involve the relationhips of hosts to
-hostgroups in the inventory table.
-
-The data returned from a query should be generous, as well as the ids of the
-hosts involothe names, statuses and similar are returned. Each subroutine
-should also give a descriptive success or failure message.
-
-=head2 Main Subroutines
 
 =head3 create_memberships($dbh,$hashref)
 
 $dbh is the database handle for the Inventory Database
-$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your %POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
-$hash{'hostgroup_id'}
-$hash{'host_id'}
-Other values can exist in the hash without conflict or other issues.
+$hashref is a hash of values, usually as a result of the user submitting a
+form, e.g. your %POST values. The hash must contain the following keys with
+values for a successful creation of a host to hostgroup mapping:
+$hash{'hostgroup_id'} $hash{'host_id'} Other values can exist in the hash
+without conflict or other issues.
     
-This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g.
-$message{'SUCCESS'} = 'Your changes were commited successfully';
+This subrouting will always return a hashref with the SUCCESS or ERROR state
+recorded in the hash key and the human description recorded in the hash keys
+value, e.g.  $message{'SUCCESS'} = 'Your changes were commited successfully';
 
 
 =head3 edit_memberships($dbh,$hashref)
 
-The edit subroutine is very similar to the create in usage, although the purpose can only be to edit. You can't submit an edit on non existant entry to create one.
+The edit subroutine is very similar to the create in usage, although the
+purpose can only be to edit. You can't submit an edit on non existant entry to
+create one.
 
-$dbh is the database handle for the Inventory Database
-$hashref is a hash of values, usually as a result of the user submitting a form, e.g. your %POST values. The hash must contain the following keys with values for a successful creation of a host to hostgroup mapping:
+$dbh is the database handle for the Inventory Database $hashref is a hash of
+values, usually as a result of the user submitting a form, e.g. your %POST
+values. The hash must contain the following keys with values for a successful
+creation of a host to hostgroup mapping:
 
 $hash{'membership_id'}
 $hash{'hostgroup_id'}
@@ -512,33 +516,52 @@ $hash{'host_id'}
 
 =head3 get_memberships_info($dbh,$optional_membershipid)
  
-The information subroutine returns the information for all entries in the form of an array with each array entry being a hash of the values returned for that row.
+The information subroutine returns the information for all entries in the form
+of an array with each array entry being a hash of the values returned for that
+row.
 
-Optionally a numerical unique id for the filed you are interested in can be supplied after the database handle. This will return only one specific result. Note that if you pass a (invalid) non numeric id the routine will default back to showing all entries, which might come as a bit of a shock the first time it happens. If you pass a id of the valid format but invalid to the database you'll get no results.
+Optionally a numerical unique id for the filed you are interested in can be
+supplied after the database handle. This will return only one specific result.
+Note that if you pass a (invalid) non numeric id the routine will default back
+to showing all entries, which might come as a bit of a shock the first time it
+happens. If you pass a id of the valid format but invalid to the database
+you'll get no results.
 
-Note that this specific subroutine does not return the hashed error/success messages of style returned by the the other subroutines in this module. This routine will return data or return null.
+Note that this specific subroutine does not return the hashed error/success
+messages of style returned by the the other subroutines in this module. This
+routine will return data or return null.
 
 =head3 count_memberships($dbh,'group' OR 'host')
 
-This subroutine is actually a wrapper to the call for all get_memberships_info, geared towards providing useful summaries of memberships per group or groups per host, depending on the method used to call it.
+This subroutine is actually a wrapper to the call for all
+get_memberships_info, geared towards providing useful summaries of memberships
+per group or groups per host, depending on the method used to call it.
 
-If no database handle or arguemnt are given, the subroutine will exit with a hash error message as per the 'create' and 'edit' subroutines in this module.
+If no database handle or arguemnt are given, the subroutine will exit with a
+hash error message as per the 'create' and 'edit' subroutines in this module.
 
-If 'group' is specified, the total hosts per group will be returned with totals per status. This gives a group centric summary of the host to hostgroups mappings in a hash of hashes
-.
-e.g. using the oxmails group as an example, but remmebering all groups will be returned:
-            $returned_hash{'oxmails'}{active}         = 3
-            $returned_hash{'oxmails'}{inactive}       = 9
-            $returned_hash{'oxmails'}{decommissioned} = 2
-            $returned_hash{'oxmails'}{instock}        = 5
-            $returned_hash{'oxmails'}{$hostgroup_id'} = 123;
+If 'group' is specified, the total hosts per group will be returned with
+totals per status. This gives a group centric summary of the host to
+hostgroups mappings in a hash of hashes .  e.g. using the oxmails group as an
+example, but remmebering all groups will be returned:
+$returned_hash{'oxmails'}{active}         = 3
+$returned_hash{'oxmails'}{inactive}       = 9
+$returned_hash{'oxmails'}{decommissioned} = 2
+$returned_hash{'oxmails'}{instock}        = 5
+$returned_hash{'oxmails'}{$hostgroup_id'} = 123;
         
-If 'host' is specified, the total group memberships per host will be returned. Eg. a host centric summary of the host to hostgroups mappings.
-The host centric summary isn't acutally used at the moment, so its not refined to any purpose. If you change it please document it here and discuss with other members of the group.
+If 'host' is specified, the total group memberships per host will be returned.
+Eg. a host centric summary of the host to hostgroups mappings.  The host
+centric summary isn't acutally used at the moment, so its not refined to any
+purpose. If you change it please document it here and discuss with other
+members of the group.
         
 =head1 CONFIGURATION AND ENVIRONMENT
 
-A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
+A postgres database with the database layout that's expected by the overall
+Inventory module is required. Other configuration is at the application level
+via a configuration file loaded via Config::Tiny in the calling script, but
+this module itself is only passed the resulting database handle.
 
 =head1 DEPENDENCIES
 

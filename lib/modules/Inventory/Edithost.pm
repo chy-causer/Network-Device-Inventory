@@ -2,7 +2,27 @@ package Inventory::Edithost;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Edithost
+
+=head2 VERSION
+
+This document describes Inventory::Edithost version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Edithost;
+
+=head1 DESCRIPTION
+
+Functions for dealing with editings the hosts data.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   do_update_all
@@ -89,9 +109,9 @@ sub _create_or_update_host {
       Inventory::Hosts::get_hosts_info_by_name( $dbh, $POSTS->{'host_name'} );
     $POSTS->{host_id} = $new_host[0]->{id};
 
-#    not desirable - when editing one field we don't want to automatically
-#    confirm all the hosts details.
-#    push @{$messages}, Inventory::Hosts::update_time( $dbh, $POSTS );
+    #    not desirable - when editing one field we don't want to automatically
+    #    confirm all the hosts details.
+    #    push @{$messages}, Inventory::Hosts::update_time( $dbh, $POSTS );
 
     return @{$messages};
 }
@@ -412,13 +432,13 @@ sub _add_interface {
 
 __END__
 
-=head1 NAME
-
-Inventory::Edithosts - Edit Hosts
+=pod
 
 =head1 AUTHOR
 
 Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+[This specific page includes work by Oliver Gorwits]
 
 =head1 LICENSE AND COPYRIGHT
 
