@@ -59,6 +59,20 @@
   [% END -%]
   </fieldset>
 </form>
+[% ELSIF delete %]
+
+  [% FOR link IN links %]
+      [% IF delete == link.id %]
+<form action="models" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry &quot;[% link.host_name | html_entity %] protected by [% link.ups_name | html_entity %]&quot;?
+ <br />
+ <input type="hidden" name="ups_id" value="[% ups.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="models">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
 [% END -%]
 
 <h3>Enter a new record</h3>
@@ -90,8 +104,9 @@
 </form>
 [% END %]
 
-<h3>Current UPS relationships</h3>
 
+<form method="get" action="models">
+<fieldset><legend>Known UPS protected devices</legend>
 [% SET counter=0 %]
 
 [% IF links.size > 0 %]
@@ -102,12 +117,14 @@ $(document).ready(function(){
 ); 
 </script>
 
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
+
 <table id="allresults" summary="Table of existing UPS to Host relationships">
-   <thead>
-    <tr>
+  <thead>
+  <tr>
+      <th></th>
       <th>Ups</th>
       <th>Host</th>
-      <th>Options</th>
     </tr>
    </thead>
 
@@ -123,14 +140,17 @@ $(document).ready(function(){
     [% ELSE %]
       <tr>
     [% END %]
-
-        <td>[% link.ups_name | html_entity %]</td><td>[% link.host_name | html_entity %]</td><td><a href="ups?link_id=[% link.link_id | html_entity %]">edit this entry</a></td>
+        <td><input type="radio" name="ups_id" value="[% ups.id  | html_entity %]" /></td>
+        <td>[% link.ups_name | html_entity %]</td>
+        <td>[% link.host_name | html_entity %]</td>
       </tr>
     [% counter = counter + 1 %]
    [% END %]
    </tbody>
 
   </table>
+</fieldset>
+</form>
 
 [% ELSE %]
  <p class="input-warning">No hosts are known to be connected to any ups devices.</p>

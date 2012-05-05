@@ -80,18 +80,37 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
 }
 
-my $edit;
-if ( $gets{'link_id'} && $gets{'link_id'} !~ m/\D/x ) {
-    $edit = $gets{'link_id'};
+my ( $edit, $delete );
+if ( $gets{'link_id'} && $gets{'link_id'} =~ m/^[\d]+$/x ) {
+    if ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->debug(
+            "$ENV{REMOTE_USER} takes first step to delete ID $gets{'link_id'}"
+        );
+        $delete = $gets{'link_id'};
+    }
+    else {
+        $logger->debug(
+            "$ENV{REMOTE_USER} takes first step to edit ID $gets{'link_id'}");
+        $edit = $gets{'link_id'};
+    }
 }
 
-if ( $POSTS{'link_id'} ) {
-    $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'link_id'}");
-    %message = %{ Inventory::Ups::edit_ups( $dbh, \%POSTS ) };
-}
-elsif ( $POSTS{'host_id'} && $POSTS{'ups_id'} ) {
-    $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
-    %message = %{ Inventory::Ups::create_ups( $dbh, \%POSTS ) };
+# are we editing/deleting an existing entry?
+if ( exists $POSTS{'action'} ) {
+    if ( $POSTS{'action'} eq 'delete' ) {
+        $logger->info(
+            "$ENV{REMOTE_USER} posts to delete ID $POSTS{'link_id'}");
+        %message =
+          %{ Inventory::Ups::delete_ups( $dbh, $POSTS{'link_id'} ) };
+    }
+    elsif ( $POSTS{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'link_id'}");
+        %message = %{ Inventory::Ups::edit_ups( $dbh, \%POSTS ) };
+    }
+    elsif ( $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
+        %message = %{ Inventory::Ups::create_ups( $dbh, \%POSTS ) };
+    }
 }
 
 # list all the hosts (array of hashes)
@@ -107,6 +126,7 @@ $tt->process(
     {
         message => \%message,
         edit    => $edit,
+        delete  => $delete,
         ups     => \@ups,
         hosts   => \@hosts,
         links   => \@links,

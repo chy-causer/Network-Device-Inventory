@@ -98,6 +98,20 @@ sub create_ups {
     return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
+=pod
+
+=head2 delete_ups
+
+Delete a single ups.
+
+ delete_ups( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_ups {
     my ( $dbh, $id ) = @_;
 
