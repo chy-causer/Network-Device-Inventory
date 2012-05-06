@@ -4,10 +4,11 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use File::Basename;
 use Log::Log4perl;
 use Template;
@@ -158,7 +159,8 @@ $tt->process(
         delete  => $delete,
         host_id => $gets{'host_id'},
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+
 $tt->process( 'inventory_footer.tt', {} );
 
 __END__

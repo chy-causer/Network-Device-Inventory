@@ -4,14 +4,15 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
-use Template;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use Log::Log4perl;
 use NetAddr::IP;
 use Regexp::Common 'net';
+use Template;
 use URI::Escape;
 
 use Inventory 1.0;
@@ -293,8 +294,7 @@ $tt->process(
         posts => \%POSTS,
     }
   )
-  || die "Programming Error: Couldn't load the page template due to "
-  . $tt->error() . "\n";
+  || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

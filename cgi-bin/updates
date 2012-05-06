@@ -115,7 +115,7 @@ $tt->process(
         files   => $files,
         message => $message,
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

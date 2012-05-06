@@ -4,6 +4,7 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
 use Config::Tiny;
 use DBD::Pg;

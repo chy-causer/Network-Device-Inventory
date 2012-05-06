@@ -4,12 +4,13 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
-use Template;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use Log::Log4perl;
+use Template;
 
 use Inventory 1.0;
 use Inventory::Introlemembers 1.0;
@@ -59,7 +60,8 @@ my %fqdns_bybashgroups =
   %{ Inventory::Introlemembers::fqdns_bybashgroup($dbh) };
 
 $tt->process( 'inventory_bashrc.tt',
-    { fqdns_bybashgroups => \%fqdns_bybashgroups, } );
+    { fqdns_bybashgroups => \%fqdns_bybashgroups, } ) 
+    || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 __END__
 
