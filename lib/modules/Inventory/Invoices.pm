@@ -2,28 +2,93 @@ package Inventory::Invoices;
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+=pod
+
+=head1 NAME
+
+Inventory::Invoices
+
+=head1 VERSION
+
+This document describes Inventory::Invoices version 1.03
+
+=head1 SYNOPSIS
+
+  use Inventory::Invoices;
+
+=head1 DESCRIPTION
+
+Module for manipulating the interface to interface role information
+
+=cut
+
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_invoices
   get_invoices_info
   edit_invoices
   delete_invoices
+  get_hosts_byinvoice
 );
+
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Readonly
+
+=cut
 
 use DBI;
 use DBD::Pg;
+use Readonly;
 
-my $ENTRY          = 'invoice';
-my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $ENTRY          = 'invoice';
+Readonly my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_invoices
+
+Main creation sub.
+create_invoices($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and basic invoice name sanity.
+
+=cut
 
 sub create_invoices {
     my ( $dbh, $input ) = @_;
@@ -54,7 +119,19 @@ sub create_invoices {
 
     return {'SUCCESS'} = $MSG_CREATE_OK;
 }
-}
+
+=pod
+
+=head2 edit_invoices
+
+Main edit sub.
+  edit_invoices ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Currently the only error check is for a missing database handle.
+
+=cut
 
 sub edit_invoices {
     my ( $dbh, $input ) = @_;
@@ -91,6 +168,20 @@ sub edit_invoices {
     return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
+=pod
+
+=head2 delete_invoices
+
+Delete a single invoice
+
+ delete_invoices( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_invoices {
     my ( $dbh, $id ) = @_;
 
@@ -104,6 +195,19 @@ sub delete_invoices {
 
     return { 'SUCCESS' => $MSG_DELETE_OK };
 }
+
+=pod
+
+=head2 get_invoices_info
+
+Main individual record retrieval sub. 
+ get_invoices_info ( $dbh, $invoice_id )
+
+$invoice_id is optional, if not specified all results will be returned.
+
+Returns the details in a array of hashes.
+
+=cut
 
 sub get_invoices_info {
     my ( $dbh, $id ) = @_;
@@ -190,13 +294,79 @@ sub get_invoices_info {
     return @return_array;
 }
 
+=pod
+
+=head2 get_hosts_byinvoice
+
+Retrieve all hosts associated with a given invoice.
+ get_hosts_byinvoice ( $dbh, $invoice_id )
+
+Returns the details in a array of hashes.
+
+=cut
+
+sub get_hosts_byinvoice {
+    my ( $dbh, $id ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $id;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE
+           invoice_id=?
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return if !$sth->execute($id);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
 1;
 
 __END__
 
-=head1 NAME
+=pod
 
-Inventory::Invoices - Manipulate Invoices
+=head1 DIAGNOSTICS
+
+Via error messages where present.
+
+=head1 INCOMPATIBILITIES
+
+none known
 
 =head1 BUGS AND LIMITATIONS
 

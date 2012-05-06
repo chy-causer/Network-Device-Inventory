@@ -8,7 +8,7 @@ use warnings;
 
   Inventory::Contacts
 
-=head2 VERSION
+=head1 VERSION
 
 This document describes Inventory::Contacts version 1.01
 
@@ -33,20 +33,65 @@ our @EXPORT_OK = qw(
   delete_contacts
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI;
+DBD::Pg;
+Readonly;
+
+=cut
+
 use DBI;
 use DBD::Pg;
+use Readonly;
 
-my $MAX_NAME_LENGTH = 128;
-my $ENTRY           = 'contact';
-my $MSG_DBH_ERR     = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR   = 'Input Error: Please check your input';
-my $MSG_CREATE_OK   = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR  = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK     = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR    = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK   = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR  = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR   = 'The error was fatal, processing stopped';
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_NAME_LENGTH => '128';
+Readonly my $ENTRY           => 'contact';
+
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_contacts
+
+Main creation sub.
+create_contacts($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+The sub checks for missing database handles and bad name inputs.
+
+=cut
 
 sub create_contacts {
     my ( $dbh, $input ) = @_;
@@ -85,66 +130,108 @@ sub create_contacts {
     return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
+=pod
+
+=head2 edit_contacts
+
+Main edit sub.
+  edit_contacts ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+The sub checks for missing database handles and bad name inputs.
+
+=cut
+
 sub edit_contacts {
     my ( $dbh, $input ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    if (
-           !exists $input->{'contact_name'}
+    if (   !exists $input->{'contact_name'}
         || $input->{'contact_name'} !~ m/^[\w\s\-]+$/x
         || length( $input->{'contact_name'} ) < 1
-        || length( $input->{'contact_name'} ) > $MAX_NAME_LENGTH{
+        || length( $input->{'contact_name'} ) > $MAX_NAME_LENGTH )
+    {
 
-            return { 'ERROR' => $MSG_INPUT_ERR };
-        }
+        return { 'ERROR' => $MSG_INPUT_ERR };
+    }
 
-        my $sth = $dbh->prepare(
+    my $sth = $dbh->prepare(
 'UPDATE contacts SET name=?,supplier_id=?,role=?,address=?,telephone=?,email=?,notes=? WHERE id=?'
-        );
-        if (
-            !$sth->execute(
-                $input->{'contact_name'},
-                $input->{'supplier_id'},
-                $input->{'contact_role'},
-                $input->{'contact_address'},
-                $input->{'contact_telephone'},
-                $input->{'contact_email'},
-                $input->{'contact_notes'},
+    );
+    if (
+        !$sth->execute(
+            $input->{'contact_name'},
+            $input->{'supplier_id'},
+            $input->{'contact_role'},
+            $input->{'contact_address'},
+            $input->{'contact_telephone'},
+            $input->{'contact_email'},
+            $input->{'contact_notes'},
 
-                $input->{'contact_id'}
-            )
+            $input->{'contact_id'}
         )
-        {
-            return { 'ERROR' => $MSG_EDIT_ERR };
-        }
-
-        return { 'SUCCESS' => $MSG_EDIT_OK };
+      )
+    {
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    sub delete_contacts {
-        my ( $dbh, $id ) = @_;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
+}
 
-        if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-        if ( !defined $id )  { return { 'ERROR' => $MSG_INPUT_ERR }; }
+=pod
 
-        my $sth = $dbh->prepare('DELETE FROM contacts WHERE id=?');
-        if ( !$sth->execute($id) ) {
-            return { 'ERROR' => $MSG_DELETE_ERR };
-        }
+=head2 delete_contacts
 
-        return { 'SUCCESS' => $MSG_DELETE_OK };
+Delete a single contacts
+
+ delete_contacts( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
+sub delete_contacts {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_INPUT_ERR }; }
+
+    my $sth = $dbh->prepare('DELETE FROM contacts WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    sub get_contacts_bysupplier {
-        my ( $dbh, $id ) = @_;
-        my $sth;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
 
-        return if !defined $dbh;
+=pod
 
-        if ( defined $id ) {
-            $sth = $dbh->prepare(
-                'SELECT 
+=head2 get_contacts_bysupplier
+
+Delete a single contacts
+
+ get_contacts_bysupplier( $dbh, $supplier_id );
+
+Returns array of hashed contact details
+
+Checks for missing database handle and id.
+
+=cut
+
+sub get_contacts_bysupplier {
+    my ( $dbh, $id ) = @_;
+    my $sth;
+
+    return if !defined $dbh;
+    return if !defined $id;
+
+    if ( defined $id ) {
+        $sth = $dbh->prepare(
+            'SELECT 
            contacts.id,
            contacts.name,
            contacts.supplier_id,
@@ -161,26 +248,37 @@ sub edit_contacts {
         ORDER BY
            contacts.name
         '
-            );
-            return if !$sth->execute($id);
-        }
-        my @return_array;
-        while ( my $reference = $sth->fetchrow_hashref ) {
-            push @return_array, $reference;
-        }
-
-        return @return_array;
+        );
+        return if !$sth->execute($id);
+    }
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
     }
 
-    sub get_contacts_info {
-        my ( $dbh, $id ) = @_;
-        my $sth;
+    return @return_array;
+}
 
-        return if !defined $dbh;
+=pod
 
-        if ( defined $id ) {
-            $sth = $dbh->prepare(
-                'SELECT 
+=head2 get_contacts_info
+
+Main individual record retrieval sub. 
+ get_contacts_info ( $dbh, $contacts_id )
+
+Returns the details in a hash.
+
+=cut
+
+sub get_contacts_info {
+    my ( $dbh, $id ) = @_;
+    my $sth;
+
+    return if !defined $dbh;
+
+    if ( defined $id ) {
+        $sth = $dbh->prepare(
+            'SELECT 
            contacts.id,
            contacts.name,
            contacts.supplier_id,
@@ -197,12 +295,12 @@ sub edit_contacts {
         ORDER BY
            contacts.name
         '
-            );
-            return if !$sth->execute($id);
-        }
-        else {
-            $sth = $dbh->prepare(
-                'SELECT 
+        );
+        return if !$sth->execute($id);
+    }
+    else {
+        $sth = $dbh->prepare(
+            'SELECT 
            contacts.id,
            contacts.name,
            contacts.supplier_id,
@@ -218,23 +316,35 @@ sub edit_contacts {
         ORDER BY
            contacts.name
         '
-            );
-            return if !$sth->execute();
-        }
-
-        my @return_array;
-        while ( my $reference = $sth->fetchrow_hashref ) {
-            push @return_array, $reference;
-        }
-
-        return @return_array;
+        );
+        return if !$sth->execute();
     }
 
-    1;
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+
+    return @return_array;
+}
+
+1;
 
 __END__
 
 =pod
+
+=head1 DIAGNOSTICS
+
+Via error messages where present.
+
+=head1 INCOMPATIBILITIES
+
+None known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
 
 =head1 AUTHOR
 

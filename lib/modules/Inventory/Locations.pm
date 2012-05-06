@@ -35,20 +35,50 @@ our @EXPORT_OK = qw(
   hosts_bylocation_id
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Readonly
+Inventory::Hosts 1.01
+
+=cut
+
 use DBI;
 use DBD::Pg;
+use Readonly;
 use Inventory::Hosts 1.0;
 
-my $ENTRY          = 'location';
-my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $ENTRY          => 'location';
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
 
 =head1 SUBROUTINES/METHODS
 
@@ -411,22 +441,6 @@ __END__
 =head1 DIAGNOSTICS
 
 Via error messages where present.
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's defined inthe conf
-directory of the following link is required.
-
-https://github.com/guyed/Network-Device-Inventory
-
-Other configuration is at the application level via a configuration file, but
-the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-DBI
-DBD::Pg
-Inventory::Hosts 1.0
 
 =head1 INCOMPATIBILITIES
 

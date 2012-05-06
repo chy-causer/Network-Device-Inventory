@@ -6,11 +6,11 @@ use warnings;
 
 =head1 NAME
 
-  Inventory::Manufacturers
+Inventory::Manufacturers
 
-=head2 VERSION
+=head1 VERSION
 
-This document describes Inventory::Manufacturers version 1.01
+This document describes Inventory::Manufacturers version 1.02
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Functions for dealing with the Manufacturer related data and analysis of it.
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_manufacturers
@@ -36,24 +36,54 @@ our @EXPORT_OK = qw(
   hosts_bymanufacturer_name
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Readonly
+
+=cut
+
 use DBI;
 use DBD::Pg;
-use Inventory::Hosts 1.0;
+use Readonly;
 
-my $ENTRY          = 'manufacturer';
-my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+use Inventory::Hosts 1.0;
 
 =pod
 
-=head1 SUBROUTINES
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $ENTRY          => 'manufacturer';
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
 
 =head2 create_manufacturers
 
@@ -105,6 +135,9 @@ sub edit_manufacturers {
     my ( $dbh, $posts ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'manufacturer_id'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
+    }
 
     if (
         || !exists $posts->{'manufacturer_name'}
@@ -396,7 +429,7 @@ sub hosts_bymanufacturer_id {
            hosts.name
         ' );
 
-    return unless $sth->execute($id);
+    return if !$sth->execute($id);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -459,7 +492,7 @@ sub hosts_bymanufacturer_name {
            hosts.name
         ' );
 
-    return unless $sth->execute($id);
+    return if !$sth->execute($id);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -477,25 +510,9 @@ __END__
 
 Via error messages where present.
 
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's defined in the conf
-directory of the following link is required.
-
-https://github.com/guyed/Network-Device-Inventory
-
-Other configuration is at the application level via a configuration file, but
-the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-DBI
-DBD::Pg
-Inventory::Hosts 1.0
-
 =head1 INCOMPATIBILITIES
 
-None known
+none known
 
 =head1 BUGS AND LIMITATIONS
 

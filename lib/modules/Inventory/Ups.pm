@@ -8,9 +8,9 @@ use warnings;
 
 Inventory::Ups
 
-=head2 VERSION
+=head1 VERSION
 
-This document describes Inventory::Ups version 1.01
+This document describes Inventory::Ups version 1.02
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Module to handle the data relating to UPS protection relationships.
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_ups
@@ -34,47 +34,76 @@ our @EXPORT_OK = qw(
   host_byupsid
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Readonly
+
+=cut
+
 use DBI;
 use DBD::Pg;
-use Inventory::Hosts 1.0;
-use Inventory::Introles 1.0;
-
-my $ENTRY          = 'ups to host link';
-my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+use Readonly;
 
 =pod
 
-=head2 Main Subroutines
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $ENTRY        => 'ups to host link';
+Readonly my $DB_DUPE_MSG  => 'duplicate key violates unique constraint';
+Readonly my $UPS_INTROLE1 => 'device-sec-ups-mge';
+Readonly my $UPS_INTROLE2 => 'device-ups-mge';
+
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+Readonly my $MSG_DUPE_ERR => 'That host is already linked to that UPS';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_ups
+
+Main creation sub.
+create_ups($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and database ids.
 
 =cut
 
 sub create_ups {
     my ( $dbh, $posts ) = @_;
 
-    my %message;
-
-    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-
-    if (
-           !exists $posts->{'host_id'}
-        || $posts->{'host_id'} =~ m/\D/x
-        || length( $posts->{'host_id'} ) < 1
-
-        || !exists $posts->{'ups_id'}
-        || $posts->{'ups_id'} =~ m/\D/x
-        || length( $posts->{'ups_id'} ) < 1
-      )
-    {
-        return { 'ERROR' => $MSG_PROG_ERR };
-    }
+    if ( !defined $dbh )               { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !exists $posts->{'ups_id'} )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare(
         'INSERT INTO hosts_to_upshost (host_id,ups_id) VALUES(?,?)');
@@ -82,17 +111,12 @@ sub create_ups {
     if ( !$sth->execute( $posts->{'host_id'}, $posts->{'ups_id'} ) ) {
 
         # find out what the error was
-        my $full_error_string = $dbh->errstr;
-        my $duplicate_entry_message =
-          'duplicate key violates unique constraint';
-        if ( $full_error_string =~ m/$duplicate_entry_message/ix ) {
-            $message{'ERROR'} =
-'Internal Error: You just tried to add a host to a ups that it is already a linked with.';
+        if ( $dbh->errstr =~ m/$DB_DUPE_MSG/ix ) {
+            return { 'ERROR' => $MSG_DUPE_ERR };
         }
         else {
             return { 'ERROR' => $MSG_CREATE_ERR };
         }
-        return \%message;
     }
 
     return { 'SUCCESS' => $MSG_CREATE_OK };
@@ -126,30 +150,27 @@ sub delete_ups {
     return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
+=pod
+
+=head2 edit_ups
+
+Main edit sub.
+  edit_ups ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Checks for a missing database handle and database ids.
+
+=cut
+
 sub edit_ups {
     my ( $dbh, $posts ) = @_;
     my %message;
 
-    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-
-    # dump bad inputs
-    if (
-           !exists $posts->{'link_id'}
-        || $posts->{'link_id'} =~ m/\D/x
-        || length $posts->{'link_id'} < 1
-
-        || !exists $posts->{'ups_id'}
-        || $posts->{'ups_id'} =~ m/\D/x
-        || length $posts->{'ups_id'} < 1
-
-        || !exists $posts->{'host_id'}
-        || $posts->{'host_id'} =~ m/\D/x
-        || length $posts->{'host_id'} < 1
-
-      )
-    {
-        return { 'ERROR' => $MSG_PROG_ERR };
-    }
+    if ( !defined $dbh )               { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !exists $posts->{'ups_id'} )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !exists $posts->{'link_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare(
         'UPDATE hosts_to_upshost SET host_id=?,ups_id=? WHERE id=?');
@@ -161,21 +182,32 @@ sub edit_ups {
     {
 
         # find out what the error was
-        my $full_error_string = $dbh->errstr;
-        my $duplicate_entry_message =
-          'duplicate key violates unique constraint';
-        if ( $full_error_string =~ m/$duplicate_entry_message/ix ) {
-            $message{'ERROR'} =
-'Input Error: You just tried to link a host to a ups that it is already linked with.';
+        if ( $dbh->errstr =~ m/$DB_DUPE_MSG/ix ) {
+            return { 'ERROR' => $MSG_DUPE_ERR };
         }
         else {
             return { 'ERROR' => $MSG_EDIT_ERR };
         }
-        return \%message;
     }
 
     return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 ups_byhostid
+
+Return all ups records associated with a given host
+ ups_byhostid ( $dbh, $host_id )
+
+Normally only one record should be returned but the subroutine will cope with
+multiple returns.
+
+Returns the details in a array of hashes.
+
+FIXME: error returning may be non useful
+
+=cut
 
 sub ups_byhostid {
     my ( $dbh, $host_id ) = @_;
@@ -184,16 +216,14 @@ sub ups_byhostid {
     return if !$host_id;
 
     my $sth =
-      $dbh->prepare( "SELECT"
-          . " hosts_to_upshost.id as link_id,"
-          . " hosts_to_upshost.ups_id,"
-          . " hosts.name AS ups_name "
-          . "FROM hosts_to_upshost,hosts "
-          . "WHERE hosts_to_upshost.host_id=? "
-          . "AND hosts.id=hosts_to_upshost.ups_id" );
+      $dbh->prepare( 'SELECT'
+          . ' hosts_to_upshost.id as link_id,'
+          . ' hosts_to_upshost.ups_id,'
+          . ' hosts.name AS ups_name '
+          . 'FROM hosts_to_upshost,hosts '
+          . 'WHERE hosts_to_upshost.host_id=? '
+          . 'AND hosts.id=hosts_to_upshost.ups_id' );
 
-    # FIXME: we return error here but is it a useful way or returning? Can it
-    # be improved?
     return 'ERROR' if !$sth->execute($host_id);
 
     my @return_array;
@@ -204,6 +234,19 @@ sub ups_byhostid {
     return @return_array;
 }
 
+=pod
+
+=head2 host_byupsid
+
+Return all hosts records associated with a given UPS device
+ host_byupsid ( $dbh, $ups_id )
+
+Returns the details in a array of hashes.
+
+FIXME: error returning may be non useful
+
+=cut
+
 sub host_byupsid {
     my ( $dbh, $host_id ) = @_;
 
@@ -213,8 +256,6 @@ sub host_byupsid {
     my $sth =
       $dbh->prepare('SELECT host_id FROM hosts_to_upshost WHERE ups_id=?');
 
-    # FIXME: we return error here but is it a useful way or returning? Can it
-    # be improved?
     return 'ERROR' if !$sth->execute($host_id);
 
     my @return_array;
@@ -224,6 +265,20 @@ sub host_byupsid {
     }
     return @return_array;
 }
+
+=pod
+
+=head2 get_links_info
+
+Main record retrieval sub. 
+ get_links_info ( $dbh, $relationship_link_id )
+ get_links_info ( $dbh )
+
+The link id is optional, if not specified all results will be returned.
+
+Returns the details in a array of hashes.
+
+=cut
 
 sub get_links_info {
     my $dbh           = shift;
@@ -289,14 +344,28 @@ sub get_links_info {
     return @return_array;
 }
 
+=pod
+
+=head2 get_ups_info
+
+Main individual record retrieval sub. 
+ get_ups_info ( $dbh )
+
+Return all hosts in the frodo_ups and ups groups this means we can make a
+dropdown of hosts that are just ups's rather than a dropdown of every known host.
+
+Returns the details in a array of hashes.
+
+FIXME - the UPS category names should be in a config file not hardcoded in the module
+
+=cut
+
 sub get_ups_info {
     my $dbh = shift;
     return if !$dbh;
 
-    # return all hosts in the frodo_ups and ups groups
-    # this means we can make a dropdown of hosts that are just ups's
     #
-    my $sth = $dbh->prepare( "
+    my $sth = $dbh->prepare( '
         SELECT 
           hosts.id AS ups_id,
           hosts.name AS ups_name,
@@ -305,12 +374,11 @@ sub get_ups_info {
             LEFT JOIN interfaces on hosts.id = interfaces.host_id
             LEFT JOIN interfaces_to_introles ON interfaces_to_introles.interface_id = interfaces.id
             LEFT JOIN introles ON interfaces_to_introles.introle_id = introles.id
-        WHERE introles.name in ('device-ups-mge', 'device-sec-ups-mge')
+        WHERE introles.name in (?, ?)
         ORDER BY ups_name ASC
-    " );
+    ' );
 
-    # FIXME - the category names should be in a config file not hardcoded vars
-    return if !$sth->execute;
+    return if !$sth->execute( $UPS_INTROLE1, $UPS_INTROLE2 );
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -318,6 +386,22 @@ sub get_ups_info {
     }
     return @return_array;
 }
+
+=pod
+
+=head2 count_ups
+
+Either count the number of known UPS devices in active use 
+ count_ups ( $dbh, 'ups' )
+
+Or count the number of UPS protected hosts
+ count_ups ( $dbh, 'host' )
+
+Returns the details in a hashes.
+
+FIXME: sub output is confusing, document better
+
+=cut
 
 sub count_ups {
     my ( $dbh, $request ) = @_;
@@ -354,7 +438,6 @@ sub count_ups {
             my $host_id   = $dbdata{'host_id'};
             my $state     = lc $dbdata{'state'};
 
-            # this isn't exactly pretty but it'll work
             $return_hash{$host_name}{$state}++;
             $return_hash{$host_name}{'host_id'} = $host_id;
         }
@@ -365,22 +448,15 @@ sub count_ups {
 1;
 __END__
 
-
 =pod
 
-=head1 CONFIGURATION AND ENVIRONMENT
+=head1 DIAGNOSTICS
 
-A postgres database with the database layout that's expected by the overall
-Inventory module is required. Other configuration is at the application level
-via a configuration file loaded via Config::Tiny in the calling script, but
-this module itself is only passed the resulting database handle.
+Via error messages where present.
 
-=head1 DEPENDENCIES
+=head1 INCOMPATIBILITIES
 
-DBI;
-DBD::Pg;
-Inventory;
-Inventory::Hosts 1.01;
+none known
 
 =head1 BUGS AND LIMITATIONS
 

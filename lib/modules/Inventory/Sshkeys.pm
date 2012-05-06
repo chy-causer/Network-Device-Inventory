@@ -32,21 +32,50 @@ our @EXPORT_OK = qw(
   sshkeys_byhostid
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Readonly
+
+=cut
+
 use DBI;
 use DBD::Pg;
+use Readonly;
 
-my $MAX_KEY_LENGTH = 48;
+=pod
 
-my $ENTRY          = 'SSH key';
-my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_KEY_LENGTH = '48';
+
+Readonly my $ENTRY          => 'SSH key';
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
 
 =pod
 
@@ -69,7 +98,7 @@ Checks for a missing database handle, host_id and basic sshkey sanity.
 
 sub create_sshkeys {
     my ( $dbh, $posts ) = @_;
-    my %message;
+
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
     if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
@@ -181,7 +210,10 @@ sub sshkeys_byhostid {
 =head2 get_sshkeys_info
 
 Main individual record retrieval sub. 
+ get_sshkeys_info ( $dbh )
  get_sshkeys_info ( $dbh, $sshkey_id )
+
+The $sshkey_id is optional, if not given all keys will be returned
 
 Returns the details in a hash.
 
@@ -249,7 +281,6 @@ sub get_sshkeys_info {
 =head2 delete_sshkeys
 
 Delete a single entry.
-
  delete_sshkeys( $dbh, $id );
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message
@@ -275,25 +306,11 @@ sub delete_sshkeys {
 1;
 __END__
 
+=pod
 
 =head1 DIAGNOSTICS
 
 Via error messages where present.
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's defined inthe conf
-directory of the following link is required.
-
-https://github.com/guyed/Network-Device-Inventory
-
-Other configuration is at the application level via a configuration file, but
-the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-DBI
-DBD::Pg
 
 =head1 INCOMPATIBILITIES
 

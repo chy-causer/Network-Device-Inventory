@@ -6,11 +6,11 @@ use warnings;
 
 =head1 NAME
 
-  Inventory::Hosts
+Inventory::Hosts
 
-=head2 VERSION
+=head1 VERSION
 
-This document describes Inventory::Hosts version 1.01
+This document describes Inventory::Hosts version 1.02
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Functions for dealing with the Hosts table related data
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hosts
@@ -32,23 +32,69 @@ our @EXPORT_OK = qw(
   get_hosts_info_by_name
   host_info_wrapper
   update_time
-  get_hosts_byinvoice
 );
+
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Net::DNS
+Readonly
+
+=cut
 
 use DBI;
 use DBD::Pg;
 use Net::DNS;
+use Readonly;
 
-my $ENTRY          = 'host';
-my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_NAME_LENGTH => '45';
+Readonly my $ENTRY = 'host';
+
+Readonly my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_hosts
+
+Main creation sub.
+create_hosts($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and basic decription sanity.
+
+=cut
 
 sub create_hosts {
     my ( $dbh, $posts ) = @_;
@@ -59,7 +105,7 @@ sub create_hosts {
            !exists $posts->{'host_name'}
         || $posts->{'host_name'} =~ m/[^\w\s\-]/x
         || length( $posts->{'host_name'} ) < 1
-        || length( $posts->{'host_name'} ) > 30
+        || length( $posts->{'host_name'} ) > $MAX_NAME_LENGTH
 
         || !exists $posts->{'location_id'}
         || $posts->{'location_id'} =~ m/\D/x
@@ -78,9 +124,11 @@ sub create_hosts {
         return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
-    $posts->{'host_description'} =~ s/[^\w\s\-]//gx
-      if exists $posts->{'host_description'}
-          and defined $posts->{'host_description'};
+    if ( exists $posts->{'host_description'}
+        and defined $posts->{'host_description'} )
+    {
+        $posts->{'host_description'} =~ s/[^\w\s\-]//gx;
+    }
     $posts->{'host_name'} = lc $posts->{'host_name'};
 
     if (   not exists $posts->{'invoice_id'}
@@ -119,51 +167,55 @@ sub create_hosts {
     return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
+=pod
+
+=head2 edit_hosts
+
+Main edit sub.
+  edit_hosts ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Checks for a missing database handle and basic decription sanity.
+
+=cut
+
 sub edit_hosts {
-    my $dbh   = shift;
-    my %posts = %{ shift() };
+    my ( $dbh, $posts ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !exists $posts->{'location_id'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
+    }
+    if ( !exists $posts->{'status_id'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
+    }
+    if ( !exists $posts->{'model_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
-    if (
-           !exists $posts{'host_name'}
-        || $posts{'host_name'} =~ m/[^\w\s\-]/x
-        || length( $posts{'host_name'} ) < 1
-        || length( $posts{'host_name'} ) > 30
-
-        || !exists $posts{'host_id'}
-        || $posts{'host_id'} =~ m/\D/x
-        || length( $posts{'host_id'} ) < 1
-
-        || !exists $posts{'location_id'}
-        || $posts{'location_id'} =~ m/\D/x
-        || length( $posts{'location_id'} ) < 1
-
-        || !exists $posts{'status_id'}
-        || $posts{'status_id'} =~ m/\D/x
-        || length( $posts{'status_id'} ) < 1
-
-        || !exists $posts{'model_id'}
-        || $posts{'model_id'} =~ m/\D/x
-        || length( $posts{'model_id'} ) < 1
-      )
+    if (   !exists $posts->{'host_name'}
+        || $posts->{'host_name'} =~ m/[^\w\s\-]/x
+        || length( $posts->{'host_name'} ) < 1
+        || length( $posts->{'host_name'} ) > $MAX_NAME_LENGTH )
     {
 
         # dont wave bad inputs at the database
-        return { 'ERROR' => 'Input Error: Please check your input' };
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
-    if (   not exists $posts{'invoice_id'}
-        or not defined $posts{'invoice_id'}
-        or length $posts{'invoice_id'} < 1 )
+    if (   not exists $posts->{'invoice_id'}
+        or not defined $posts->{'invoice_id'}
+        or length $posts->{'invoice_id'} < 1 )
     {
-        $posts{'invoice_id'} = undef;
+        $posts->{'invoice_id'} = undef;
     }
 
-    $posts{'host_description'} =~ s/[^\w\s\-]//gx
-      if exists $posts{'host_description'}
-          and defined $posts{'host_description'};
-    $posts{'host_name'} = lc $posts{'host_name'};
+    if ( exists $posts->{'host_description'}
+        and defined $posts->{'host_description'} )
+    {
+        $posts->{'host_description'} =~ s/[^\w\s\-]//gx;
+    }
+    $posts->{'host_name'} = lc $posts->{'host_name'};
 
     my $sth = $dbh->prepare(
         'UPDATE hosts SET 
@@ -180,40 +232,48 @@ sub edit_hosts {
     );
     if (
         !$sth->execute(
-            $posts{'host_name'},        $posts{'location_id'},
-            $posts{'status_id'},        $posts{'model_id'},
-            $posts{'host_description'}, $posts{'host_asset'},
-            $posts{'host_serial'},      $posts{'invoice_id'},
-            $posts{'host_id'}
+            $posts->{'host_name'},        $posts->{'location_id'},
+            $posts->{'status_id'},        $posts->{'model_id'},
+            $posts->{'host_description'}, $posts->{'host_asset'},
+            $posts->{'host_serial'},      $posts->{'invoice_id'},
+            $posts->{'host_id'}
         )
       )
     {
-        return { 'ERROR' => 'Internal Error: The edit was unsuccessful' };
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    return { 'SUCCESS' => 'Your host changes were commited successfully' };
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 host_info_wrapper
+
+Helps retrieve all the hosts information 
+ host_info_wrapper ( $dbh, $fieldname, $value )
+
+Returns the details in a hash, the structure is host_id => @hostdetails
+
+In the event of the database returning an error, the user gets a generic
+program failure message, you'll need to check the webservers for details of
+what the issue was.
+
+=cut
 
 sub host_info_wrapper {
     my ( $dbh, $fieldname, $value ) = @_;
-    my %results;    # return results
-                    # structure is host_id => @hostdetails
+    my %results;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-
-    # generic error
-    my $error =
-'Internal Error: The database lookup failed - likely to be a database or programming issue';
 
     if ( $fieldname eq 'asset' ) {
         my $sth = $dbh->prepare('SELECT id FROM hosts WHERE asset=?');
 
         if ( !$sth->execute($value) ) {
 
-            # Something went horribly wrong
-            # Check the apache logs for the exact details
             # I'm not showing the user the exact error
-            $results{'ERROR'} = $error;
+            $results{'ERROR'} = $MSG_PROG_ERR;
             return \%results;
         }
 
@@ -231,7 +291,7 @@ sub host_info_wrapper {
         my $sth = $dbh->prepare('SELECT id FROM hosts WHERE name ILIKE ?');
 
         if ( !$sth->execute($value) ) {
-            $results{'ERROR'} = $error;
+            $results{'ERROR'} = $MSG_PROG_ERR;
             return \%results;
         }
 
@@ -249,7 +309,7 @@ sub host_info_wrapper {
         my $sth = $dbh->prepare('SELECT id FROM hosts WHERE serial=?');
 
         if ( !$sth->execute($value) ) {
-            $results{'ERROR'} = $error;
+            $results{'ERROR'} = $MSG_PROG_ERR;
             return \%results;
         }
 
@@ -273,7 +333,7 @@ sub host_info_wrapper {
         my @ip_addresses;
         if ($query) {
             foreach my $rr ( $query->answer ) {
-                next unless $rr->type eq "A";
+                next if not $rr->type eq 'A';
                 push @ip_addresses, $rr->address;
             }
         }
@@ -287,7 +347,7 @@ sub host_info_wrapper {
                 'SELECT host_id FROM interfaces WHERE lastresolvedfqdn=?');
 
             if ( !$sth->execute($value) ) {
-                $results{'ERROR'} = $error;
+                $results{'ERROR'} = $MSG_PROG_ERR;
                 return \%results;
             }
 
@@ -316,7 +376,7 @@ sub host_info_wrapper {
               $dbh->prepare('SELECT host_id FROM interfaces WHERE address=?');
 
             if ( !$sth->execute($address) ) {
-                $results{"ERROR$counter"} = $error;
+                $results{"ERROR$counter"} = $MSG_PROG_ERR;
                 $counter++;
                 next;
             }
@@ -340,24 +400,27 @@ sub host_info_wrapper {
         return \%results;
     }
 
-    $error =
-"Internal Error: A condition the programmer thought would never happen, did. (fieldname was $fieldname)";
-    $results{'ERROR'} = $error;
-    return \%results;
+    # shouldn't get here
+    return { 'ERROR' => $MSG_PROG_ERR };
 }
+
+=pod
+
+=head2 update_time
+
+Update the time the hosts details were last confirmed
+
+ update_time ( $dbh, $posts );
+
+Returns the details in a hash.
+
+=cut
 
 sub update_time {
     my ( $dbh, $posts ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-
-    if (   !exists $posts->{'host_id'}
-        || $posts->{'host_id'} =~ m/\D/x
-        || length( $posts->{'host_id'} ) < 1 )
-    {
-        return {
-            'ERROR' => 'Programming Error: The supplied host id is invalid' };
-    }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     # if you've made it this far you are not the weakest link
     my $sth = $dbh->prepare('UPDATE hosts SET lastchecked = NOW() WHERE id=?');
@@ -369,6 +432,19 @@ sub update_time {
     return { 'SUCCESS' => 'Thanks for confirming this hosts details' };
 }
 
+=pod
+
+=head2 get_hosts_info_by_name 
+
+Given the name of a host, retrieve all information about it
+ get_hosts_info_by_name ( $dbh, $host_name );
+
+Search is case insentive.
+
+Returns the details in a hash.
+
+=cut
+
 sub get_hosts_info_by_name {
     my ( $dbh, $host_name ) = @_;
 
@@ -376,7 +452,7 @@ sub get_hosts_info_by_name {
     return if !defined $host_name;
 
     my $sth = $dbh->prepare('SELECT * FROM hosts WHERE name ILIKE ?');
-    return unless $sth->execute($host_name);
+    return if !$sth->execute($host_name);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -385,54 +461,18 @@ sub get_hosts_info_by_name {
     return @return_array;
 }
 
-sub get_hosts_byinvoice {
-    my ( $dbh, $id ) = @_;
+=pod
 
-    return if !defined $dbh;
-    return if !defined $id;
+=head2 get_hosts_info
 
-    my $sth = $dbh->prepare( '
-         SELECT 
-           hosts.id,
-           hosts.name,
-           hosts.description,
-           hosts.location_id,
-           hosts.status_id,
-           hosts.asset,
-           hosts.serial,
-           hosts.model_id,
-           hosts.lastchecked,
-           status.state AS status_state,
-           status.description AS status_description,
-           locations.name AS location_name,
-           models.name AS model_name,
-           manufacturers.name AS manufacturer_name,
-           manufacturers.id AS manufacturer_id
-         FROM hosts
-          
-          LEFT JOIN locations
-          ON hosts.location_id=locations.id
-          LEFT JOIN status
-          ON hosts.status_id=status.id
-          LEFT JOIN models
-          ON hosts.model_id=models.id
-          LEFT JOIN manufacturers
-          ON manufacturers.id=models.manufacturer_id
-         
-         WHERE
-           invoice_id=?
-         ORDER BY
-           hosts.name
-        
-        ' );
-    return unless $sth->execute($id);
+Main record retrieval sub. 
+ get_hosts_info ( $dbh, $host_id )
 
-    my @return_array;
-    while ( my $reference = $sth->fetchrow_hashref ) {
-        push @return_array, $reference;
-    }
-    return @return_array;
-}
+$host_id is optional, if not specified all results will be returned.
+
+Returns the details in a array of hashes.
+
+=cut
 
 sub get_hosts_info {
     my $dbh     = shift;
@@ -544,6 +584,20 @@ sub get_hosts_info {
     return @return_array;
 }
 
+=pod
+
+=head2 delete_hosts
+
+Delete a single host.
+
+ delete_host( $dbh, $host_id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_hosts {
     my ( $dbh, $id ) = @_;
 
@@ -563,24 +617,9 @@ __END__
 
 =pod
 
-=head2 Returns
- All returns from lists are arrays of hashes
-
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
-
-=head1 SUBROUTINES/METHODS
-
 =head1 DIAGNOSTICS
 
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-Since I'm talking to a postgres database
-DBI
-DBD::Pg
+Via error messages where present.
 
 =head1 INCOMPATIBILITIES
 

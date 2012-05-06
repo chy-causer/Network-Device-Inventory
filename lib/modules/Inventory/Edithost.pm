@@ -6,9 +6,9 @@ use warnings;
 
 =head1 NAME
 
-  Inventory::Edithost
+Inventory::Edithost
 
-=head2 VERSION
+=head1 VERSION
 
 This document describes Inventory::Edithost version 1.01
 
@@ -18,7 +18,7 @@ This document describes Inventory::Edithost version 1.01
 
 =head1 DESCRIPTION
 
-Functions for dealing with editings the hosts data.
+Functions for dealing with editing multiple aspects of the hosts data at once
 
 =cut
 
@@ -28,12 +28,72 @@ our @EXPORT_OK = qw(
   do_update_all
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+NetAddr::IP
+Regexp::Common
+Readonly
+
+=cut
+
 use NetAddr::IP;
 use Regexp::Common 'net';
+use Readonly;
 
-# this single sub calls all the other inventory primitives to action
-# changes to the web form (it actually does not notice changes, it just
-# reissues all current settings)
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $TABLEID_VOIPUPS1 => '43';
+Readonly my $TABLEIP_VOIPUPS2 => '28';
+Readonly my $ENTRY            => 'host';
+
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+Readonly my $MSG_LOCDB_ERR       => 'Programming error after location creation';
+Readonly my $MSG_NO_HN_ERR       => 'No host name was supplied';
+Readonly my $MSG_HOST_EXISTS_ERR => 'That host already exists';
+Readonly my $MSG_NO_HN_ERR       => 'No host name was supplied';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 do_update_all
+
+Main creation sub.
+  do_update_all($dbh, \%posts)
+
+
+This single sub calls all the other inventory primitives to action changes to
+the web form (it actually does not notice changes, it just reissues all
+current settings)
+
+=cut
 
 sub do_update_all {
     my ( $dbh, $POSTS ) = @_;
@@ -52,6 +112,18 @@ sub do_update_all {
     return @{$messages};
 }
 
+=pod
+
+=head2 _create_or_update_host
+
+Might be used to either create a new host or to update an existing one
+
+Note that we don't update the time all details were last checked as the user
+might be updating only one value and doesn't want to/is not able to confirm
+all host details at this point.
+
+=cut
+
 sub _create_or_update_host {
     my ( $dbh, $POSTS, $messages ) = @_;
 
@@ -67,9 +139,7 @@ sub _create_or_update_host {
           [ grep { $_->{name} eq $POSTS->{'location_x'} }
               Inventory::Locations::get_locations_info($dbh) ]->[0];
         if ( !defined $loc_id ) {
-            push @{$messages},
-              { ERROR =>
-                  'Created new Location but then failed to retrieve it!' };
+            push @{$messages}, { ERROR => $MSG_LOCDB_ERR };
             return;
         }
 
@@ -84,7 +154,7 @@ sub _create_or_update_host {
 
         if ( not exists $POSTS->{'host_name'} ) {
             my %errors;
-            $errors{'ERROR'} = 'No host name was suppplied';
+            $errors{'ERROR'} = $MSG_NO_HN_ERR;
             push @{$messages}, \%errors;
             return @{$messages};
         }
@@ -94,7 +164,7 @@ sub _create_or_update_host {
                 $POSTS->{'host_name'} );
             if ( $result[0]->{'id'} ) {
                 my %errors;
-                $errors{'ERROR'} = 'That host already exists';
+                $errors{'ERROR'} = $MSG_HOST_EXISTS_ERR;
                 push @{$messages}, \%errors;
                 return @{$messages};
             }
@@ -109,12 +179,18 @@ sub _create_or_update_host {
       Inventory::Hosts::get_hosts_info_by_name( $dbh, $POSTS->{'host_name'} );
     $POSTS->{host_id} = $new_host[0]->{id};
 
-    #    not desirable - when editing one field we don't want to automatically
-    #    confirm all the hosts details.
-    #    push @{$messages}, Inventory::Hosts::update_time( $dbh, $POSTS );
-
     return @{$messages};
 }
+
+=pod
+
+=head2 _update_ups
+
+edit or remove a UPS protection relationship
+
+ _update_ups( $dbh, $POSTS, $messages )
+
+=cut
 
 sub _update_ups {
     my ( $dbh, $POSTS, $messages ) = @_;
@@ -140,6 +216,17 @@ sub _update_ups {
     return;
 }
 
+=pod
+
+=head2 _add_ups
+
+Create a UPS protection relationship, including creating the UPS host if
+needed.
+
+ _add_ups( $dbh, $POSTS, $messages )
+
+=cut
+
 sub _add_ups {
     my ( $dbh, $POSTS, $messages ) = @_;
 
@@ -157,14 +244,14 @@ sub _add_ups {
     }
 
     # or create and link a new ups on the fly
-    return unless ( $POSTS->{'ups_x'} and $POSTS->{'ups_x_ip'} );
+    return if not( $POSTS->{'ups_x'} and $POSTS->{'ups_x_ip'} );
 
     # sanity clause check for name and ip
     if (   ( $POSTS->{'ups_x'} and not $POSTS->{'ups_x_ip'} )
         or ( $POSTS->{'ups_x_ip'} and not $POSTS->{'ups_x'} ) )
     {
 
-        push @{$messages}, { ERROR => 'Both UPS name and IP must be set' };
+        push @{$messages}, { ERROR => $MSG_PROG_ERR };
         return;
     }
 
@@ -175,15 +262,17 @@ sub _add_ups {
         }
         else {
             my $aobj = NetAddr::IP->new( $POSTS->{'ups_x_ip'} );
-            $aobj->addr =~ m/^$RE{net}{IPv4}{-keep}$/;
-            my ( $oct3, $oct4 ) = ( $4, $5 );
-            $POSTS->{'ups_x'} = "sec-ups-$oct3-$oct4";
-            $POSTS->{'ups_x_secure'} = 1;    # a flag, for later (role)
+            if ( $aobj->addr =~ m/^$RE{net}{IPv4}{-keep}$/ ) {
+                my ( $oct3, $oct4 ) = ( $4, $5 );
+                $POSTS->{'ups_x'} = "sec-ups-$oct3-$oct4";
+                $POSTS->{'ups_x_secure'} = 1;    # a flag, for later (role)
+            }
         }
     }
 
-    $POSTS->{'ups_x_description'} = $POSTS->{'host_description'} . ' UPS'
-      if $POSTS->{'host_description'} and not $POSTS->{'ups_x_description'};
+    if ( $POSTS->{'host_description'} and not $POSTS->{'ups_x_description'} ) {
+        $POSTS->{'ups_x_description'} = $POSTS->{'host_description'} . ' UPS';
+    }
 
     push @{$messages}, Inventory::Hosts::create_hosts(
         $dbh,
@@ -201,7 +290,7 @@ sub _add_ups {
     # to add an interface to this ups we need to grab the id back
     my @new_ups =
       Inventory::Hosts::get_hosts_info_by_name( $dbh, $POSTS->{'ups_x'} );
-    return unless scalar @new_ups == 1;
+    return if not scalar @new_ups == 1;
 
     push @{$messages},
       Inventory::Interfaces::create_interfaces(
@@ -222,14 +311,16 @@ sub _add_ups {
         $new_ups[0]->{id},
         $POSTS->{'ups_x_ip'},
     );
-    return unless scalar @ups_int == 1;
+    return if not scalar @ups_int == 1;
 
     push @{$messages}, Inventory::Introlemembers::create_memberships(
         $dbh,
         {
             host_id =>
               $ups_int[0]->{id}, # interface.id but param is still named host_id
-            hostgroup_id => ( $POSTS->{'ups_x_secure'} ? 43 : 28 ),
+            hostgroup_id => (
+                $POSTS->{'ups_x_secure'} ? $TABLEID_VOIPUPS1 : $TABLEID_VOIPUPS2
+            ),
 
             # again, the interface_role.id
             # XXX hard coded table IDs
@@ -248,6 +339,16 @@ sub _add_ups {
       );
     return;
 }
+
+=pod
+
+=head2 _update_interfaces
+
+edit and delete interfaces, create interface roles
+
+ _update_interfaces( $dbh, $POSTS, $messages )
+
+=cut
 
 sub _update_interfaces {
     my ( $dbh, $POSTS, $messages ) = @_;
@@ -366,9 +467,19 @@ sub _update_interfaces {
     return;
 }
 
+=pod
+
+=head2 _add_interfaces
+
+add interfaces, create interface roles
+
+ _add_interface( $dbh, $POSTS, $messages )
+
+=cut
+
 sub _add_interface {
     my ( $dbh, $POSTS, $messages ) = @_;
-    return unless $POSTS->{'interface_x_ip'};
+    return if !exists $POSTS->{'interface_x_ip'};
 
     push @{$messages},
       Inventory::Interfaces::create_interfaces(
@@ -411,7 +522,7 @@ sub _add_interface {
     if (   ( $POSTS->{'arec_x'} and not $POSTS->{'cname_x'} )
         or ( not $POSTS->{'arec_x'} and $POSTS->{'cname_x'} ) )
     {
-        push @{$messages}, { ERROR => 'Both Hostname and Alias must be set' };
+        push @{$messages}, { ERROR => $MSG_INPUT_ERR };
         return;
     }
     elsif ( $POSTS->{'arec_x'} and $POSTS->{'cname_x'} ) {
@@ -433,6 +544,18 @@ sub _add_interface {
 __END__
 
 =pod
+
+=head1 DIAGNOSTICS
+
+Via error messages where present.
+
+=head1 INCOMPATIBILITIES
+
+None known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
 
 =head1 AUTHOR
 

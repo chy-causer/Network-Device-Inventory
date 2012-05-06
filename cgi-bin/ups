@@ -98,10 +98,8 @@ if ( $gets{'link_id'} && $gets{'link_id'} =~ m/^[\d]+$/x ) {
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete' ) {
-        $logger->info(
-            "$ENV{REMOTE_USER} posts to delete ID $POSTS{'link_id'}");
-        %message =
-          %{ Inventory::Ups::delete_ups( $dbh, $POSTS{'link_id'} ) };
+        $logger->info("$ENV{REMOTE_USER} posts to delete ID $POSTS{'link_id'}");
+        %message = %{ Inventory::Ups::delete_ups( $dbh, $POSTS{'link_id'} ) };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
         $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'link_id'}");

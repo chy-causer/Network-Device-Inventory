@@ -6,9 +6,9 @@ use warnings;
 
 =head1 NAME
 
-  Inventory::Contracts
+Inventory::Contracts
 
-=head2 VERSION
+=head1 VERSION
 
 This document describes Inventory::Contracts version 1.01
 
@@ -35,24 +35,54 @@ our @EXPORT_OK = qw(
   count_hosts_percontract
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI;
+DBD::Pg;
+Readonly;
+
+=cut
+
 use DBI;
 use DBD::Pg;
-
-my $MAX_NAME_LENGTH = 128;
-my $ENTRY           = 'contract';
-my $MSG_DBH_ERR     = 'Internal Error: Lost the database connection';
-my $MSG_INPUT_ERR   = 'Input Error: Please check your input';
-my $MSG_CREATE_OK   = "The $ENTRY creation was successful";
-my $MSG_CREATE_ERR  = "The $ENTRY creation was unsuccessful";
-my $MSG_EDIT_OK     = "The $ENTRY edit was successful";
-my $MSG_EDIT_ERR    = "The $ENTRY edit was unsuccessful";
-my $MSG_DELETE_OK   = "The $ENTRY entry was deleted";
-my $MSG_DELETE_ERR  = "The $ENTRY entry could not be deleted";
-my $MSG_FATAL_ERR   = 'The error was fatal, processing stopped';
+use Readonly;
 
 =pod
 
-=head1 SUBROUTINES
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_NAME_LENGTH => '128';
+Readonly my $ENTRY           => 'contract';
+
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
 
 =head2 create_contracts
 
@@ -125,43 +155,42 @@ sub edit_contracts {
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    if (
-           !exists $input->{'contract_name'}
+    if (   !exists $input->{'contract_name'}
         || $input->{'contract_name'} !~ m/^[\w\s\-]+$/x
         || length( $input->{'contract_name'} ) < 1
-        || length( $input->{'contract_name'} ) > $MAX_NAME_LENGTH{
+        || length( $input->{'contract_name'} ) > $MAX_NAME_LENGTH )
+    {
 
-            return { 'ERROR' => $MSG_INPUT_ERR };
-        }
-        if ( $input->{'invoice_id'} eq '' )
-        {
-            $input->{'invoice_id'} = undef;
-        }
-        if ( $input->{'servicelevel_id'} eq '' ) {
-            $input->{'servicelevel_id'} = undef;
-        }
-
-        my $sth = $dbh->prepare(
-'UPDATE contracts SET name=?,serial=?,startdate=?,enddate=?,invoice_id=?,servicelevel_id=? WHERE id=?'
-        );
-        if (
-            !$sth->execute(
-                $input->{'contract_name'},
-                $input->{'contract_serial'},
-                $input->{'contract_startdate'},
-                $input->{'contract_enddate'},
-                $input->{'invoice_id'},
-                $input->{'servicelevel_id'},
-
-                $input->{'contract_id'}
-            )
-        )
-        {
-            return { 'ERROR' => $MSG_EDIT_ERR };
-        }
-
-        return { 'SUCCESS' => $MSG_EDIT_OK };
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
+    if ( $input->{'invoice_id'} eq '' ) {
+        $input->{'invoice_id'} = undef;
+    }
+    if ( $input->{'servicelevel_id'} eq '' ) {
+        $input->{'servicelevel_id'} = undef;
+    }
+
+    my $sth = $dbh->prepare(
+'UPDATE contracts SET name=?,serial=?,startdate=?,enddate=?,invoice_id=?,servicelevel_id=? WHERE id=?'
+    );
+    if (
+        !$sth->execute(
+            $input->{'contract_name'},
+            $input->{'contract_serial'},
+            $input->{'contract_startdate'},
+            $input->{'contract_enddate'},
+            $input->{'invoice_id'},
+            $input->{'servicelevel_id'},
+
+            $input->{'contract_id'}
+        )
+      )
+    {
+        return { 'ERROR' => $MSG_EDIT_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_EDIT_OK };
+}
 
 =pod
 
@@ -177,19 +206,19 @@ Checks for missing database handle and entry id.
 
 =cut
 
-    sub delete_contracts {
-        my ( $dbh, $id ) = @_;
+sub delete_contracts {
+    my ( $dbh, $id ) = @_;
 
-        if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-        if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
-        my $sth = $dbh->prepare('DELETE FROM contracts WHERE id=?');
-        if ( !$sth->execute($id) ) {
-            return { 'ERROR' => $MSG_DELETE_ERR };
-        }
-
-        return { 'SUCCESS' => $MSG_DELETE_OK };
+    my $sth = $dbh->prepare('DELETE FROM contracts WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
+
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
 
 =pod
 
@@ -202,15 +231,15 @@ Returns the details in a hash.
 
 =cut
 
-    sub get_contracts_info {
-        my ( $dbh, $id ) = @_;
-        my $sth;
+sub get_contracts_info {
+    my ( $dbh, $id ) = @_;
+    my $sth;
 
-        return if !defined $dbh;
+    return if !defined $dbh;
 
-        if ( defined $id ) {
-            $sth = $dbh->prepare(
-                'SELECT 
+    if ( defined $id ) {
+        $sth = $dbh->prepare(
+            'SELECT 
            contracts.id,
            contracts.name,
            contracts.startdate,
@@ -232,12 +261,12 @@ Returns the details in a hash.
         ORDER BY 
            contracts.name
         '
-            );
-            return if !$sth->execute($id);
-        }
-        else {
-            $sth = $dbh->prepare(
-                'SELECT 
+        );
+        return if !$sth->execute($id);
+    }
+    else {
+        $sth = $dbh->prepare(
+            'SELECT 
            contracts.id,
            contracts.name,
            contracts.startdate,
@@ -256,17 +285,17 @@ Returns the details in a hash.
         ORDER BY 
            contracts.name
         '
-            );
-            return if !$sth->execute();
-        }
-
-        my @return_array;
-        while ( my $reference = $sth->fetchrow_hashref ) {
-            push @return_array, $reference;
-        }
-
-        return @return_array;
+        );
+        return if !$sth->execute();
     }
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+
+    return @return_array;
+}
 
 =pod
 
@@ -282,13 +311,13 @@ Returns an array of hosts hashes if successful.
 
 =cut
 
-    sub hosts_bycontract_name {
-        my ( $dbh, $name ) = @_;
+sub hosts_bycontract_name {
+    my ( $dbh, $name ) = @_;
 
-        return if !defined $dbh;
-        return if !defined $name;
+    return if !defined $dbh;
+    return if !defined $name;
 
-        my $sth = $dbh->prepare( '
+    my $sth = $dbh->prepare( '
          SELECT 
            hosts.id,
            hosts.name,
@@ -328,14 +357,14 @@ Returns an array of hosts hashes if successful.
            hosts.name
         ' );
 
-        return unless $sth->execute($name);
+    return if !$sth->execute($name);
 
-        my @return_array;
-        while ( my $reference = $sth->fetchrow_hashref ) {
-            push @return_array, $reference;
-        }
-        return @return_array;
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
     }
+    return @return_array;
+}
 
 =pod
 
@@ -351,13 +380,13 @@ Returns an array of hosts hashes if successful.
 
 =cut
 
-    sub hosts_bycontract_id {
-        my ( $dbh, $name ) = @_;
+sub hosts_bycontract_id {
+    my ( $dbh, $name ) = @_;
 
-        return if !defined $dbh;
-        return if !defined $name;
+    return if !defined $dbh;
+    return if !defined $name;
 
-        my $sth = $dbh->prepare( '
+    my $sth = $dbh->prepare( '
          SELECT 
            hosts.id,
            hosts.name,
@@ -397,14 +426,14 @@ Returns an array of hosts hashes if successful.
            hosts.name
         ' );
 
-        return unless $sth->execute($name);
+    return if !$sth->execute($name);
 
-        my @return_array;
-        while ( my $reference = $sth->fetchrow_hashref ) {
-            push @return_array, $reference;
-        }
-        return @return_array;
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
     }
+    return @return_array;
+}
 
 =head2 hash_hosts_percontract
 
@@ -421,12 +450,12 @@ data.
 
 =cut
 
-    sub hash_hosts_percontract {
-        my ($dbh) = @_;
+sub hash_hosts_percontract {
+    my ($dbh) = @_;
 
-        return if !defined $dbh;
+    return if !defined $dbh;
 
-        my $sth = $dbh->prepare( '
+    my $sth = $dbh->prepare( '
          SELECT 
            hosts.id,
            hosts.name,
@@ -465,21 +494,21 @@ data.
            hosts.name
         
         ' );
-        return if not $sth->execute($name);
+    return if not $sth->execute($name);
 
-        my %index;
-        while ( my $ref = $sth->fetchrow_hashref ) {
-            if ( !exists( $index{ $ref->{'contract_name'} } ) ) {
-                my @data = ($ref);
-                $index{ $ref->{'contract_name'} } = \@data;
-            }
-            else {
-                push @{ $index{ $ref->{'contract_name'} } }, $ref;
-            }
+    my %index;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        if ( !exists( $index{ $ref->{'contract_name'} } ) ) {
+            my @data = ($ref);
+            $index{ $ref->{'contract_name'} } = \@data;
         }
-
-        return \%index;
+        else {
+            push @{ $index{ $ref->{'contract_name'} } }, $ref;
+        }
     }
+
+    return \%index;
+}
 
 =pod
 
@@ -497,55 +526,46 @@ Returns a slightly complex has that includes state.
 
 =cut
 
-    sub count_hosts_percontract {
-        my $dbh = shift;
-        my %return_hash;
+sub count_hosts_percontract {
+    my $dbh = shift;
+    my %return_hash;
 
-        if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-        my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
+    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
 
-        foreach (@raw_hosts) {
-            my %dbdata = %{$_};
+    foreach (@raw_hosts) {
+        my %dbdata = %{$_};
 
-            my $contract_name = $dbdata{'contract_name'};
-            my $contract_id   = $dbdata{'contract_id'};
-            my $state         = lc $dbdata{'status_state'};
+        my $contract_name = $dbdata{'contract_name'};
+        my $contract_id   = $dbdata{'contract_id'};
+        my $state         = lc $dbdata{'status_state'};
 
-            $return_hash{$contract_id}{$state}++;
-            $return_hash{$contract_id}{'contract_name'} = $contract_name;
+        $return_hash{$contract_id}{$state}++;
+        $return_hash{$contract_id}{'contract_name'} = $contract_name;
 
-        }
-
-        return \%return_hash;
     }
 
-    1;
+    return \%return_hash;
+}
+
+1;
 
 __END__
+
+=pod
 
 =head1 DIAGNOSTICS
 
 Via error messages where present.
 
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's defined inthe conf
-directory of the following link is required.
-
-https://github.com/guyed/Network-Device-Inventory
-
-Other configuration is at the application level via a configuration file, but
-the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-DBI
-DBD::Pg
-
 =head1 INCOMPATIBILITIES
 
 None known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
 
 =head1 AUTHOR
 
