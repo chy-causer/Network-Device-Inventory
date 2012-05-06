@@ -12,7 +12,7 @@ use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Cnames 1.0;
+use Inventory::Cnames 1.03;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -105,7 +105,7 @@ if ( exists $POSTS{'action'} ) {
         $logger->info(
             "$ENV{REMOTE_USER} posts to delete ID $POSTS{'cname_id'}");
         @message_store =
-          Inventory::Cnames::delete_cname( $dbh, $POSTS{'cname_id'} );
+          Inventory::Cnames::delete_cnames( $dbh, $POSTS{'cname_id'} );
     }
     if ( $POSTS{'action'} eq 'edit' ) {
         $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'cname_id'}");
@@ -113,7 +113,7 @@ if ( exists $POSTS{'action'} ) {
     }
     if ( $POSTS{'action'} eq 'create' ) {
         $logger->info("$ENV{REMOTE_USER} posts to create a new cname");
-        @message_store = Inventory::Cnames::create_shortcname( $dbh, \%POSTS );
+        @message_store = Inventory::Cnames::create_shortcnames( $dbh, \%POSTS );
     }
 }
 

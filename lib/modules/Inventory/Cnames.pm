@@ -10,7 +10,7 @@ use warnings;
 
 =head1 VERSION
 
-This document describes Inventory::Cnames version 1.01
+This document describes Inventory::Cnames version 1.03
 
 =head1 SYNOPSIS
 
@@ -22,12 +22,12 @@ Functions for dealing with the Cnames related data and analysis of it.
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_cnames
-  create_shortcname
-  delete_cname
+  create_shortcnames
+  delete_cnames
   edit_cnames
   get_cnames_info
 );
@@ -169,12 +169,12 @@ sub create_cnames {
 
 =pod
 
-=head2 create_shortcname
+=head2 create_shortcnames
 
 In contrast to create_cnames this uses the hosts_id to generate a DNS record
 from the stored shortname, it's otherwise identical
 
-  create_shortcname( $dbh, \%posts );
+  create_shortcnames( $dbh, \%posts );
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message
 
@@ -182,7 +182,7 @@ Checks for a missing database handle and basic cname name sanity.
 
 =cut
 
-sub create_shortcname {
+sub create_shortcnames {
     my ( $dbh, $posts ) = @_;
     my %message;
     my @message_store;
@@ -212,11 +212,11 @@ sub create_shortcname {
 
 =pod
 
-=head2 delete_cname
+=head2 delete_cnames
 
 Delete a single cname.
 
-  delete_cname( $dbh, $id );
+  delete_cnames( $dbh, $id );
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message
 
@@ -224,7 +224,7 @@ Checks for missing database handle and id.
 
 =cut
 
-sub delete_cname {
+sub delete_cnames {
     my ( $dbh, $id ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }

@@ -10,7 +10,7 @@ Inventory::Interfaces
 
 =head1 VERSION
 
-This document describes Inventory::Interfaces version 1.02
+This document describes Inventory::Interfaces version 1.03
 
 =head1 SYNOPSIS
 
@@ -22,13 +22,13 @@ Functions for dealing with the Interfaces table related data
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_interfaces
   edit_interfaces
   get_interfaces_info
-  delete_interface
+  delete_interfaces
 );
 
 =pod
@@ -383,11 +383,11 @@ sub get_interfaces_info {
 
 =pod
 
-=head2 delete_interface
+=head2 delete_interfaces
 
 Delete a single interface.
 
- delete_interface( $dbh, $id );
+ delete_interfaces( $dbh, $id );
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message
 
@@ -395,7 +395,7 @@ Checks for missing database handle and id.
 
 =cut
 
-sub delete_interface {
+sub delete_interfaces {
     my ( $dbh, $id ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }

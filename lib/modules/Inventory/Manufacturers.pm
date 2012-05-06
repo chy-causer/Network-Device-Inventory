@@ -282,7 +282,7 @@ sub count_hosts_permanufacturer {
 
 Delete a single manufacturer.
 
- delete_manufacturer( $dbh, $id );
+ delete_manufacturers( $dbh, $id );
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message
 
@@ -290,7 +290,7 @@ Checks for missing database handle and entry id.
 
 =cut
 
-sub delete_manufacturer {
+sub delete_manufacturers {
     my ( $dbh, $id ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }

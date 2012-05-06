@@ -12,8 +12,7 @@ use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Manufacturers 1.0;
-use Inventory::Models 1.0;
+use Inventory::Manufacturers 1.03;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -100,15 +99,15 @@ if ( exists $POSTS{'action'} ) {
         $logger->info(
             "$ENV{REMOTE_USER} posts to delete ID $POSTS{'manufacturer_id'}");
         %message =
-          %{ Inventory::Models::delete_manufacturer( $dbh, $POSTS{'manufacturer_id'} ) };
+          %{ Inventory::Models::delete_manufacturers( $dbh, $POSTS{'manufacturer_id'} ) };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
         $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_id'}");
-        %message = %{ Inventory::Models::edit_manufacturer( $dbh, \%POSTS ) };
+        %message = %{ Inventory::Models::edit_manufacturers( $dbh, \%POSTS ) };
     }
     elsif ( $POSTS{'action'} eq 'create' ) {
         $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
-        %message = %{ Inventory::Models::create_manufacturer( $dbh, \%POSTS ) };
+        %message = %{ Inventory::Models::create_manufacturers( $dbh, \%POSTS ) };
     }
 }
 

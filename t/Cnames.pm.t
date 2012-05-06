@@ -69,12 +69,12 @@ is( $edit_results[0]{dnsname}, $testedit{dnsname},
                     'edit_cnames dnsname edit ok' );
 
 # 3. Test deleting that record
-Inventory::cnames::delete_cname( $dbh, $cname_id );
+Inventory::cnames::delete_cnames( $dbh, $cname_id );
 my @edit_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
-is(scalar @edit_results, 0, 'delete_cname entry deletion ok')
+is(scalar @edit_results, 0, 'delete_cnames entry deletion ok')
 
 # 4. Test creation via shortname route 
-Inventory::Cnames::create_shortcname ( $dbh, %testentry );
+Inventory::Cnames::create_shortcnames ( $dbh, %testentry );
 my @short_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ); };
 
 is( $short_results[0]{shortname}, $testentry{shortname}, 
@@ -96,9 +96,9 @@ is( $shortedit_results[0]{dnsname}, $testedit{dnsname},
                     'edit_shortcnames dnsname edit ok' );
 Inventory::Cnames::get_cnames_info( $dbh, $host_id );
 
-Inventory::cnames::delete_cname( $dbh, $cname_id );
+Inventory::cnames::delete_cnames( $dbh, $cname_id );
 my @edit_results = @{ Inventory::Cnames::get_cnames_info( $dbh, $testentry{host_id} ) };
-is(scalar @edit_results, 0, 'delete_cname operation ok')
+is(scalar @edit_results, 0, 'delete_cnames operation ok')
 
 
 # 6. Test listing all cnames works

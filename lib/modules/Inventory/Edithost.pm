@@ -36,6 +36,13 @@ NetAddr::IP
 Regexp::Common
 Readonly
 
+Inventory::Hosts
+Inventory::Interfaces 1.03
+Inventory::Locations
+Inventory::Ups
+Inventory::Introlemembers
+Inventory::Cnames 1.03
+
 =cut
 
 use NetAddr::IP;
@@ -411,7 +418,7 @@ sub _update_interfaces {
         }
         else {    # empty field data means delete
             push @{$messages},
-              Inventory::Interfaces::delete_interface( $dbh, $int_id );
+              Inventory::Interfaces::delete_interfaces( $dbh, $int_id );
 
             # roles will cascade-delete from the interface, so we can
             # ignore their settings in the form on interface deletion.
@@ -446,7 +453,7 @@ sub _update_interfaces {
         }
         else {    # empty field data means delete
             push @{$messages},
-              Inventory::Cnames::delete_cname( $dbh, $cname_id );
+              Inventory::Cnames::delete_cnames( $dbh, $cname_id );
         }
     }
 

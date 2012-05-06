@@ -13,7 +13,7 @@ use Template;
 
 use Inventory 1.0;
 use Inventory::Hosts 1.0;
-use Inventory::Interfaces 1.0;
+use Inventory::Interfaces 1.03;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -108,7 +108,7 @@ elsif (exists $POSTS{'interface_id'}
     $logger->info(
         "$ENV{REMOTE_USER} posts to delete ID $POSTS{'interface_id'}");
     %message =
-      %{ Inventory::Interfaces::delete_interface( $dbh, $POSTS{'interface_id'} )
+      %{ Inventory::Interfaces::delete_interfaces( $dbh, $POSTS{'interface_id'} )
       };
 }
 elsif ( $POSTS{'host_id'} ) {
