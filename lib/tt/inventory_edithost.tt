@@ -475,11 +475,13 @@ function highlightname() {
         document.forms["edithost"]["arec_x"].style.borderColor ="green";
         document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
         document.forms["edithost"]["arec_x"].style.color       ="black";
+        document.forms["edithost"]["arec_x"].style.backgroundImage="url('[% BASEURL | html_entity %]/images/inventory_tick.png')";
     }
     else {
         document.forms["edithost"]["arec_x"].style.borderColor ="red";
         document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
         document.forms["edithost"]["arec_x"].style.color       ="red";
+        document.forms["edithost"]["arec_x"].style.backgroundImage="url('[% BASEURL | html_entity %]images/inventory_cross.png')";
     }
 }
 
