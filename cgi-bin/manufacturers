@@ -79,26 +79,37 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
 }
 
-my $edit;
-if ( $gets{'manufacturer_id'} && $gets{'manufacturer_id'} !~ m/\D/x ) {
-    $edit = $gets{'manufacturer_id'};
+my ( $edit, $delete );
+if ( $gets{'manufacturer_id'} && $gets{'manufacturer_id'} =~ m/^[\d]+$/x ) {
+    if ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
+        $logger->debug(
+            "$ENV{REMOTE_USER} takes first step to delete ID $gets{'manufacturer_id'}"
+        );
+        $delete = $gets{'manufacturer_id'};
+    }
+    else {
+        $logger->debug(
+            "$ENV{REMOTE_USER} takes first step to edit ID $gets{'manufacturer_id'}");
+        $edit = $gets{'manufacturer_id'};
+    }
 }
 
-# are we editing an existing entry?
-if ( $POSTS{'manufacturer_id'} ) {
-    $logger->info(
-        "$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_name'}");
-    %message =
-      %{ Inventory::Manufacturers::edit_manufacturers( $dbh, \%POSTS ) };
-}
-elsif ( $POSTS{'manufacturer_name'} ) {
-    $logger->info(
-"$ENV{REMOTE_USER} posts to create a new manufacturer $POSTS{'manufacturer_name'}"
-    );
-
-    # are we creating a new entry?
-    %message =
-      %{ Inventory::Manufacturers::create_manufacturers( $dbh, \%POSTS ) };
+# are we editing/deleting an existing entry?
+if ( exists $POSTS{'action'} ) {
+    if ( $POSTS{'action'} eq 'delete' ) {
+        $logger->info(
+            "$ENV{REMOTE_USER} posts to delete ID $POSTS{'manufacturer_id'}");
+        %message =
+          %{ Inventory::Models::delete_manufacturer( $dbh, $POSTS{'manufacturer_id'} ) };
+    }
+    elsif ( $POSTS{'action'} eq 'edit' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_id'}");
+        %message = %{ Inventory::Models::edit_manufacturer( $dbh, \%POSTS ) };
+    }
+    elsif ( $POSTS{'action'} eq 'create' ) {
+        $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
+        %message = %{ Inventory::Models::create_manufacturer( $dbh, \%POSTS ) };
+    }
 }
 
 # list all the manufacturers (array of hashes)
@@ -110,6 +121,7 @@ $tt->process(
         manufacturers => \@manufacturers,
         message       => \%message,
         edit          => $edit,
+        delete        => $delete,
     }
 );
 $tt->process( 'inventory_footer.tt', {} );

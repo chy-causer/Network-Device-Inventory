@@ -24,7 +24,7 @@
 [% END %]
 
 [% IF edit %]
-<form action="" method="post">
+<form action="manufacturers" method="post">
  <fieldset><legend>Edit an Existing Entry</legend>
   [% FOR manufacturer IN manufacturers %]
       [% IF edit == manufacturer.id %]
@@ -36,9 +36,24 @@
   [% END %]
   </fieldset>
 </form>
+
+[% ELSIF delete %]
+
+  [% FOR manufacturer IN manufacturers %]
+      [% IF delete == manufacturer.id %]
+<form action="manufacturers" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry &quot;[% manufacturer.name | html_entity %]&quot;?
+ <br />
+ <input type="hidden" name="manufacturer_id" value="[% manufacturer.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="manufacturer">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
 [% END %]
 
-<form action="" method="post">
+<form action="manufacturers" method="post">
   <fieldset><legend>Enter a new record</legend>
     <p>Create a new manufacturer called: 
       <input type="text" maxlength="35" name="manufacturer_name" />
@@ -47,8 +62,12 @@
   </fieldset>
 </form>
 
-<h3>Current Manufacturers</h3>
 [% IF manufacturers.size > 0 %]
+
+<form method="get" action="manufacturers">
+<fieldset><legend>Known Manufacturers</legend>
+
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 
 <script type="text/javascript">
 $(document).ready(function(){ 
@@ -60,8 +79,8 @@ $(document).ready(function(){
 <table id="allresults">
   <thead>
   <tr>
+    <th></th>
     <th>Manufacturers Name</th>
-    <th>Options</th>
   </tr>
   </thead>
   
@@ -70,26 +89,18 @@ $(document).ready(function(){
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
   [% FOR manufacturer IN manufacturers %]
-    
-    [% IF counter % 2 > 0 %]
-      <tr class="stripe">
-    [% ELSE %]
-      <tr>
-    [% END %]
-    
-    [% counter = counter +1 %]
-       <td>[% manufacturer.name | html_entity %]</td>
-      <td>
-        <a href="manufacturers?manufacturer_id=[% manufacturer.id  | html_entity %]">edit</a>
-      </td>
-   </tr>
-  
+    <tr>
+      <td><input type="radio" name="manufacturer_id" value="[% manufacturer.id  | html_entity %]" /></td>
+      <td>[% manufacturer.name | html_entity %]</td>
+    </tr>
   [% END %]
   </tbody>
 
 </table>
+
+</fieldset>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">
