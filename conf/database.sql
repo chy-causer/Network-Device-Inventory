@@ -58,8 +58,8 @@ CREATE TABLE contracts (
     id            serial NOT NULL,
     name          character varying UNIQUE NOT NULL,
     serial        character varying,
-    startdate     character varying,
-    enddate       character varying,
+    startdate     date,
+    enddate       date,
     invoice_id      integer DEFAULT NULL,
     servicelevel_id integer DEFAULT NULL,
     PRIMARY KEY(id)
