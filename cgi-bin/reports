@@ -61,8 +61,8 @@ if ( !exists $CONFIG->{general}->{demo} ) {
     Inventory::acl_checker( $tt, $valid_users );
 }
 
-$tt->process( 'inventory_reports.tt', {} 
-) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+$tt->process( 'inventory_reports.tt', {} )
+  || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

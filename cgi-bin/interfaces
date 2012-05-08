@@ -108,8 +108,10 @@ elsif (exists $POSTS{'interface_id'}
 {
     $logger->info(
         "$ENV{REMOTE_USER} posts to delete ID $POSTS{'interface_id'}");
-    %message =
-      %{ Inventory::Interfaces::delete_interfaces( $dbh, $POSTS{'interface_id'} )
+    %message = %{
+        Inventory::Interfaces::delete_interfaces(
+            $dbh, $POSTS{'interface_id'}
+        )
       };
 }
 elsif ( $POSTS{'host_id'} ) {

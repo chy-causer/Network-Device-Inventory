@@ -22,7 +22,7 @@
 [% END %]
 
 [% IF edit %]
-<form action="" method="post">
+<form action="photos" method="post">
   <fieldset><legend>Edit an existing entry</legend>
   <table>
   [% FOR photo IN photos %]
@@ -123,7 +123,6 @@
 </form>
 [% END %]
 
-<h3>Current Photos of Hosts</h3>
 [% IF photos.size > 0 %]
 <script type="text/javascript">
 $(document).ready(function(){ 
@@ -133,6 +132,8 @@ $(document).ready(function(){
 </script>
 
 <form action="photos" method="get">
+  <fieldset><legend>Current recorded photos of hosts</legend>
+
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 <table id="allresults">
   <thead>
@@ -172,6 +173,8 @@ $(document).ready(function(){
   [% END %]
   </tbody>
 </table>
+
+ </fieldset>
 </form>
 
 [% ELSE %]

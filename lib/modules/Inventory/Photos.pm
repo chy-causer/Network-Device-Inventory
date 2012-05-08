@@ -151,7 +151,7 @@ sub edit_photos {
         || $posts->{'photo_url'} =~
         m/[^\w\-\:\/\.]/x    #not perfect but ok for now
         || length( $posts->{'photo_url'} ) < 1
-        || length( $posts->{'photo_url'} ) > $URL_MAX_LENGTH
+        || length( $posts->{'photo_url'} ) > $MAX_URL_LENGTH
       )
     {
 
@@ -327,7 +327,7 @@ sub upload_photos {
         $posts->{'photo_url'} = "$website/$image_path/$filename";
 
         # create a new entry?
-        %message = %{ create_photos( $dbh, \%POSTS ) };
+        %message = %{ create_photos( $dbh, $posts ) };
     }
     else {
         $message{'ERROR'} = $MSG_UPLOAD_ERR;

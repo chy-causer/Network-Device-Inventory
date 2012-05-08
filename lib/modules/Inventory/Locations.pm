@@ -289,7 +289,7 @@ sub hash_hosts_perlocation {
            hosts.name
         
         ' );
-    return if not $sth->execute($name);
+    return if not $sth->execute();
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {

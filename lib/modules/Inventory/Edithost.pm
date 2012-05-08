@@ -67,7 +67,7 @@ the module.
 =cut
 
 Readonly my $TABLEID_VOIPUPS1 => '43';
-Readonly my $TABLEIP_VOIPUPS2 => '28';
+Readonly my $TABLEID_VOIPUPS2 => '28';
 Readonly my $ENTRY            => 'host';
 
 Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
@@ -84,7 +84,6 @@ Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
 Readonly my $MSG_LOCDB_ERR       => 'Programming error after location creation';
 Readonly my $MSG_NO_HN_ERR       => 'No host name was supplied';
 Readonly my $MSG_HOST_EXISTS_ERR => 'That host already exists';
-Readonly my $MSG_NO_HN_ERR       => 'No host name was supplied';
 
 =pod
 

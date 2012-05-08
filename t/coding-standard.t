@@ -78,7 +78,6 @@ my %testfiles = (
     "$CGIDIR/problems_interfaces"  => 'script',
     "$CGIDIR/quickcnames"          => 'script',
     "$CGIDIR/reports"              => 'script',
-    "$CGIDIR/servicegroups"        => 'script',
     "$CGIDIR/servicelevels"        => 'script',
     "$CGIDIR/sshkeys"              => 'script',
     "$CGIDIR/status"               => 'script',
@@ -104,14 +103,13 @@ my %testfiles = (
     "$MODULESDIR/Inventory/Models.pm"           => 'module',
     "$MODULESDIR/Inventory/Op2devices.pm"       => 'module',
     "$MODULESDIR/Inventory/Photos.pm"           => 'module',
-    "$MODULESDIR/Inventory/Servicegroups.pm"    => 'module',
     "$MODULESDIR/Inventory/Servicelevels.pm"    => 'module',
     "$MODULESDIR/Inventory/Sshkeys.pm"          => 'module',
     "$MODULESDIR/Inventory/Status.pm"           => 'module',
     "$MODULESDIR/Inventory/Suppliers.pm"        => 'module',
     "$MODULESDIR/Inventory/Ups.pm"              => 'module',
 );
-use Test::More tests => 248;
+use Test::More tests => 240;
 use Test::Pod 1.00;
 
 =head1 TESTS

@@ -13,7 +13,7 @@ use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Manufacturers 1.03;
+use Inventory::Manufacturers 1.02;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -83,13 +83,14 @@ my ( $edit, $delete );
 if ( $gets{'manufacturer_id'} && $gets{'manufacturer_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
         $logger->debug(
-            "$ENV{REMOTE_USER} takes first step to delete ID $gets{'manufacturer_id'}"
+"$ENV{REMOTE_USER} takes first step to delete ID $gets{'manufacturer_id'}"
         );
         $delete = $gets{'manufacturer_id'};
     }
     else {
         $logger->debug(
-            "$ENV{REMOTE_USER} takes first step to edit ID $gets{'manufacturer_id'}");
+"$ENV{REMOTE_USER} takes first step to edit ID $gets{'manufacturer_id'}"
+        );
         $edit = $gets{'manufacturer_id'};
     }
 }
@@ -99,16 +100,20 @@ if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete' ) {
         $logger->info(
             "$ENV{REMOTE_USER} posts to delete ID $POSTS{'manufacturer_id'}");
-        %message =
-          %{ Inventory::Models::delete_manufacturers( $dbh, $POSTS{'manufacturer_id'} ) };
+        %message = %{
+            Inventory::Models::delete_manufacturers( $dbh,
+                $POSTS{'manufacturer_id'} )
+          };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_id'}");
+        $logger->info(
+            "$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_id'}");
         %message = %{ Inventory::Models::edit_manufacturers( $dbh, \%POSTS ) };
     }
     elsif ( $POSTS{'action'} eq 'create' ) {
         $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
-        %message = %{ Inventory::Models::create_manufacturers( $dbh, \%POSTS ) };
+        %message =
+          %{ Inventory::Models::create_manufacturers( $dbh, \%POSTS ) };
     }
 }
 

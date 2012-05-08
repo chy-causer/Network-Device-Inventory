@@ -231,9 +231,9 @@ sub delete_cnames {
     if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM cnames WHERE id=?');
-    if !$sth->execute($id){ return { 'ERROR' => $MSG_DELETE_ERR } }
+    if ( !$sth->execute($id) ) { return { 'ERROR' => $MSG_DELETE_ERR }; }
 
-          return { 'SUCCESS' => $MSG_DELETE_OK };
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 =pod

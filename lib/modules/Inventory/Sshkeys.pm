@@ -63,7 +63,7 @@ the module.
 
 =cut
 
-Readonly my $MAX_KEY_LENGTH = '48';
+Readonly my $MAX_KEY_LENGTH => '48';
 
 Readonly my $ENTRY          => 'SSH key';
 Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';

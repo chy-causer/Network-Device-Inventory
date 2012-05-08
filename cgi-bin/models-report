@@ -12,7 +12,7 @@ use DBI;
 use Log::Log4perl;
 use Template;
 
-use Inventory 1.01;
+use Inventory 1.0;
 use Inventory::Models 1.01;
 use Inventory::Manufacturers 1.01;
 

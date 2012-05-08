@@ -477,7 +477,7 @@ sub hash_hosts_permodel {
            hosts.name
         
         ' );
-    return if not $sth->execute($name);
+    return if not $sth->execute();
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {

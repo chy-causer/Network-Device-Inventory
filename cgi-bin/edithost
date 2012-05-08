@@ -293,8 +293,7 @@ $tt->process(
 
         posts => \%POSTS,
     }
-  )
-  || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

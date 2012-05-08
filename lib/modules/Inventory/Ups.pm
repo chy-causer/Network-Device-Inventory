@@ -143,7 +143,7 @@ sub delete_ups {
     if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM hosts_to_upshost WHERE id=?');
-    if ( !$sth->execute($link_id) ) {
+    if ( !$sth->execute($id) ) {
         return { 'ERROR' => $MSG_DELETE_ERR };
     }
 

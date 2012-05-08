@@ -68,18 +68,18 @@ the module.
 =cut
 
 Readonly my $MAX_NAME_LENGTH => '45';
-Readonly my $ENTRY = 'host';
+Readonly my $ENTRY           => 'host';
 
-Readonly my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-Readonly my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-Readonly my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-Readonly my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-Readonly my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-Readonly my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-Readonly my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-Readonly my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-Readonly my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
-Readonly my $MSG_PROG_ERR => "$ENTRY processing tripped a software defect";
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
 
 =pod
 
@@ -92,7 +92,7 @@ create_hosts($dbh, \%posts)
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message
 
-Checks for a missing database handle and basic decription sanity.
+Checks for a missing database handle and basic description sanity.
 
 =cut
 
@@ -176,7 +176,7 @@ Main edit sub.
 
 Returns %hashref of either SUCCESS=> message or ERROR=> message.
 
-Checks for a missing database handle and basic decription sanity.
+Checks for a missing database handle and basic description sanity.
 
 =cut
 
@@ -439,7 +439,7 @@ sub update_time {
 Given the name of a host, retrieve all information about it
  get_hosts_info_by_name ( $dbh, $host_name );
 
-Search is case insentive.
+Search is case insensitive.
 
 Returns the details in a hash.
 
@@ -501,7 +501,7 @@ sub get_hosts_info {
            manufacturers.id AS manufacturer_id,
            hosts.invoice_id,
            invoices.date AS invoice_date,
-           invoices.description AS invoice_description
+           invoices.description AS invoice_description,
            contracts.id AS contract_id,
            contracts.name AS contract_name
          FROM hosts
@@ -549,7 +549,7 @@ sub get_hosts_info {
            manufacturers.id AS manufacturer_id,
            hosts.invoice_id,
            invoices.date AS invoice_date,
-           invoices.description AS invoice_description
+           invoices.description AS invoice_description,
            contracts.id AS contract_id,
            contracts.name AS contract_name
          FROM hosts 

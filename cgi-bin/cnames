@@ -13,6 +13,7 @@ use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
+use Inventory::Hosts 1.0;
 use Inventory::Cnames 1.03;
 
 my $BASEURL = CGI::url( -base => 1 );

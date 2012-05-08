@@ -86,13 +86,14 @@ my ( $edit, $delete );
 if ( $gets{'hostgroup_id'} && $gets{'hostgroup_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
         $logger->debug(
-            "$ENV{REMOTE_USER} takes first step to delete ID $gets{'hostgroup_id'}"
+"$ENV{REMOTE_USER} takes first step to delete ID $gets{'hostgroup_id'}"
         );
         $delete = $gets{'hostgroup_id'};
     }
     else {
         $logger->debug(
-            "$ENV{REMOTE_USER} takes first step to edit ID $gets{'hostgroup_id'}");
+"$ENV{REMOTE_USER} takes first step to edit ID $gets{'hostgroup_id'}"
+        );
         $edit = $gets{'hostgroup_id'};
     }
 }
@@ -104,11 +105,14 @@ if ( exists $POSTS{'action'} ) {
     if ( $POSTS{'action'} eq 'delete' ) {
         $logger->info(
             "$ENV{REMOTE_USER} posts to delete ID $POSTS{'hostgroup_id'}");
-        %message =
-          %{ Inventory::Introles::delete_hostgroups( $dbh, $POSTS{'hostgroup_id'} ) };
+        %message = %{
+            Inventory::Introles::delete_hostgroups( $dbh,
+                $POSTS{'hostgroup_id'} )
+          };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
-        $logger->info("$ENV{REMOTE_USER} posts to edit ID $POSTS{'hostgroup_id'}");
+        $logger->info(
+            "$ENV{REMOTE_USER} posts to edit ID $POSTS{'hostgroup_id'}");
         %message = %{ Inventory::Introles::edit_hostgroups( $dbh, \%POSTS ) };
     }
     elsif ( $POSTS{'action'} eq 'create' ) {

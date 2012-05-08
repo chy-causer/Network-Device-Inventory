@@ -63,17 +63,17 @@ the module.
 
 =cut
 
-Readonly my $ENTRY          = 'invoice';
-Readonly my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
-Readonly my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
-Readonly my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
-Readonly my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
-Readonly my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
-Readonly my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
-Readonly my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
-Readonly my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
-Readonly my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
-Readonly my $MSG_PROG_ERR => "$ENTRY processing tripped a software defect";
+Readonly my $ENTRY          => 'invoice';
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
 
 =pod
 
@@ -117,7 +117,7 @@ sub create_invoices {
         return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    return {'SUCCESS'} = $MSG_CREATE_OK;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 =pod
@@ -190,7 +190,7 @@ sub delete_invoices {
 
     my $sth = $dbh->prepare('DELETE FROM invoices WHERE id=?');
     if ( !$sth->execute($id) ) {
-        return { 'ERROR' => $MSG_DELETE_ERR } :;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
     return { 'SUCCESS' => $MSG_DELETE_OK };

@@ -158,7 +158,7 @@ function pieHover(event, pos, obj) {
   </thead>
 
   <tfoot>
-    <tr><td colspan="5">There were [% contracts.size | html_entity %] contracts returned by the database</td></tr>
+    <tr><td colspan="6">There were [% contracts.size | html_entity %] contracts returned by the database</td></tr>
   </tfoot>
 
   <tbody>

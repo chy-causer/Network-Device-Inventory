@@ -63,8 +63,8 @@ $(document).ready(function(){
   <tr><th>Supplier:</th> <td><a href="[% supplier.0.website %]">[% supplier.0.name | html_entity %]</a></td></tr>
   <tr><th>Address:</th>  <td>[% supplier.0.address | html_entity %]</td></tr>
   <tr><th>Phone:</th>    <td>
-                               [% IF supplier.0.techphone | html_entity %] [% supplier.0.techphone | html_entity %] (technical support) [% END %]
-                               [% IF supplier.0.salesphone | html_entity %] [% supplier.0.salesphone | html_entity %] (sales)           [% END %]
+                               [% IF supplier.0.techphone %] [% supplier.0.techphone | html_entity %] (technical support) [% END %]
+                               [% IF supplier.0.salesphone %] [% supplier.0.salesphone | html_entity %] (sales)           [% END %]
                          </td></tr>
   <tr><th>Contact:</th>  <td>
                                [%- counter=1 -%]

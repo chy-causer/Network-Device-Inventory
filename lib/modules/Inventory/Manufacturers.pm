@@ -69,7 +69,9 @@ the module.
 
 =cut
 
-Readonly my $ENTRY          => 'manufacturer';
+Readonly my $ENTRY           => 'manufacturer';
+Readonly my $MAX_NAME_LENGTH => '55';
+
 Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
 Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
 Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
@@ -139,12 +141,10 @@ sub edit_manufacturers {
         return { 'ERROR' => $MSG_PROG_ERR };
     }
 
-    if (
-        || !exists $posts->{'manufacturer_name'}
+    if (   !exists $posts->{'manufacturer_name'}
         || $posts->{'manufacturer_name'} =~ m/[^\w\s]/x
         || length( $posts->{'manufacturer_name'} ) < 1
-        || length( $posts->{'manufacturer_name'} ) > $MAX_NAME_LENGTH
-      )
+        || length( $posts->{'manufacturer_name'} ) > $MAX_NAME_LENGTH )
     {
         return { 'ERROR' => $MSG_INPUT_ERR };
     }
@@ -359,7 +359,7 @@ sub hash_hosts_permanufacturer {
            hosts.name
         
         ' );
-    return if not $sth->execute($name);
+    return if not $sth->execute();
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
@@ -492,7 +492,7 @@ sub hosts_bymanufacturer_name {
            hosts.name
         ' );
 
-    return if !$sth->execute($id);
+    return if !$sth->execute($name);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {

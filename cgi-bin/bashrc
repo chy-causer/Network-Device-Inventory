@@ -60,8 +60,8 @@ my %fqdns_bybashgroups =
   %{ Inventory::Introlemembers::fqdns_bybashgroup($dbh) };
 
 $tt->process( 'inventory_bashrc.tt',
-    { fqdns_bybashgroups => \%fqdns_bybashgroups, } ) 
-    || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+    { fqdns_bybashgroups => \%fqdns_bybashgroups, } )
+  || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 __END__
 
