@@ -101,19 +101,19 @@ if ( exists $POSTS{'action'} ) {
         $logger->info(
             "$ENV{REMOTE_USER} posts to delete ID $POSTS{'manufacturer_id'}");
         %message = %{
-            Inventory::Models::delete_manufacturers( $dbh,
+            Inventory::Manufacturers::delete_manufacturers( $dbh,
                 $POSTS{'manufacturer_id'} )
           };
     }
     elsif ( $POSTS{'action'} eq 'edit' ) {
         $logger->info(
             "$ENV{REMOTE_USER} posts to edit ID $POSTS{'manufacturer_id'}");
-        %message = %{ Inventory::Models::edit_manufacturers( $dbh, \%POSTS ) };
+        %message = %{ Inventory::Manufacturers::edit_manufacturers( $dbh, \%POSTS ) };
     }
     elsif ( $POSTS{'action'} eq 'create' ) {
         $logger->info("$ENV{REMOTE_USER} posts to create a new entry");
         %message =
-          %{ Inventory::Models::create_manufacturers( $dbh, \%POSTS ) };
+          %{ Inventory::Manufacturers::create_manufacturers( $dbh, \%POSTS ) };
     }
 }
 

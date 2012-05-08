@@ -296,7 +296,7 @@ sub delete_manufacturers {
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
     if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
-    my $sth = $dbh->prepare('DELETE FROM manufacturer WHERE id=?');
+    my $sth = $dbh->prepare('DELETE FROM manufacturers WHERE id=?');
     if ( !$sth->execute($id) ) {
         return { 'ERROR' => $MSG_DELETE_ERR };
     }
