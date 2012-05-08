@@ -14,7 +14,7 @@ use Readonly;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Hosts 1.0;
+use Inventory::Hosts 1.03;
 use Inventory::Contracts 1.0;
 use Inventory::Suppliers 1.0;
 use Inventory::Servicelevels 1.0;
@@ -87,9 +87,8 @@ my @contracts = Inventory::Contracts::get_contracts_info($dbh);
 # list all the suppliers in order to populate dropdown (array of hashes)
 my @suppliers = Inventory::Suppliers::get_suppliers_info($dbh);
 
-# number of contracts per manufacturer
-# my %host_count = %{ Inventory::Contracts::count_hosts_percontract($dbh) };
-# my $hosts = Inventory::Hosts::hash_hosts_percontract($dbh);
+# list all the hosts (array of hashes)
+my @hosts = Inventory::Hosts::get_hosts_info($dbh);
 
 $tt->process(
     'inventory_contracts-report.tt',
@@ -98,9 +97,7 @@ $tt->process(
         contracts => \@contracts,
         suppliers => \@suppliers,
         message   => \%message,
-
-        #        host_counts   => \%host_count,
-        #        hosts         => $hosts,
+        hosts     => \@hosts,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 $tt->process( 'inventory_footer.tt', {} );

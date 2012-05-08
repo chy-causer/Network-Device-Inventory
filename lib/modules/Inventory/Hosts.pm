@@ -22,7 +22,7 @@ Functions for dealing with the Hosts table related data
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_hosts
@@ -503,6 +503,7 @@ sub get_hosts_info {
            invoices.date AS invoice_date,
            invoices.description AS invoice_description,
            contracts.id AS contract_id,
+           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
            contracts.name AS contract_name
          FROM hosts
           
@@ -527,7 +528,7 @@ sub get_hosts_info {
            hosts.name
         '
         );
-        return if !$sth->execute($host_id);
+        return if !$sth->execute('days',$host_id);
     }
     else {
         $sth = $dbh->prepare(
@@ -551,6 +552,7 @@ sub get_hosts_info {
            invoices.date AS invoice_date,
            invoices.description AS invoice_description,
            contracts.id AS contract_id,
+           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
            contracts.name AS contract_name
          FROM hosts 
           
@@ -574,7 +576,7 @@ sub get_hosts_info {
            hosts.name
         '
         );
-        return if !$sth->execute();
+        return if !$sth->execute('days');
     }
 
     my @return_array;
