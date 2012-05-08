@@ -41,7 +41,7 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 my $message;
-my $TIMEOUT_WEB_SECONDS=10;
+my $TIMEOUT_WEB_SECONDS = 10;
 
 #############################################################################
 #                                     main                                  #
@@ -72,10 +72,10 @@ if ( !exists $CONFIG->{general}->{demo} ) {
 }
 
 # show a helpful error if we're setup wrong
-if( ! defined $manifest ){
+if ( !defined $manifest ) {
     $logger->error('[locations] manifest = filepath missing from ini file');
     $message = 'INTERNAL ERROR: site settings missing an entry';
-    $tt->process( 'inventory_updates.tt', {  message => $message, } );
+    $tt->process( 'inventory_updates.tt', { message => $message, } );
     $tt->process('inventory_footer.tt');
     exit;
 }
@@ -115,7 +115,7 @@ $tt->process(
         files   => $files,
         message => $message,
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 
@@ -150,11 +150,11 @@ sub file_details {
     }
 
     my %details = (
-        'name'            => "$directory/$file",
-        'revision'        => 'version header missing?',
-        'error'           => '1',
-        'type'            => 'script',
-        'github_url'      => "$GIT_HUB_URL/cgi-bin/$file",
+        'name'       => "$directory/$file",
+        'revision'   => 'version header missing?',
+        'error'      => '1',
+        'type'       => 'script',
+        'github_url' => "$GIT_HUB_URL/cgi-bin/$file",
     );
 
     if ( $file =~ m/\.tt$/x ) {
@@ -196,9 +196,10 @@ sub file_details {
         next if $line !~ m/^#/x;
 
         if ( $line =~ m/^our \$VERSION = '([\d\.]+)';$/x ) {
+
             # everything worked
-            $details{'error'} = 0;
-            $details{'revision'}        = $1;
+            $details{'error'}    = 0;
+            $details{'revision'} = $1;
             last;
         }
     }

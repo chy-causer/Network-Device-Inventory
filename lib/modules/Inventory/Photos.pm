@@ -2,7 +2,27 @@ package Inventory::Photos;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Photos
+
+=head1 VERSION
+
+This document describes Inventory::Photos version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Photos;
+
+=head1 DESCRIPTION
+
+Module for manipulation of the photos table
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_photos
@@ -13,77 +33,129 @@ our @EXPORT_OK = qw(
   get_photos_byhostid
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+Carp
+DBI
+DBD::Pg
+Digest::MD5
+File::Basename
+Readonly
+
+=cut
+
 use Carp;
 use DBI;
 use DBD::Pg;
 use Digest::MD5;
-use Regexp::Common qw /net/;
 use File::Basename;
+use Readonly;
+
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_URL_LENGTH       => '254';
+Readonly my $READ_SIZE_CHARACTERS => '1024';
+
+Readonly my $ENTRY          => 'photo';
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+Readonly my $MSG_FILECLOSE_ERR => 'Internal Error: Unable to close the file';
+Readonly my $MSG_UPLOAD_ERR    => 'Internal Error: No file was uploaded';
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_photos
+
+Main creation sub.
+create_photos($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and basic url sanity.
+
+=cut
 
 sub create_photos {
     my ( $dbh, $posts ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if (
+        !exists $posts->{'photo_url'}
+        || $posts->{'photo_url'} =~
+        m/[^\w\-\:\/\.]/x    #not perfect but ok for now
+        || length( $posts->{'photo_url'} ) < 1
+        || length( $posts->{'photo_url'} ) > $MAX_URL_LENGTH
+      )
+    {
+        return { 'ERROR' => $MSG_INPUT_ERR };
+    }
+
+    my $sth = $dbh->prepare('INSERT INTO photos(host_id,url) VALUES(?,?)');
+
+    if ( !$sth->execute( $posts->{'host_id'}, $posts->{'photo_url'} ) ) {
+        return { 'ERROR' => $MSG_CREATE_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_CREATE_OK };
+}
+
+=pod
+
+=head2 edit_photos
+
+Main edit sub.
+  edit_photos ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Checks for missing ddatabase handle, relevant ids and basic url sanity.
+
+=cut
+
+sub edit_photos {
+    my ( $dbh, $posts ) = @_;
     my %message;
+    if ( !defined $dbh )                { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !exists $posts->{'photo_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     if (
         !exists $posts->{'photo_url'}
         || $posts->{'photo_url'} =~
         m/[^\w\-\:\/\.]/x    #not perfect but ok for now
         || length( $posts->{'photo_url'} ) < 1
-        || length( $posts->{'photo_url'} ) > 254
-
-        || !exists $posts->{'host_id'}
-        || $posts->{'host_id'} =~ m/\D/x
-        || length( $posts->{'host_id'} ) < 1
+        || length( $posts->{'photo_url'} ) > $URL_MAX_LENGTH
       )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          "Input Error: check your input or query a possible programming error";
-        return \%message;
-    }
-
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
-    my $sth = $dbh->prepare('INSERT INTO photos(host_id,url) VALUES(?,?)');
-
-    if ( !$sth->execute( $posts->{'host_id'}, $posts->{'photo_url'} ) ) {
-        $message{'ERROR'} =
-          "Internal Error: The interface creation was unsuccessful";
-        return \%message;
-    }
-
-    $message{'SUCCESS'} = "The interface creation was successful";
-    return \%message;
-}
-
-sub edit_photos {
-    my ( $dbh, $posts ) = @_;
-    my %message;
-
-    # dump bad inputs
-    if (
-           !exists $posts->{'host_id'}
-        || $posts->{'host_id'} =~ m/\D/x
-        || length( $posts->{'host_id'} ) < 1
-
-        || !exists $posts->{'photo_url'}
-        || $posts->{'photo_url'} =~
-        m/[^\w\-\:\/\.]/x    #not perfect but ok for now
-        || length( $posts->{'photo_url'} ) < 1
-        || length( $posts->{'photo_url'} ) > 254
-
-        || !exists $posts->{'photo_id'}
-        || $posts->{'photo_id'} =~ m/\D/x
-        || length( $posts->{'photo_id'} ) < 1
-
-      )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          "Input Error: One of the supplied inputs was invalid.";
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     my $sth = $dbh->prepare('UPDATE photos SET host_id=?,url=? WHERE id=?');
@@ -94,14 +166,22 @@ sub edit_photos {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The interface edit was unsuccessful.";
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = "Your changes were commited successfully";
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 get_photos_info
+
+Main individual record retrieval sub. 
+ get_photos_info ( $dbh, $photos_id )
+
+Returns the details in a hash.
+
+=cut
 
 sub get_photos_info {
     my ( $dbh, $photo_id ) = @_;
@@ -156,9 +236,20 @@ sub get_photos_info {
     return @return_array;
 }
 
+=pod
+
+=head2 get_photos_byhostid
+
+Show all photos related to a given host
+
+ get_photos_byhostid ( $dbh, $host_id )
+
+Returns the details in a hash.
+
+=cut
+
 sub get_photos_byhostid {
 
-    # show me all photos that belong to host X
     my ( $dbh, $host_id ) = @_;
 
     return if !defined $dbh;
@@ -176,6 +267,16 @@ sub get_photos_byhostid {
     return @return_array;
 }
 
+=pod
+
+=head2 upload_photos
+
+upload a file onto the server then create a entry for the file
+ upload_photos($dbh, $type, $upload_extension, $upload_dir, $website, $image_path, $POSTS);)
+
+
+=cut
+
 sub upload_photos {
     my %message;
     my $dbh              = shift;
@@ -184,7 +285,9 @@ sub upload_photos {
     my $upload_dir       = shift;
     my $website          = shift;
     my $image_path       = shift;
-    my %POSTS            = %{ shift() };
+    my $posts            = shift;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     my $query = CGI->new();
 
@@ -192,9 +295,9 @@ sub upload_photos {
     my ( $name, $path, $extension ) = fileparse( $original_name, '\..*' );
 
     # taints mode belts braces
-    $POSTS{'host_id'} =~ s/\D//gx;
-    $upload_extension =~ s/\W//gx;
-    $extension        =~ s/[^a-zA-Z]//gx;
+    $posts->{'host_id'} =~ s/\D//gx;
+    $upload_extension   =~ s/\W//gx;
+    $extension          =~ s/[^a-zA-Z]//gx;
 
     # FIXME: no, apparently still tainted
     # need to match and then extract the matched var
@@ -205,10 +308,10 @@ sub upload_photos {
 
         my $md5 = Digest::MD5->new->addfile(*$fh)->hexdigest;
 
-        my $host_id  = $POSTS{'host_id'};
+        my $host_id  = $posts->{'host_id'};
         my $filename = "$md5.$extension";
 
-        # FIXME md5 causes the file read to fail
+        # rewind after the md5 calculation
         seek $fh, 0, 0;
 
         open my $UPLOADFILE, '>', "$upload_dir/$filename" or croak $!;
@@ -216,97 +319,60 @@ sub upload_photos {
 
         # Copy a binary file to somewhere safe
         my $buffer;
-        while ( my $bytesread = read $fh, $buffer, 1024 ) {
-            print $UPLOADFILE $buffer;
+        while ( my $bytesread = read $fh, $buffer, $READ_SIZE_CHARACTERS ) {
+            print {$UPLOADFILE} $buffer;
         }
-        close $UPLOADFILE;
+        close $UPLOADFILE or return { 'ERROR' => $MSG_FILECLOSE_ERR };
 
-        $POSTS{'photo_url'} = "$website/$image_path/$filename";
+        $posts->{'photo_url'} = "$website/$image_path/$filename";
 
         # create a new entry?
         %message = %{ create_photos( $dbh, \%POSTS ) };
     }
     else {
-        $message{'ERROR'} =
-"Internal Error: Although a file name was present, no file was uploaded by the browser";
+        $message{'ERROR'} = $MSG_UPLOAD_ERR;
     }
 
     return \%message;
 }
 
+=pod
+
+=head2 delete_photos
+
+Delete a single photo.
+
+ delete_photo( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
 sub delete_photos {
-
-    # delete a single photo
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM photos WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The photo url entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specified photo url entry was deleted';
-    return \%message;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 1;
 
 __END__
 
-=head1 NAME
-
-Inventory - Networks team inventory module
-
-=head2 VERSION
-
-This document describes Inventory version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory;
-
-=head1 DESCRIPTION
-
-=head2 Main Subroutines
-
- The main abilities are:
-  - create new types of entry in a table
-  - edit existing entries in a table
-  - list existing entries
-
-=head2 Returns
- All returns from lists are arrays of hashes
-
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
-
-=head1 SUBROUTINES/METHODS
+=pod
 
 =head1 DIAGNOSTICS
 
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-Since I'm talking to a postgres database
-DBI
-DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
+Via error messages where present.
 
 =head1 INCOMPATIBILITIES
 

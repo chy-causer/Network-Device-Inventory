@@ -2,29 +2,103 @@ package Inventory::Contracts;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Contracts
+
+=head1 VERSION
+
+This document describes Inventory::Contracts version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Contracts;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Contracts related data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_contracts
-  get_contracts_info
   edit_contracts
   delete_contracts
+  get_contracts_info
+  hosts_bycontract_id
+  hosts_bycontract_name
+  hash_hosts_percontract
+  count_hosts_percontract
 );
+
+=pod
+
+=head1 DEPENDENCIES
+
+DBI;
+DBD::Pg;
+Readonly;
+
+=cut
 
 use DBI;
 use DBD::Pg;
+use Readonly;
 
-my $MAX_NAME_LENGTH = 128;
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_NAME_LENGTH => '128';
+Readonly my $ENTRY           => 'contract';
+
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_contracts
+
+Main creation sub.
+create_contracts($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+The sub checks for missing database handles and bad name inputs.
+
+=cut
 
 sub create_contracts {
-
-    # respond to a request to create a contract
-    # 1. validate input
-    # 2. make the database entry
-    # 3. return success or fail
-    #
     my ( $dbh, $input ) = @_;
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $input->{'contract_name'}
         || $input->{'contract_name'} !~ m/^[\w\s\-]+$/x
@@ -32,10 +106,7 @@ sub create_contracts {
         || length $input->{'contract_name'} > $MAX_NAME_LENGTH )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
     if ( $input->{'invoice_id'} eq '' ) {
         $input->{'invoice_id'} = undef;
@@ -60,35 +131,37 @@ sub create_contracts {
         )
       )
     {
-        $message{'ERROR'} =
-          "Internal Error: The contract creation was unsuccessful";
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The contract creation was successful';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
+=pod
+
+=head2 edit_contracts
+
+Main edit sub.
+  edit_contracts ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+The sub checks for missing database handles and bad name inputs.
+
+=cut
+
 sub edit_contracts {
-
-    # similar to creating a contract except we already (should) have a vaild
-    # database id for the entry
-
     my ( $dbh, $input ) = @_;
-    my %message;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (   !exists $input->{'contract_name'}
         || $input->{'contract_name'} !~ m/^[\w\s\-]+$/x
         || length( $input->{'contract_name'} ) < 1
-        || length( $input->{'contract_name'} ) > $MAX_NAME_LENGTH
-        || !exists $input->{'contract_id'}
-        || $input->{'contract_id'} !~ m/^[\d]+$/x )
+        || length( $input->{'contract_name'} ) > $MAX_NAME_LENGTH )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: Please check your input is alpha numeric and complete';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
     if ( $input->{'invoice_id'} eq '' ) {
         $input->{'invoice_id'} = undef;
@@ -113,41 +186,50 @@ sub edit_contracts {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The contract entry edit was unsuccessful';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your contract changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
+=pod
+
+=head2 delete_contracts
+
+Delete a single contracts.
+
+ delete_contracts( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and entry id.
+
+=cut
+
 sub delete_contracts {
-
-    # delete a single contract
-
     my ( $dbh, $id ) = @_;
-    my %message;
 
-    if ( not defined $id or $id !~ m/^[\d]+$/x ) {
-
-        # could be an error we've made or someone trying to be clever with
-        # altering the submission.
-        $message{'ERROR'} =
-          'Programming Error: Possible issue with the submission form';
-        return \%message;
-    }
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM contracts WHERE id=?');
     if ( !$sth->execute($id) ) {
-        $message{'ERROR'} =
-          'Internal Error: The contract entry could not be deleted';
-        return \%message;
+        return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The specificed entry was deleted';
-    return \%message;
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
+
+=pod
+
+=head2 get_contracts_info
+
+Main individual record retrieval sub. 
+ get_contracts_info ( $dbh, $contracts_id )
+
+Returns the details in a hash.
+
+=cut
 
 sub get_contracts_info {
     my ( $dbh, $id ) = @_;
@@ -215,13 +297,275 @@ sub get_contracts_info {
     return @return_array;
 }
 
+=pod
+
+=head2 hosts_bycontract_name
+
+Return all hosts for a given contract (based on name).
+
+  hosts_bycontract_name ( $dbh, $name )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bycontract_name {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id,
+           contracts.id AS contract_id,
+           contracts.name AS contract_name
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+          LEFT JOIN hoststocontracts
+          ON hoststocontracts.host_id=hosts.id
+          LEFT JOIN contracts
+          ON hoststocontracts.contract_id=contracts.id
+         
+         WHERE contract.name=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return if !$sth->execute($name);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
+=pod
+
+=head2 hosts_bycontract_id
+
+Return all hosts for a given contract (based on id).
+
+  hosts_bycontract_name ( $dbh, $name )
+
+Returns empty if either argument is missing.
+
+Returns an array of hosts hashes if successful.
+
+=cut
+
+sub hosts_bycontract_id {
+    my ( $dbh, $name ) = @_;
+
+    return if !defined $dbh;
+    return if !defined $name;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id,
+           contracts.id AS contract_id,
+           contracts.name AS contract_name
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+          LEFT JOIN hoststocontracts
+          ON hoststocontracts.host_id=hosts.id
+          LEFT JOIN contracts
+          ON hoststocontracts.contract_id=contracts.id
+         
+         WHERE contract.id=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return if !$sth->execute($name);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
+=head2 hash_hosts_percontract
+
+return all hosts indexed by contract
+
+ hash_hosts_percontract ($dbh)
+
+returns a hash
+
+ $contract_name => @hosts
+
+where @hosts is an array of individual hashes, each has containing a hosts
+data.
+
+=cut
+
+sub hash_hosts_percontract {
+    my ($dbh) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id,
+           contracts.id AS contract_id,
+           contracts.name AS contract_name
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+          LEFT JOIN hoststocontracts
+          ON hoststocontracts.host_id=hosts.id
+          LEFT JOIN contracts
+          ON hoststocontracts.contract_id=contracts.id
+         
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return if not $sth->execute($name);
+
+    my %index;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        if ( !exists( $index{ $ref->{'contract_name'} } ) ) {
+            my @data = ($ref);
+            $index{ $ref->{'contract_name'} } = \@data;
+        }
+        else {
+            push @{ $index{ $ref->{'contract_name'} } }, $ref;
+        }
+    }
+
+    return \%index;
+}
+
+=pod
+
+=head2 count_hosts_percontract
+
+Return total number of hosts per contract.
+
+ count_hosts_percontract($dbh)
+
+Returns a slightly complex has that includes state.
+
+  %return{$contract_id}
+               {$state}{$number_of_hosts}
+               {contract_name}{$contract_name}
+
+=cut
+
+sub count_hosts_percontract {
+    my $dbh = shift;
+    my %return_hash;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
+    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
+
+    foreach (@raw_hosts) {
+        my %dbdata = %{$_};
+
+        my $contract_name = $dbdata{'contract_name'};
+        my $contract_id   = $dbdata{'contract_id'};
+        my $state         = lc $dbdata{'status_state'};
+
+        $return_hash{$contract_id}{$state}++;
+        $return_hash{$contract_id}{'contract_name'} = $contract_name;
+
+    }
+
+    return \%return_hash;
+}
+
 1;
 
 __END__
 
-=head1 NAME
+=pod
 
-Inventory::Contracts - Manipulate Contracts
+=head1 DIAGNOSTICS
+
+Via error messages where present.
+
+=head1 INCOMPATIBILITIES
+
+None known
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
 
 =head1 AUTHOR
 

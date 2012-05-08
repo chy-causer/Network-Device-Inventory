@@ -56,7 +56,7 @@ ALTER TABLE ONLY servicelevels ADD CONSTRAINT servicelevels_supplier_id_fkey FOR
 
 CREATE TABLE contracts (
     id            serial NOT NULL,
-    name          character varying NOT NULL,
+    name          character varying UNIQUE NOT NULL,
     serial        character varying,
     startdate     character varying,
     enddate       character varying,

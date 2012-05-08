@@ -2,44 +2,111 @@ package Inventory::Interfaces;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Interfaces
+
+=head1 VERSION
+
+This document describes Inventory::Interfaces version 1.03
+
+=head1 SYNOPSIS
+
+  use Inventory::Interfaces;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Interfaces table related data
+
+=cut
+
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_interfaces
   edit_interfaces
   get_interfaces_info
-  delete_interface
+  delete_interfaces
 );
+
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+NetAddr::IP
+Net::DNS
+Readonly
+
+=cut
 
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
 use NetAddr::IP;
 use Net::DNS;
+use Readonly;
+
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $ENTRY          = 'interface';
+Readonly my $MSG_DBH_ERR    = 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  = 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  = "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR = "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    = "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   = "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  = "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR = "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  = 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR => "$ENTRY processing tripped a software defect";
+
+Readonly my $MSG_PRI_EXISTS_ERR =
+  'Host already has a Primary Interface, aborting';
+Readonly my $MSG_IPADDRESS_ERR =
+  'Must be an IPv4/6 address or resolvable DNS name';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_interfaces
+
+Main creation sub.
+   create_interfaces($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle, ids, and basic address sanity.
+
+=cut
 
 sub create_interfaces {
     my ( $dbh, $post_ref ) = @_;
     my %posts = %{$post_ref};
-    my %message;
 
-    # just a basic test
-    if (  !exists $posts{'interface_address'}
-        || length $posts{'interface_address'} < 1 )
-    {
-
-        $message{'ERROR'} =
-'Input Error: It looks like you forgot to fill in an address for the interface';
-        return \%message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts{'interface_address'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
     }
-
-    if (   !exists $posts{'host_id'}
-        || $posts{'host_id'} =~ m/\D/x
-        || length( $posts{'host_id'} ) < 1 )
-    {
-        $message{'ERROR'} =
-'Input Error: Programming error? It looks like no host was supplied for the interface';
-        return \%message;
-    }
+    if ( !exists $posts{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $isprimary;
     if ( exists $posts{'isprimary'} && $posts{'isprimary'} eq 'true' ) {
@@ -50,9 +117,7 @@ sub create_interfaces {
             {}, $posts{'host_id'},
         );
         if ( $dbh->errstr or $row->{hosts} > 0 ) {
-            $message{'ERROR'} =
-'Input Error: Primary Interface already exists. Cannot create another Primary Interface';
-            return \%message;
+            return { 'ERROR' => $MSG_PRI_EXISTS_ERR };
         }
 
         $isprimary = 'true';
@@ -65,73 +130,69 @@ sub create_interfaces {
     $posts{'interface_address'} =~ s/\/.*$//x;
 
     # automatically regenerate the dns on edit
-
     if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
-
-        # ok, it's not an address
-        $message{'ERROR'} =
-'Input Error: The input does not seem to be an IPv4/6 address or a resolvable hostname';
-        return \%message;
+        return { 'ERROR' => $MSG_IPADDRESS_ERR };
     }
-    
+
     my $address_obj = NetAddr::IP->new( $posts{'interface_address'} );
-    my $res   = Net::DNS::Resolver->new;
-    my $query = $res->query( $address_obj->addr() );
-    
+    my $res         = Net::DNS::Resolver->new;
+    my $query       = $res->query( $address_obj->addr() );
+
     my @name;
     if ($query) {
-       foreach my $rr ( $query->answer ) {
-            next unless $rr->type eq "PTR";
+        foreach my $rr ( $query->answer ) {
+            next if $rr->type ne 'PTR';
             push @name, $rr->ptrdname;
-       }
+        }
     }
 
     my $hostname = $name[0] || 'UNRESOLVED';
-
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
 
     my $sth = $dbh->prepare(
 'INSERT INTO interfaces(address,host_id,lastresolvedfqdn,lastresolveddate,isprimary) VALUES(?,?,?,NOW(),?)'
     );
 
-    if ( !$sth->execute( $posts{'interface_address'}, $posts{'host_id'}, $hostname, $isprimary ) ) {
-        $message{'ERROR'} =
-          'Internal Error: The interface creation was unsuccessful';
-        return \%message;
+    if (
+        !$sth->execute(
+            $posts{'interface_address'}, $posts{'host_id'},
+            $hostname,                   $isprimary
+        )
+      )
+    {
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The interface creation was successful';
-    return \%message;
+    return { 'ERROR' => $MSG_CREATE_OK };
 }
+
+=pod
+
+=head2 edit_interfaces
+
+Main edit sub.
+  edit_interfaces ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Checks for a missing database handle, ids, and basic address sanity.
+
+=cut
 
 sub edit_interfaces {
     my ( $dbh, $temp_ref ) = @_;
     my %posts = %{$temp_ref};
-    my %message;
 
-    # dump bad inputs
-    if (
-          !exists $posts{'interface_id'}
-        || length( $posts{'interface_id'} ) < 1
-        || $posts{'interface_id'} =~ m/\D/x
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts{'interface_address'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
+    }
+    if ( !exists $posts{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+    if ( !exists $posts{'interface_id'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
+    }
 
-        || !exists $posts{'host_id'}
-        || length( $posts{'host_id'} ) < 1
-        || $posts{'host_id'} =~ m/\D/x
-
-        || !exists $posts{'interface_address'}
-        || length( $posts{'interface_address'} ) < 1
-
-        # ipv6 enable the subroutine
-        || !NetAddr::IP->new( $posts{'interface_address'} )
-      )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: One of the supplied inputs was invalid.';
-        return \%message;
+    if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
+        return { 'ERROR' => $MSG_IPADDRESS_ERR };
     }
 
     my $isprimary;
@@ -143,9 +204,7 @@ sub edit_interfaces {
             {}, $posts{'host_id'}, $posts{'interface_id'},
         );
         if ( $dbh->errstr or $row->{intcount} > 0 ) {
-            $message{'ERROR'} =
-'Input Error: Primary Interface already exists. Cannot create another Primary Interface';
-            return \%message;
+            return { 'ERROR' => $MSG_PRI_EXISTS_ERR };
         }
 
         $isprimary = 'true';
@@ -158,29 +217,23 @@ sub edit_interfaces {
     $posts{'interface_address'} =~ s/\/.*$//x;
 
     # automatically regenerate the dns on edit
-
     if ( !NetAddr::IP->new( $posts{'interface_address'} ) ) {
-
-        # ok, it's not an address
-        $message{'ERROR'} =
-'Input Error: The input does not seem to be an IPv4/6 address or a resolvable hostname';
-        return \%message;
+        return { 'ERROR' => $MSG_IPADDRESS_ERR };
     }
 
     my $address_obj = NetAddr::IP->new( $posts{'interface_address'} );
-    my $res   = Net::DNS::Resolver->new;
-    my $query = $res->query( $address_obj->addr() );
-    
+    my $res         = Net::DNS::Resolver->new;
+    my $query       = $res->query( $address_obj->addr() );
+
     my @name;
     if ($query) {
-       foreach my $rr ( $query->answer ) {
-            next unless $rr->type eq "PTR";
+        foreach my $rr ( $query->answer ) {
+            next if $rr->type ne 'PTR';
             push @name, $rr->ptrdname;
-       }
+        }
     }
 
-    my $hostname = $name[0] || 'UNRESOLVED' ;
-    
+    my $hostname = $name[0] || 'UNRESOLVED';
 
     my $sth = $dbh->prepare(
 'UPDATE interfaces SET host_id=?,address=?,lastresolvedfqdn=?,lastresolveddate=NOW(),isprimary=? WHERE id=?'
@@ -193,29 +246,33 @@ sub edit_interfaces {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The interface edit was unsuccessful.';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your interface changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
 
+=pod
+
+=head2 get_interfaces_info
+
+Main individual record retrieval sub. 
+  get_interfaces_info ( $dbh )
+  get_interfaces_info ( $dbh, $interface_id )
+  get_interfaces_info ( $dbh, , $host_id, $interface_address )
+
+$interface_id is optional, if not specified all results will be returned.
+
+Returns the details in a array of hashes.
+
+=cut
+
 sub get_interfaces_info {
-
-    # three ways to call this
-    my $dbh = shift;
-
-    # 1) with no information - list everything
-    # 2) with  an interface id
-    my $interface_id = shift;
-
-    # 3) via a host/address combination
+    my $dbh               = shift;
+    my $interface_id      = shift;
     my $host_id           = shift;
     my $interface_address = shift;
 
-    # [/end sparce documentation]
     my $sth;
 
     return if !defined $dbh;
@@ -324,111 +381,42 @@ sub get_interfaces_info {
     return @return_array;
 }
 
-sub delete_interface {
+=pod
 
-    my $dbh          = shift;
-    my $interface_id = shift;
+=head2 delete_interfaces
 
-    return { 'ERROR' => 'Programming error' } if !defined $dbh;
-    return { 'ERROR' => 'Programming error, no interface_id' }
-      if !defined $interface_id;
-    return { 'ERROR' => "Programming error, $interface_id contains non digits" }
-      if $interface_id =~ m/\D/x;
-    return { 'ERROR' => 'Programming error, empty interface_id' }
-      if length($interface_id) < 1;
+Delete a single interface.
+
+ delete_interfaces( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
+sub delete_interfaces {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM interfaces WHERE id=?');
-    return {
-        'ERROR' => 'Programming error, database refused to delete the record' }
-      if !$sth->execute($interface_id);
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
+    }
 
-    # congratulations, you made it
-    return { 'SUCCESS' => 'Interface deleted' };
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 1;
 __END__
 
-=head1 NAME
-
-Inventory::Interfaces - Networks team inventory module
-
-=head1 VERSION
-
-This document describes Inventory::Interfaces version 1.0.2
-
-=head1 SYNOPSIS
-
-use Inventory::Interfaces;
-
-=head1 DESCRIPTION
-
-Module to handle the validation, addition, editing and retrieval of interface
-information in the inventory database
-
-=head1 RETURNS
-
-All returns from lists operations are arrays of hashes
-
-All creates and edits return a hash, the key gives success or failure, the
-value gives the human message of what went wrong.
-
-=head1 OPTIONS
-
-see the subroutines/methods section
-
-=head1 USAGE
-
-edit an interface
-%message = %{ Inventory::Interfaces::edit_interfaces( $dbh, \%POSTS ) };
-
-create an interface
-%message = %{ Inventory::Interfaces::create_interfaces( $dbh, \%POSTS ) };
-
-list all the interfaces (array of hashes)
-my @interfaces = Inventory::Interfaces::get_interfaces_info($dbh);
-
-=head1 REQUIRED ARGUEMENTS
-
-All subroutines require the database handle be passed to them
-
-=head1 SUBROUTINES/METHODS
-
-=head2 create_interfaces( %form_data )
-  
-  create new entries in the interfaces table
-
-=head2 edit_interfaces( %form_data )
-  
-  edit existing entries in the interfaces table
-
-=head2 get_interfaces_info
-
-  list existing entries in the interfaces table as an array of hashes
- 
-  Call with no extra arguements to list all entries
-  get_interfaces_info( database handle)
-
-  Call with an interface id to get the details of one interface alone
-  get_interfaces_info( database handle, interface_id )
-
-  Call with a host id / ip address combination to retrieve the specific interface
-  get_interfaces_info( database handle, undef, host_id, ipv4/ipv6 address )
-
+=pod
 
 =head1 DIAGNOSTICS
 
-  Errors should be reported back to the user via the web interface
-
-=head1 CONFIGURATION
-
-A postgres database with the database layout that's expected is required.
-Other configuration is at the application level via a configuration file, but
-the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-DBI, DBD::Pg, Regexp::Common, NetAddr::IP, Socket
+Via error messages where present.
 
 =head1 INCOMPATIBILITIES
 

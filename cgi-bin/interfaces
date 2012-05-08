@@ -4,16 +4,17 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
 use Inventory::Hosts 1.0;
-use Inventory::Interfaces 1.0;
+use Inventory::Interfaces 1.03;
 
 my $BASEURL = CGI::url( -base => 1 );
 my $HOSTNAME = $BASEURL;
@@ -108,7 +109,7 @@ elsif (exists $POSTS{'interface_id'}
     $logger->info(
         "$ENV{REMOTE_USER} posts to delete ID $POSTS{'interface_id'}");
     %message =
-      %{ Inventory::Interfaces::delete_interface( $dbh, $POSTS{'interface_id'} )
+      %{ Inventory::Interfaces::delete_interfaces( $dbh, $POSTS{'interface_id'} )
       };
 }
 elsif ( $POSTS{'host_id'} ) {
@@ -132,7 +133,8 @@ $tt->process(
         makeprimary => $makeprimary,
         makehost_id => $makehost_id,
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+
 $tt->process('inventory_footer.tt');
 
 __END__

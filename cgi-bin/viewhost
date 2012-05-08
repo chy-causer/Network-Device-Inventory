@@ -4,12 +4,13 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
-use Template;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use NetAddr::IP;
+use Template;
 use URI::Escape;
 
 use Inventory 1.0;
@@ -121,7 +122,7 @@ $tt->process(
         netdisco_url => $netdisco_url,
 
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

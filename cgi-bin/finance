@@ -2,20 +2,21 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = '1.00';
+our $VERSION = '1.02';
 
+use Carp;
 use CGI;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Invoices 1.0;
+use Inventory::Invoices 1.02;
 use Inventory::Suppliers 1.0;
 use Inventory::Contacts 1.0;
-use Inventory::Hosts 1.0;
+use Inventory::Hosts 1.02;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -96,7 +97,7 @@ if ( $gets{'invoice_id'} && $gets{'invoice_id'} =~ m/^[\d]+$/x ) {
     @supplier =
       Inventory::Suppliers::get_suppliers_info( $dbh,
         $invoice[0]->{supplier_id} );
-    @hosts = Inventory::Hosts::get_hosts_byinvoice( $dbh, $id );
+    @hosts = Inventory::Invoices::get_hosts_byinvoice( $dbh, $id );
     @contacts =
       Inventory::Contacts::get_contacts_bysupplier( $dbh,
         $invoice[0]->{supplier_id} );
@@ -121,7 +122,7 @@ $tt->process(
         message => \%message,
         show    => $id,
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 $tt->process( 'inventory_footer.tt', {} );
 
 __END__

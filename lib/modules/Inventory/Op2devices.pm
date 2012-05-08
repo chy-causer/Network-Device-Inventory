@@ -3,38 +3,117 @@ package Inventory::Op2devices;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Op2devices
+
+=head1 VERSION
+
+This document describes Inventory::Op2devices version 1.02
+
+=head1 SYNOPSIS
+
+  use Inventory::Op2devices;
+
+=head1 DESCRIPTION
+
+Module to handle the data relating to OWL Phase II Devices.
+
+=cut
+
+our $VERSION = '1.02';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_devices
   edit_devices
   get_devices_info
+  delete_devices
 );
+
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Oxford::Directory
+Readonly
+Regexp::Common
+Inventory::Hosts 1.0
+
+=cut
 
 use DBI;
 use DBD::Pg;
 use Oxford::Directory;
+use Readonly;
 use Regexp::Common qw /net/;
 
 use Inventory::Hosts 1.0;
 
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $ENTRY            => 'Owl Phase II device';
+Readonly my $CISCO_MAC_LENGTH => '14';
+Readonly my $BARE_MAC_LENGTH  => '12';
+
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 clean_inputs
+
+Attempt to put the input cleaning logic in one place
+
+=cut
+
 sub clean_inputs {
     my %input     = %{ shift() };
-    my $amspecial = shift();
+    my $amspecial = shift;
     my @message_store;
 
     # mac
     if ( !defined $input{'mac'} || length( $input{'mac'} ) < 1 ) {
         my %message;
         $message{'ERRORmac'} = 'No mac address was passed on';
-        $message{'FATAL'}    = 'The error was fatal';
+        $message{'FATAL'}    = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store, \%input;
     }
     else {
         $input{'mac'} =~ s/\s//;
 
-        if ( length( $input{'mac'} ) == 14 && $input{'mac'} =~ m/\./ ) {
+        if ( length( $input{'mac'} ) == $CISCO_MAC_LENGTH
+            && $input{'mac'} =~ m/\./ )
+        {
 
             # cisco style mac address
             $input{'mac'} =~ s/\.//g;
@@ -42,7 +121,7 @@ sub clean_inputs {
             # next statement will format this, saves us code again
         }
 
-        if ( length( $input{'mac'} ) == 12 ) {
+        if ( length( $input{'mac'} ) == $BARE_MAC_LENGTH ) {
 
             # mac addess with no punctuation, regex common hates that. Lets
             # lend a helping hand
@@ -55,7 +134,7 @@ sub clean_inputs {
         if ( $input{'mac'} !~ m/^$RE{net}{MAC}$/ ) {
             my %message;
             $message{ERRORmac} = 'Badly formatted Mac addess';
-            $message{'FATAL'} = 'The error was fatal';
+            $message{'FATAL'} = $MSG_FATAL_ERR;
             push @message_store, \%message;
             return \@message_store, \%input;
         }
@@ -79,7 +158,7 @@ sub clean_inputs {
         my %message;
         $message{'ERRORunit'} =
           'No unit was received to be associated with the device';
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store, \%input;
     }
@@ -92,9 +171,9 @@ sub clean_inputs {
 
     # get user object
     my $user = $directory->people->by_principal( $ENV{'REMOTE_USER'} )
-      or die "failed to find person ["
-      . ( $ENV{'REMOTE_USER'} || '' )
-      . "] in Oak LDAP";
+      or return { 'ERROR' => 'failed to find person ['
+          . ( $ENV{'REMOTE_USER'} || '(null)' )
+          . '] in Oak LDAP' };
 
     # set starting positions
     my $validunit = 'false';
@@ -115,8 +194,8 @@ sub clean_inputs {
     if ( $amspecial eq 'false' && $validunit eq 'false' ) {
         my %message;
         $message{'ERRORunit'} =
-"You ($ENV{'REMOTE_USER'}) are not known to be associated with the submitted unit for the device";
-        $message{'FATAL'} = 'The error was fatal';
+"$ENV{'REMOTE_USER'} is not known to be associated with the submitted unit for the device";
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store, \%input;
     }
@@ -147,13 +226,21 @@ sub clean_inputs {
     return \@message_store, \%input;
 }
 
-sub create_devices {
+=pod
 
-    # respond to a request to create a model
-    # 1. validate input
-    # 2. make the database entry
-    # 3. return success or fail
-    #
+=head2 create_devices
+
+Main creation sub.
+create_devices($dbh, $priv_level, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Permissions in complicated as this page is for general IT staff access who
+need to be limited to their unit
+
+=cut
+
+sub create_devices {
     my $dbh       = shift;
     my $amspecial = shift;
     my %posts     = %{ shift() };
@@ -179,7 +266,7 @@ sub create_devices {
         my %message;
         $message{'ERROR'} =
 'Internal Error: Unable to check if this record already exists due to a programming mistake or similar';
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store;
     }
@@ -192,7 +279,7 @@ sub create_devices {
         my %message;
         $message{'ERROR'} =
 "The mac address $posts{'mac'} has already been added, it will not be added more than once";
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store;
     }
@@ -219,7 +306,7 @@ sub create_devices {
         my %message;
         $message{'ERROR'} =
           'Internal Error: The device creation was unsuccessful';
-        $message{'FATAL'} = 'The error was fatal';
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
         return \@message_store;
     }
@@ -229,6 +316,23 @@ sub create_devices {
     push @message_store, \%message;
     return \@message_store;
 }
+
+=pod
+
+=head2 edit_XXX
+
+Main edit sub.
+  edit_XXX ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+For the XXX name we strip leading and trailing whitespace to make life
+easier for people pasting in model names from manufacturers websites and
+similar.
+
+Currently the only error check is for a missing database handle.
+
+=cut
 
 sub edit_devices {
 
@@ -272,13 +376,13 @@ sub edit_devices {
 
     # get user object
     my $user = $directory->people->by_principal( $ENV{'REMOTE_USER'} )
-      or die "failed to find person ["
-      . ( $ENV{'REMOTE_USER'} || '' )
-      . "] in Oak LDAP";
+      or return { 'ERROR' => 'failed to find person ['
+          . ( $ENV{'REMOTE_USER'} || '(null)' )
+          . '] in Oak LDAP' };
 
     # set starting positions
     if ( $amspecial ne 'false' && $amspecial ne 'true' ) {
-        $message{'ERROR'} = 'Internal Error: Programming error in edit_devices';
+        $message{'ERROR'} = $MSG_PROG_ERR;
         push @message_store, \%message;
         return \@message_store;
     }
@@ -314,7 +418,7 @@ sub edit_devices {
 
     # change the query if they aren't special
     if ( $validunit eq 'true' && $amspecial eq 'false' ) {
-        my $sth = $dbh->prepare(
+        my $sth2 = $dbh->prepare(
             'UPDATE owlphase2_devices SET
                                  mac        =?,
                                  building   =?,
@@ -324,16 +428,13 @@ sub edit_devices {
         );
 
         if (
-            !$sth->execute(
+            !$sth2->execute(
                 $posts{'mac'},  $posts{'building'}, $posts{'room'},
                 $posts{'unit'}, $posts{'device_id'}
             )
           )
         {
-            $message{'ERROR'} =
-              'Internal Error: The device edit was unsuccessful';
-            push @message_store, \%message;
-            return \@message_store;
+            return { 'ERROR' => $MSG_EDIT_ERR };
         }
         elsif ( $validunit eq 'false' && $amspecial eq 'false' ) {
             $message{'ERROR'} =
@@ -344,7 +445,7 @@ sub edit_devices {
     }
     elsif ( $amspecial eq 'true' ) {
 
-        my $sth = $dbh->prepare(
+        my $sth2 = $dbh->prepare(
             'UPDATE owlphase2_devices SET
                                  mac        =?,
                                  building   =?,
@@ -356,7 +457,7 @@ sub edit_devices {
         );
 
         if (
-            !$sth->execute(
+            !$sth2->execute(
                 $posts{'mac'},  $posts{'building'},
                 $posts{'room'}, $posts{'oucs_owned'},
                 $posts{'unit'}, $posts{'status'},
@@ -365,17 +466,28 @@ sub edit_devices {
           )
 
         {
-            $message{'ERROR'} =
-              'Internal Error: The device entry edit was unsuccessful';
-            push @message_store, \%message;
-            return \@message_store;
+            return { 'ERROR' => $MSG_EDIT_ERR };
         }
     }
 
-    $message{'SUCCESS'} = 'Your changes were commited successfully';
-    push @message_store, \%message;
-    return \@message_store;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 get_devices_info
+
+Main individual record retrieval sub. 
+ get_devices_info ( $dbh, $principal, $priv, $device_id )
+
+$device_id is optional, if not specified all results will be returned.
+
+Returns the details in a array of hashes.
+
+If they are a superuser they are show all access points, otherwise we look up
+which units they are ITSS for and only show them these units access points.
+
+=cut
 
 sub get_devices_info {
     my $dbh       = shift;
@@ -441,16 +553,15 @@ sub get_devices_info {
         return if !$sth->execute();
     }
 
-    # If they aren't one of the special few
-    # then only show them the access points for their units
-    #
     # need to know their units first
     #
     my $directory = Oxford::Directory->new;
 
     # get user object
     my $user = $directory->people->by_principal($principal)
-      or die "failed to find person [" . ( $principal || '' ) . "] in Oak LDAP";
+      or return { 'ERROR' => 'failed to find person ['
+          . ( $principal || '(null)' )
+          . '] in Oak LDAP' };
 
     # units this ITSS can manage
     my @units = qw();
@@ -486,10 +597,46 @@ sub get_devices_info {
     return @return_array;
 }
 
+=pod
+
+=head2 delete_devices
+
+Delete a single devices.
+
+ delete_devices( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
+sub delete_devices {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+
+    my $sth = $dbh->prepare('DELETE FROM owlphase2_devices WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
+
 1;
 __END__
 
+=pod
 
+=head1 DIAGNOSTICS
+
+Via error messages where present.
+
+=head1 INCOMPATIBILITIES
+
+none known
 
 =head1 BUGS AND LIMITATIONS
 

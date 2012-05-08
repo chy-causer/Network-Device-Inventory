@@ -2,15 +2,81 @@ package Inventory::Frodos;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Frodos
+
+=head1 VERSION
+
+This document describes Inventory::Frodos version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Frodos;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the FroDo project specific data and analysis of it.
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   ordered_hash_frodos
   list_frodos
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+
+=cut
+
 use DBI;
 use DBD::Pg;
+use Readonly;
+
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my %SORT_COLUMN => (
+    host_name             => 'host_name',
+    host_address          => 'host_address',
+    host_lastresolvedfqdn => 'host_lastresolvedfqdn',
+    model_name            => 'model_name',
+    location_name         => 'location_name',
+);
+Readonly my $DEFAULT_COLUMN => 'host_name';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 list_frodos
+
+  list_frodos($dbh)
+
+=cut
 
 sub list_frodos {
     my $dbh = shift;
@@ -18,22 +84,22 @@ sub list_frodos {
     return if !defined $dbh;
 
     my $sth =
-      $dbh->prepare( "SELECT"
-          . " hosts.name AS host_name,"
-          . " hosts.id AS host_id,"
-          . " interfaces.lastresolvedfqdn AS host_lastresolvedfqdn,"
-          . " interfaces.address AS host_address,"
-          . " interfaces.id AS interface_id,"
-          . " models.name AS model_name,"
-          . " locations.name AS location_name "
-          . "FROM hosts,interfaces,models,locations,status " . "WHERE"
-          . " interfaces.host_id = hosts.id"
+      $dbh->prepare( 'SELECT'
+          . ' hosts.name AS host_name,'
+          . ' hosts.id AS host_id,'
+          . ' interfaces.lastresolvedfqdn AS host_lastresolvedfqdn,'
+          . ' interfaces.address AS host_address,'
+          . ' interfaces.id AS interface_id,'
+          . ' models.name AS model_name,'
+          . ' locations.name AS location_name '
+          . 'FROM hosts,interfaces,models,locations,status ' . 'WHERE'
+          . ' interfaces.host_id = hosts.id'
           . " AND hosts.name ILIKE '%frodo%'"
-          . " AND hosts.model_id=models.id"
-          . " AND hosts.location_id=locations.id"
-          . " AND hosts.status_id = status.id"
+          . ' AND hosts.model_id=models.id'
+          . ' AND hosts.location_id=locations.id'
+          . ' AND hosts.status_id = status.id'
           . " AND status.state='ACTIVE' "
-          . "ORDER BY host_lastresolvedfqdn;" );
+          . 'ORDER BY host_lastresolvedfqdn;' );
 
     return if !$sth->execute();
 
@@ -44,6 +110,14 @@ sub list_frodos {
     return @return_array;
 }
 
+=pod
+
+=head2 ordered_hash_frodos
+
+  ordered_hash_frodos( $dbh, $orderby )
+
+=cut
+
 sub ordered_hash_frodos {
     my ( $dbh, $orderby ) = @_;
 
@@ -51,21 +125,21 @@ sub ordered_hash_frodos {
 
     my $sth =
       $dbh->prepare( "SELECT"
-          . " hosts.name AS host_name,"
-          . " hosts.id AS host_id,"
-          . " interfaces.lastresolvedfqdn AS host_lastresolvedfqdn,"
-          . " interfaces.address AS host_address,"
-          . " interfaces.id AS interface_id,"
-          . " models.name AS model_name,"
-          . " locations.name AS location_name "
-          . "FROM hosts,interfaces,models,locations,status " . "WHERE"
-          . " interfaces.host_id = hosts.id"
+          . ' hosts.name AS host_name,'
+          . ' hosts.id AS host_id,'
+          . ' interfaces.lastresolvedfqdn AS host_lastresolvedfqdn,'
+          . ' interfaces.address AS host_address,'
+          . ' interfaces.id AS interface_id,'
+          . ' models.name AS model_name,'
+          . ' locations.name AS location_name '
+          . 'FROM hosts,interfaces,models,locations,status ' . 'WHERE'
+          . ' interfaces.host_id = hosts.id'
           . " AND hosts.name ILIKE '%frodo%'"
-          . " AND hosts.model_id=models.id"
-          . " AND hosts.location_id=locations.id"
-          . " AND hosts.status_id = status.id"
+          . ' AND hosts.model_id=models.id'
+          . ' AND hosts.location_id=locations.id'
+          . ' AND hosts.status_id = status.id'
           . " AND status.state='ACTIVE' "
-          . "ORDER BY host_lastresolvedfqdn;" );
+          . 'ORDER BY host_lastresolvedfqdn;' );
 
     return if !$sth->execute();
 
@@ -83,28 +157,33 @@ sub ordered_hash_frodos {
     return \%return_hash;
 }
 
+=pod
+
+=head2 sort_frodo_results
+
+  sort_frodo_results( $orderby, $unsorted )
+
+If $orderby is not one of the expected values or is otherwise invalid it will
+be reset to the default ordering.
+
+Under review as to if this is still needed
+https://github.com/guyed/Network-Device-Inventory/issues/48
+
+=cut
+
 sub sort_frodo_results {
     my ( $orderby, $unsorted ) = @_;
     my %semisorted_hash;
     my %sorted_hash;
-    my $counter = 10000;
+    my $counter = 10;
 
-    $orderby =~ m/(\w+)/x;
-    if ($1) {
-        $orderby = $1;
-
-        if (    $orderby ne 'host_name'
-            and $orderby ne 'host_address'
-            and $orderby ne 'host_lastresolvedfqdn'
-            and $orderby ne 'model_name'
-            and $orderby ne 'location_name' )
-        {
-
-            $orderby = 'host_name';
+    if ( $orderby =~ m/(\w+)/x ) {
+        if ( !exists $SORT_COLUMN{$1} ) {
+            $orderby = $DEFAULT_COLUMN;
         }
     }
     else {
-        $orderby = 'host_name';
+        $orderby = $DEFAULT_COLUMN;
     }
 
     #first do a sort of the hash by the contained hash values
@@ -116,7 +195,7 @@ sub sort_frodo_results {
 
         # we dont want to overwrite entries with the same sorting value
         # so we make it a compound
-        if ( $orderby eq 'host_name' ) {
+        if ( $orderby eq $DEFAULT_COLUMN ) {
 
             # sort numerically
             $value =~ s/\D//gx;
@@ -129,7 +208,7 @@ sub sort_frodo_results {
     }
 
     $counter = 1;    # reuse it, why not
-    if ( $orderby eq 'host_name' ) {
+    if ( $orderby eq $DEFAULT_COLUMN ) {
         foreach my $key ( sort { $a <=> $b } keys %semisorted_hash ) {
 
             # generate a hash of hashes
@@ -156,34 +235,15 @@ sub sort_frodo_results {
 
 __END__
 
-=head1 NAME
-Frodos.pm
-
-=head1 VERSION
-
-This documentation refers to  version 
-
-=head1 USAGE
-
-=head1 REQUIRED ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 DESCRIPTION
+=pod
 
 =head1 DIAGNOSTICS
 
-error messages
-
-=head1 CONFIGURATION
-
-Configuration files used?
-
-=head1 DEPENDENCIES
+Via error messages where present.
 
 =head1 INCOMPATIBILITIES
 
-none known
+None known
 
 =head1 BUGS AND LIMITATIONS
 

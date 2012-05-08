@@ -2,72 +2,147 @@ package Inventory::Cnames;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+  Inventory::Cnames
+
+=head1 VERSION
+
+This document describes Inventory::Cnames version 1.03
+
+=head1 SYNOPSIS
+
+  use Inventory::Cnames;
+
+=head1 DESCRIPTION
+
+Functions for dealing with the Cnames related data and analysis of it.
+
+=cut
+
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_cnames
-  create_shortcname
-  delete_cname
+  create_shortcnames
+  delete_cnames
   edit_cnames
   get_cnames_info
 );
 
+=pod
+
+=head1 DEPENDENCIES
+
+DBI;
+DBD::Pg;
+Readonly;
+
+=cut
+
 use DBI;
 use DBD::Pg;
-use Regexp::Common qw /net/;
-use Inventory::Hosts 1.0;
+use Readonly;
+
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_NAME_LENGTH    => '25';
+Readonly my $MAX_DNSNAME_LENGTH => '128';
+
+Readonly my $ENTRY          => 'cname';
+Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR   => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK  => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR  => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR   => "$ENTRY processing tripped a software defect";
+
+Readonly my $MSG_SHORTNAME_ERR => 'The shortname was invalid';
+Readonly my $MSG_DNSNAME_ERR   => 'The dnsname was invalid';
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 _internal_checkinput
+
+An attempt at putting all input checking in one subroutine.
+
+=cut
 
 sub _internal_checkinput {
-    my %posts = %{ shift() };
-    my @message_store;    # need to put all these messages somewhere
+    my $posts = shift;
+    my @message_store;
 
-    if (   !exists $posts{'shortname'}
-        || $posts{'shortname'} =~ m/[^\w\s\-]/x
-        || length( $posts{'shortname'} ) < 1
-        || length( $posts{'shortname'} ) > 25 )
+    if (   !exists $posts->{'shortname'}
+        || $posts->{'shortname'} =~ m/[^\w\s\-]/x
+        || length( $posts->{'shortname'} ) < 1
+        || length( $posts->{'shortname'} ) > $MAX_NAME_LENGTH )
     {
 
         my %message;
-        $message{'ERROR'} =
-"Internal Error: The application thinks it didn't get a shortname for the record, or that the shortname given had invalid syntax or length";
-        $message{'FATAL'} = "The error was fatal";
+        $message{'ERROR'} = $MSG_SHORTNAME_ERR;
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
     }
 
-    if (   !exists $posts{'dnsname'}
-        || $posts{'dnsname'} =~ m/[^\w\-]/x
-        || length( $posts{'dnsname'} ) < 1
-        || length( $posts{'dnsname'} ) > 80 )
+    if (   !exists $posts->{'dnsname'}
+        || $posts->{'dnsname'} =~ m/[^\w\-]/x
+        || length( $posts->{'dnsname'} ) < 1
+        || length( $posts->{'dnsname'} ) > $MAX_DNSNAME_LENGTH )
     {
 
         my %message;
-        $message{'ERROR'} =
-"Internal Error: The application thinks it didn't get a dnsname for the record, or that the dnsname given had invalid syntax or length";
-        $message{'FATAL'} = "The error was fatal";
-        push @message_store, \%message;
-    }
-
-    if (   !exists $posts{'host_id'}
-        || $posts{'host_id'} =~ m/\D/x
-        || length( $posts{'host_id'} ) < 1 )
-    {
-
-        my %message;
-        $message{'ERROR'} =
-"Internal Error: The application thinks it didn't get a host_id for the record, or that the host_id given had invalid syntax or zero length";
-        $message{'FATAL'} = "The error was fatal";
+        $message{'ERROR'} = $MSG_DNSNAME_ERR;
+        $message{'FATAL'} = $MSG_FATAL_ERR;
         push @message_store, \%message;
     }
 
     return @message_store;
-
 }
+
+=pod
+
+=head2 create_cnames
+
+Main creation sub.
+  create_cnames($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and basic cname name sanity.
+
+Depends on the DNS records being provided (target/destination)
+
+=cut
 
 sub create_cnames {
     my ( $dbh, $posts ) = @_;
     my %message;
 
-    # validate input
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
     my @message_store = _internal_checkinput($posts);
 
     foreach my $message (@message_store) {
@@ -77,8 +152,6 @@ sub create_cnames {
         }
     }
 
-    # table constraints mean that false ids will be rejected, so I've not done
-    # a belts and braces check of the same thing beforehand
     my $sth = $dbh->prepare(
         'INSERT INTO cnames(host_id,shortname,dnsname) VALUES(?,?,?)');
 
@@ -88,31 +161,38 @@ sub create_cnames {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The cname creation was unsuccessful';
-        push @message_store, \%message;
-        return @message_store;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} =
-"The cname creation ($posts->{'dnsname'} to $posts->{'shortname'}) was successful";
-    push @message_store, \%message;
-
-    return @message_store;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
-sub create_shortcname {
+=pod
+
+=head2 create_shortcnames
+
+In contrast to create_cnames this uses the hosts_id to generate a DNS record
+from the stored shortname, it's otherwise identical
+
+  create_shortcnames( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and basic cname name sanity.
+
+=cut
+
+sub create_shortcnames {
     my ( $dbh, $posts ) = @_;
     my %message;
     my @message_store;
     my $shortname;
 
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
     my $sth = $dbh->prepare('SELECT name FROM hosts WHERE id=?');
     if ( !$sth->execute( $posts->{host_id} ) ) {
-        $message{'ERROR'} =
-          'Internal Error: The cname creation was unsuccessful';
-        push @message_store, \%message;
-        return @message_store;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -124,45 +204,58 @@ sub create_shortcname {
     if ( !$sth2->execute( $posts->{'host_id'}, $shortname, $posts->{'dnsname'} )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The cname creation was unsuccessful';
-        push @message_store, \%message;
-        return @message_store;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} =
-"The cname creation ($posts->{'dnsname'} to $posts->{'shortname'}) was successful";
-    push @message_store, \%message;
-
-    return @message_store;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
-sub delete_cname {
-    my ( $dbh, $cname_id ) = @_;
+=pod
 
-    return { 'ERROR' => 'Programming error' } if !defined $dbh;
-    return { 'ERROR' => 'Programming error, no cname_id' }
-      if !defined $cname_id;
-    return { 'ERROR' => "Programming error, $cname_id contains non digits" }
-      if $cname_id =~ m/\D/x;
-    return { 'ERROR' => 'Programming error, empty cname_id' }
-      if length($cname_id) < 1;
+=head2 delete_cnames
+
+Delete a single cname.
+
+  delete_cnames( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
+sub delete_cnames {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('DELETE FROM cnames WHERE id=?');
-    return {
-        'ERROR' => 'Programming error, database refused to delete the record' }
-      if !$sth->execute($cname_id);
+    if !$sth->execute($id){ return { 'ERROR' => $MSG_DELETE_ERR } }
 
-    # congratulations, you made it
-    return { 'SUCCESS' => 'Host alias deleted' };
+          return { 'SUCCESS' => $MSG_DELETE_OK };
 }
+
+=pod
+
+=head2 edit_cnames
+
+Main edit sub.
+  edit_cnames ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Checks for missing database handle and id.
+
+=cut
 
 sub edit_cnames {
     my ( $dbh, $posts ) = @_;
-
     my %message;
 
-    # validate input
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'cname_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
+
     my @message_store = _internal_checkinput($posts);
 
     foreach my $message (@message_store) {
@@ -170,19 +263,6 @@ sub edit_cnames {
         if ( $temp_hash{'FATAL'} ) {
             return @message_store;
         }
-    }
-
-    # dump bad inputs
-    if (   !exists $posts->{'cname_id'}
-        || $posts->{'cname_id'} =~ m/\D/x
-        || length( $posts->{'cname_id'} ) < 1 )
-    {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} =
-          'Input Error: One of the supplied inputs was invalid.';
-        push @message_store, \%message;
-        return @message_store;
     }
 
     my $sth = $dbh->prepare(
@@ -194,29 +274,38 @@ sub edit_cnames {
         )
       )
     {
-        $message{'ERROR'} = 'Internal Error: The cname edit was unsuccessful.';
-
-        push @message_store, \%message;
-        return @message_store;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your host name changes were commited successfully';
-    push @message_store, \%message;
-    return @message_store;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 edit_shortcnames
+
+Indentical to edit_cnames except using the host_id to automatically fill part
+of the dns record.
+
+Main edit sub.
+  edit_shortcnames ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Checks for missing database handle and host_id.
+
+=cut
 
 sub edit_shortcnames {
     my ( $dbh, $posts ) = @_;
-
-    my %message;
-    my @message_store;
     my $shortname;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'host_id'} ) { return { 'ERROR' => $MSG_PROG_ERR }; }
 
     my $sth = $dbh->prepare('SELECT name FROM hosts WHERE id=?');
     if ( !$sth->execute( $posts->{host_id} ) ) {
-        $message{'ERROR'} = 'Internal Error: The cname edit was unsuccessful';
-        push @message_store, \%message;
-        return @message_store;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -232,16 +321,22 @@ sub edit_shortcnames {
         )
       )
     {
-        $message{'ERROR'} = 'Internal Error: The cname edit was unsuccessful.';
-
-        push @message_store, \%message;
-        return @message_store;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your host name changes were commited successfully';
-    push @message_store, \%message;
-    return @message_store;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 get_cnames_info
+
+Main record retrieval sub, note that it retrieves by host_id.
+ get_cnames_info ( $dbh, $host_id )
+
+Returns the details in a hash.
+
+=cut
 
 sub get_cnames_info {
     my ( $dbh, $host_id ) = @_;
@@ -271,63 +366,15 @@ sub get_cnames_info {
 1;
 __END__
 
-=head1 NAME
+=pod
 
-Inventory::Cnames - Information on Cnames
+=head1 DIAGNOSTICS
 
-=head2 VERSION
+Via error messages where present.
 
-This document describes Inventory::Cnames version 0.0.1
+=head1 INCOMPATIBILITIES
 
-=head1 SYNOPSIS
-
-  use Inventory::Cnames qw(create_cnames edit_cnames show_cnames_info);
-  # There are no special setup requirements
-
-=head1 PURPOSE
-
-This module allows manipulation of the inventory database cnames table
-
-=head1 DESCRIPTION
-
-
-The module aims to hide the tasks of raw SQL queries to the database from wou
-when performing common tasks which involve the relationhips of manufacturers
-to models in the inventory table.
-
-At a very late stage the inventory database had the requirement added that the
-dns zone for the frodos and frodo ups's would be created from the inventory.
-This was a problem since the inventory relies on the dns...  This set of
-subroutines hence deals with the slightly clunky solution which was a database
-table linking the host to it's dns and cnames that would be used to populate
-the dns
-
-The data returned from a query should be generous, as well as the ids of the
-hosts involved the names, statuses and similar are returned. Each subroutine
-should also give a descriptive success or failure message.
-
-=head2 Main Subroutines
-
-=head3 create_cnames($dbh,$hashref)
-
-$dbh is the database handle for the Inventory Database
-
-This subrouting will always return a hashref with the SUCCESS or ERROR state recorded in the hash key and the human description recorded in the hash keys value, e.g.
-$message{'SUCCESS'} = 'Your changes were commited successfully';
-
-=head3 edit_cnames($dbh,$hashref)
-=head3 list_cnames_info($dbh,$optional_manufacturersid)
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's expected by the overall Inventory module is required. Other configuration is at the application level via a configuration file loaded via Config::Tiny in the calling script, but this module itself is only passed the resulting database handle.
-
-=head1 DEPENDENCIES
-
-DBI;
-DBD::Pg;
-Inventory;
-Inventory::Hosts;
+None known
 
 =head1 BUGS AND LIMITATIONS
 

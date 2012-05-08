@@ -2,38 +2,115 @@ package Inventory::Status;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+=pod
+
+=head1 NAME
+
+Inventory::Status
+
+=head1 VERSION
+
+This document describes Inventory::Status version 1.01
+
+=head1 SYNOPSIS
+
+  use Inventory::Status;
+
+=head1 DESCRIPTION
+
+Handles data relating to the main status types for hosts in the database
+
+=cut
+
+our $VERSION = '1.01';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_status
   edit_status
   get_status_info
   count_states
+  delete_states
 );
+
+=pod
+
+=head1 DEPENDENCIES
+
+DBI
+DBD::Pg
+Readonly
+
+=cut
 
 use DBI;
 use DBD::Pg;
+use Readonly;
+
 use Inventory::Hosts 1.0;
+
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+A postgres database with the database layout that's defined in the conf
+directory of the following link is required.
+
+https://github.com/guyed/Network-Device-Inventory
+
+Other configuration is at the application level via a configuration file, but
+the module is only passed the database handle.
+
+Some text strings and string length maximum values are currently hardcoded in
+the module.
+
+=cut
+
+Readonly my $MAX_NAME_LENGTH => '25';
+Readonly my $MAX_DESC_LENGTH => '254';
+Readonly my $ENTRY           => 'state';
+Readonly my $MSG_DBH_ERR     => 'Internal Error: Lost the database connection';
+Readonly my $MSG_INPUT_ERR   => 'Input Error: Please check your input';
+Readonly my $MSG_CREATE_OK   => "The $ENTRY creation was successful";
+Readonly my $MSG_CREATE_ERR  => "The $ENTRY creation was unsuccessful";
+Readonly my $MSG_EDIT_OK     => "The $ENTRY edit was successful";
+Readonly my $MSG_EDIT_ERR    => "The $ENTRY edit was unsuccessful";
+Readonly my $MSG_DELETE_OK   => "The $ENTRY entry was deleted";
+Readonly my $MSG_DELETE_ERR  => "The $ENTRY entry could not be deleted";
+Readonly my $MSG_FATAL_ERR   => 'The error was fatal, processing stopped';
+Readonly my $MSG_PROG_ERR    => "$ENTRY processing tripped a software defect";
+
+=pod
+
+=head1 SUBROUTINES/METHODS
+
+=head2 create_status
+
+Main creation sub.
+  create_status($dbh, \%posts)
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for a missing database handle and basic state name sanity.
+
+=cut
 
 sub create_status {
     my ( $dbh, $posts ) = @_;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
     if (  !exists $posts->{'status_state'}
         || length( $posts->{'status_state'} ) < 1
-        || length( $posts->{'status_state'} ) > 25
+        || length( $posts->{'status_state'} ) > $MAX_NAME_LENGTH
         || $posts->{'status_state'} =~ m/[^\w\s]/x )
     {
-
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = 'Input Error: Check your input is alpha numeric.';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     if ( exists $posts->{'status_description'} ) {
         $posts->{'status_description'} =~ s/[^\w\s]//gx;
         $posts->{'status_description'} = substr $posts->{'status_description'},
-          0, 254;
+          0, $MAX_DESC_LENGTH;
     }
     else {
         $posts->{'status_description'} = 'none';
@@ -49,43 +126,49 @@ sub create_status {
         )
       )
     {
-        $message{'ERROR'} =
-          'Internal Error: The status creation was unsuccessful.';
-        return \%message;
+        return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    $message{'SUCCESS'} = 'The status creation was successful.';
-    return \%message;
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
+
+=pod
+
+=head2 edit_status
+
+Main edit sub.
+  edit_status ( $dbh, \%posts );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message.
+
+Currently the only error check is for a missing database handle.
+
+=cut
 
 sub edit_status {
     my ( $dbh, $posts ) = @_;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !exists $posts->{'status_id'} ) {
+        return { 'ERROR' => $MSG_PROG_ERR };
+    }
 
-    if (
-          !exists $posts->{'status_state'}
+    if (  !exists $posts->{'status_state'}
         || length( $posts->{'status_state'} ) < 1
-        || length( $posts->{'status_state'} ) > 25
-        || $posts->{'status_state'} =~ m/[^\w\s]/x
-
-        || !exists $posts->{'status_id'}
-        || length( $posts->{'status_id'} ) < 1
-        || $posts->{'status_id'} =~ m/\D/x
-      )
+        || length( $posts->{'status_state'} ) > $MAX_NAME_LENGTH
+        || $posts->{'status_state'} =~ m/[^\w\s]/x )
     {
 
-        # dont wave bad inputs at the database
-        $message{'ERROR'} = 'Input Error: Check your input is alpha numeric.';
-        return \%message;
+        return { 'ERROR' => $MSG_INPUT_ERR };
     }
 
     if ( exists $posts->{'status_description'} ) {
         $posts->{'status_description'} =~ s/[^\w\s]//gx;
         $posts->{'status_description'} = substr $posts->{'status_description'},
-          0, 254;
+          0, $MAX_DESC_LENGTH;
     }
     else {
-        $posts->{'status_description'} = "none";
+        $posts->{'status_description'} = 'none';
     }
 
     my $sth =
@@ -97,13 +180,22 @@ sub edit_status {
         )
       )
     {
-        $message{'ERROR'} = 'Internal Error: The status edit was unsuccessful.';
-        return \%message;
+        return { 'ERROR' => $MSG_EDIT_ERR };
     }
 
-    $message{'SUCCESS'} = 'Your status changes were commited successfully';
-    return \%message;
+    return { 'SUCCESS' => $MSG_EDIT_OK };
 }
+
+=pod
+
+=head2 get_status_info
+
+Main individual record retrieval sub. 
+ get_status_info ( $dbh, $status_id )
+
+Returns the details in a hash.
+
+=cut
 
 sub get_status_info {
     my $dbh       = shift;
@@ -131,17 +223,19 @@ sub get_status_info {
     return @return_array;
 }
 
+=pod
+
+=head2 count_states
+
+Count hosts per state
+
+=cut
+
 sub count_states {
     my $dbh = shift;
     my %message;
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
 
-    if ( !defined $dbh ) {
-        $message{'ERROR'} =
-'Internal Error: The database vanished before a listing of its contents could be counted';
-        return \%message;
-    }
-
-    my $sth;
     my @raw_data = Inventory::Hosts::get_hosts_info($dbh);
     my %return_hash;
 
@@ -151,63 +245,52 @@ sub count_states {
         my %dbdata = %{$_};
         my $state  = $dbdata{'status_state'};
 
-        # this isn't exactly pretty but it'll work
         $return_hash{$state}++;
     }
 
     return \%return_hash;
 }
 
+=pod
+
+=head2 delete_states
+
+Delete a single status
+
+ delete_state( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
+sub delete_states {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+
+    my $sth = $dbh->prepare('DELETE FROM status WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
+
 1;
 __END__
 
-=head1 NAME
-
-Inventory - Networks team inventory module
-
-=head2 VERSION
-
-This document describes Inventory version 0.0.1
-
-=head1 SYNOPSIS
-
-  use Inventory;
-
-=head1 DESCRIPTION
-
-=head2 Main Subroutines
-
- The main abilities are:
-  - create new types of entry in a table
-  - edit existing entries in a table
-  - list existing entries
-
-=head2 Returns
- All returns from lists are arrays of hashes
-
- All creates and edits return a hash, the key gives success or failure, the value gives the human message of what went wrong.
-
-=head1 SUBROUTINES/METHODS
+=pod
 
 =head1 DIAGNOSTICS
 
-=head1 CONFIGURATION AND ENVIRONMENT
-
-A postgres database with the database layout that's expected is required. Other configuration is at the application level via a configuration file, but the module is only passed the database handle.
-
-=head1 DEPENDENCIES
-
-Since I'm talking to a postgres database
-DBI
-DBD::Pg
-
-...and for sanity/consistency...
-Regexp::Common
-
+Via error messages where present.
 
 =head1 INCOMPATIBILITIES
 
-none known
+None known
 
 =head1 BUGS AND LIMITATIONS
 

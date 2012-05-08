@@ -52,6 +52,21 @@
   </table>
  </fieldset>
 </form>
+
+[% ELSIF delete %]
+
+  [% FOR hashref IN hostgroups %]
+      [% IF delete == hashref.id %]
+<form action="introles" method="post">
+ <p class="block-warning">Are you sure you want to delete the entry &quot;[% hashref.name | html_entity %]&quot;?
+ <br />
+ <input type="hidden" name="introles_id" value="[% hashref.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="models">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [% END %]
+  [% END %]
+
 [% END %]
 
 <h3>Enter a new record</h3>
@@ -87,8 +102,12 @@
  </fieldset>
 </form>
 
-<h3>Current Roles</h3>
 [% IF hostgroups.size > 0 %]
+
+<form method="get" action="introles">
+<fieldset><legend>Interface Roles</legend>
+
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 
 <script type="text/javascript">
 $(document).ready(function(){ 
@@ -100,6 +119,7 @@ $(document).ready(function(){
 <table id="allresults" summary="Currently known interface roles">
   <thead>
   <tr>
+    <th></th>
     <th>Name</th>
     <th>BASH ref</th>
     <th>Opsview ref</th>
@@ -128,6 +148,7 @@ $(document).ready(function(){
     [% ELSE %]
       <tr>
     [% END %]
+      <td><input type="radio" name="hostgroup_id" value="[% hostgroup.id  | html_entity %]" /></td>
       <td><a href="introles?hostgroup_id=[% hostgroup.id | html_entity %]">[% hostgroup.name  | html_entity %]</a></td>
       <td>[% hostgroup.bash | html_entity %]</td>
       <td>[% hostgroup.nagios | html_entity %]</td>
@@ -144,6 +165,8 @@ $(document).ready(function(){
   </tbody>
 
 </table>
+</fieldset>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">

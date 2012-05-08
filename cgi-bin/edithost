@@ -4,14 +4,15 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
-use Template;
 use Config::Tiny;
-use DBI;
 use DBD::Pg;
+use DBI;
 use Log::Log4perl;
 use NetAddr::IP;
 use Regexp::Common 'net';
+use Template;
 use URI::Escape;
 
 use Inventory 1.0;
@@ -29,12 +30,12 @@ use Inventory::Ups 1.0;
 use Inventory::Edithost 1.0;
 use Inventory::Invoices 1.0;
 
-my $BASEURL      = CGI::url( -base => 1 );
-my $pagename     = CGI::url( -relative => 1);
-my $pagelocation = CGI::url( -path_info=>1);
+my $BASEURL      = CGI::url( -base      => 1 );
+my $pagename     = CGI::url( -relative  => 1 );
+my $pagelocation = CGI::url( -path_info => 1 );
 my $HOSTNAME     = $BASEURL;
 my $DIRECTORY    = $pagelocation;
-$DIRECTORY       =~ s/$pagename//x;
+$DIRECTORY =~ s/$pagename//x;
 
 # remove everything from the first . onwards
 $HOSTNAME =~ s/\..*$//gx;
@@ -293,8 +294,7 @@ $tt->process(
         posts => \%POSTS,
     }
   )
-  || die "Programming Error: Couldn't load the page template due to "
-  . $tt->error() . "\n";
+  || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
 $tt->process('inventory_footer.tt');
 

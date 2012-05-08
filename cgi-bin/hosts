@@ -4,6 +4,7 @@ use warnings FATAL => 'all';
 use strict;
 our $VERSION = '1.00';
 
+use Carp;
 use CGI;
 use Config::Tiny;
 use DateTime;
@@ -151,7 +152,8 @@ $tt->process(
         ups       => \@ups,
         invoices  => \@invoices,
     }
-);
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+
 $tt->process('inventory_footer.tt');
 
 __END__
