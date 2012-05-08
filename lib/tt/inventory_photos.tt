@@ -1,9 +1,3 @@
-[%-
-# $Author: guy $
-# $Date: 2012-02-07 12:33:58 +0000 (Tue, 07 Feb 2012) $
-# $Revision: 3529 $
-# $Id: inventory_photos.tt 3529 2012-02-07 12:33:58Z guy $
--%]
 <div>
 [% IF message.keys.size %]
   [% FOR notification IN message.keys %] 

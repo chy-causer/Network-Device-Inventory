@@ -1,13 +1,5 @@
-[%
-# Template Toolkit page to show the current known live frodos
-#
-# $Author: guy $
-# $Id: plain-frodo.tt 2437 2009-05-15 09:38:30Z guy $
-# $Date: 2009-05-15 10:38:30 +0100 (Fri, 15 May 2009) $
-# $Revision
-%]
 [% 
-# If we done know of any frodos, we just show a polite message
+# If we dont know of any frodos, we just show a polite message
 IF frodos.size < 1 %]
  <p class="input-warning">I know of no Frodos at this time. This could be due to a database error</p>
 
