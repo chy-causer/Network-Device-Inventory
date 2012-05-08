@@ -42,44 +42,39 @@
 
 [% unsupported = 0 %]
 [% supported   = 0 %]
+[% oneyear   = 0 %]
   [% FOR host IN hosts %]
+    [% NEXT IF host.status_state != 'ACTIVE' %]
     [% IF host.contract_days_remaining >= 1 %]
-        [% unsupported = unsupported +1 %]
-    [% ELSE %]
         [% supported = supported +1 %]
+        [% IF host.contract_days_remaining < 365 %]
+            [% oneyear = oneyear +1 %]
+        [% END %]
+    [% ELSE %]
+        [% unsupported = unsupported +1 %]
     [% END %]
 [% END %]
 
-<p>There are <strong>[% supported | html_entity %]</strong> devices under and <strong>[% unsupported | html_entity %]</strong> devices not under a valid support contract.</p>
-
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+<p>There are <strong>[% supported | html_entity %]</strong> active devices under and <strong>[% unsupported | html_entity %]</strong> not under a valid support contract.</p>
+<p>Of the [% supported | html_entity %] supported devices, <strong>[% oneyear | html_entity %]</strong> will be out of contract a year from now</p>
 
 <script type="text/javascript">
 $(function () {
     var data = [
-
-    [%- FOR contract IN contracts -%]
-       [%- id = contract.id -%]
-       [%- count_sum = (host_counts.$id.active||0) + (host_counts.$id.inactive||0) + (host_counts.$id.instock||0) -%]
-       { label: "[% contract.name | html_entity %]",  data: [% count_sum | html_entity %]},
-    [%- END -%]
+       { label: "Supported",  data: [% supported | html_entity %]},
+       { label: "Unsupported",  data: [% unsupported | html_entity %]},
     ];
 
-$.plot($("#contractgraph"), data, 
+$.plot($("#supportgraph"), data, 
 {
         series: {
             pie: { 
                 show: true,
                 // combine results of 2% and less
-                combine: {
-                    color: '#999',
-                    threshold: 0.02
-                },
+                // combine: {
+                //     color: '#999',
+                //    threshold: 0.02
+                // },
                 label: {
                     show: true,
                     radius: 3/4,
@@ -100,7 +95,7 @@ $.plot($("#contractgraph"), data,
             show: false
         }
 });
-$("#contractgraph").bind("plothover", pieHover);
+$("#supportgraph").bind("plothover", pieHover);
 
 function pieHover(event, pos, obj) {
     if (!obj)
@@ -116,10 +111,10 @@ function pieHover(event, pos, obj) {
 
 <div id="rightcolumn">
     
-[%- IF !hosts.keys.sort || hosts.keys.sort.size < 1 -%]
+[%- IF supported < 1 -%]
        <p>There are no hosts under contract to graph at this time</p>
 [%- ELSE -%]
-       <div id="contractgraph" class="graph"></div>
+       <div id="supportgraph" class="graph"></div>
        <div id="hover"></div>
 [%- END -%]
 
@@ -151,6 +146,15 @@ function pieHover(event, pos, obj) {
 </div> <!-- right column -->
 
 <h4>Contracts</h4>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+        $("#allresults").tablesorter({ textExtraction:"complex"}); 
+        $("#unsupported").tablesorter({ textExtraction:"complex"}); 
+        $("#supported").tablesorter({ textExtraction:"complex"}); 
+    } 
+); 
+</script>
 
 [%- IF !contracts || contracts.size < 1 -%]
    <p>There are no contracts to display.</p>
@@ -188,17 +192,9 @@ function pieHover(event, pos, obj) {
 
 </table>
 
-
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#hosts-unsupported").tablesorter({ textExtraction:"complex"}); 
-    }   
-); 
-</script>
-
 <h4>Hosts Not Under a Support Contract</h4>
 
-<table id="#hosts-unsupported">
+<table id="#unsupported">
   <thead>
   <tr>
     <th>Name</th>
@@ -215,7 +211,8 @@ $(document).ready(function(){
   
   <tbody>
   [% FOR host IN hosts %]
-    [% NEXT IF host.contract_days_remaining >= 1 %]
+    [% NEXT IF (host.contract_days_remaining || 0 ) >= 1 %]
+    [% NEXT IF host.status_state != 'ACTIVE' %]
      <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a> [% IF host.description %]([% host.description | html_entity %]) [% END %]</td>
       <td>[% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %] based at [% host.location_name | html_entity %]</td>
@@ -228,9 +225,8 @@ $(document).ready(function(){
 
 </table>
 
-<h4>Hosts under a support contract</h4>
 
-<table id="allresults">
+<table id="supported">
   <thead>
   <tr>
     <th>Name</th>
@@ -255,6 +251,7 @@ $(document).ready(function(){
   <tbody>
   [% FOR host IN hosts %]
     [% NEXT IF !host.contract_days_remaining || host.contract_days_remaining < 1 %]
+    [% NEXT IF host.status_state != 'ACTIVE' %]
     
      <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a> [% IF host.description %]([% host.description | html_entity %]) [% END %]</td>
