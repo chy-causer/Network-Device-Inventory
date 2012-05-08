@@ -105,6 +105,13 @@ my %message;    # communicate success or failure, sink or swim
 
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {
+    
+    # so that we can share javascript functions between this page and the
+    # edithosts main page
+    if( exists $POSTS{'arec_x'} ) {
+        $POSTS{'host_name'} = $POSTS{'arec_x'};
+    }
+
     if ( $POSTS{'action'} eq 'delete' ) {
         $logger->info("$ENV{REMOTE_USER} posts to delete ID $POSTS{'host_id'}");
         %message =

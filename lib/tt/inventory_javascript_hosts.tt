@@ -1,0 +1,201 @@
+/* functions for checking host related entries */
+
+function validatename() {
+    // an oxfordism
+
+    var x=document.forms["edithost"]["arec_x"].value;
+    if ( x.match(/^[Ff]rodo-/ ) ){
+        return false;
+    }
+    else if (x.length > 0 ){
+        // any name is fine
+        return true;
+    }
+    else {
+        // they are blanking the form
+        return true;
+    }
+
+}
+
+function validateip() {
+    var x=document.forms["edithost"]["interface_x_ip"].value;
+    if ( x.length < 1 ){
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+function highlightip(){
+    if( validateip() ){
+        document.getElementById('ip-essential').style.display='none';
+        document.forms["edithost"]["interface_x_ip"].style.borderColor="";
+        document.forms["edithost"]["interface_x_ip"].style.borderWidth="";
+        document.forms["edithost"]["interface_x_ip"].style.color="";
+    }
+    else {
+        document.forms["edithost"]["interface_x_ip"].style.borderColor="red";
+        document.forms["edithost"]["interface_x_ip"].style.borderWidth="2px";
+        document.forms["edithost"]["interface_x_ip"].style.color="red";
+        document.getElementById('ip-essential').style.display='';
+    }
+}
+
+function validatedropdown(fieldname)  {
+
+    // css names
+    var id        = fieldname + '_id';
+    var alt       = fieldname + '_x';
+    var warning   = fieldname + '-warning';
+    var essential = fieldname + '-essential';
+
+    var x=document.forms["edithost"][id].value;
+    var y=''; // not all dropdowns have an alternative option
+
+    if( document.forms["edithost"][alt] != null ){
+        y=document.forms["edithost"][alt].value;
+    }
+    
+    if ( x.length < 1 && y.length < 1 ) {
+        return false;
+    }
+
+    else {
+        return true;
+    }
+
+}
+
+function highlightdropdown(fieldname){
+    
+    // css names
+    var id        = fieldname + '_id';
+    var alt       = fieldname + '_x';
+    var warning   = fieldname + '-warning';
+    var essential = fieldname + '-essential';
+    
+    if( validatedropdown(fieldname) ){
+        document.getElementById(essential).style.display ='none';
+        document.forms["edithost"][id].style.borderColor ="";
+        document.forms["edithost"][id].style.borderWidth ="";
+        document.forms["edithost"][id].style.color       ="";
+     }
+     else {
+        document.forms["edithost"][id].style.borderColor ="red";
+        document.forms["edithost"][id].style.borderWidth ="2px";
+        document.forms["edithost"][id].style.color       ="red";
+        document.getElementById("essential").style.display ='';
+     }
+}
+
+function submitcheck (){
+     // disable the submit button or not?
+
+     if( nameexists() || !validatename() || !validateip() ){
+        document.getElementById('submit').disabled = 1;
+     }
+     else {
+        // everything is fine
+        document.getElementById('submit').disabled = 0;
+     }
+}
+
+function highlightname() {
+    var hostname=document.forms["edithost"]["arec_x"].value;
+
+    // if the field has been blanked
+    if( hostname==null || hostname.length < 1 ) {
+        document.forms["edithost"]["arec_x"].style.borderColor ="";
+        document.forms["edithost"]["arec_x"].style.borderWidth ="";
+        document.forms["edithost"]["arec_x"].style.color       ="";
+        document.getElementById("fn-check").style.display='none';
+        document.getElementById("fn-warning").style.display="";
+        document.getElementById("fn-warning").style.color='';
+        document.getElementById('fn-essential').style.display='';
+        return;
+    }
+    
+    // only perform one check, no matter how many logic tests we do
+    var name_taken = nameexists();
+    var name_syntax_ok = validatename();
+    
+    document.getElementById('fn-essential').style.display='none';
+    
+    if( name_syntax_ok && ! name_taken ){
+        // things we do if both checks are ok
+        document.forms["edithost"]["arec_x"].style.borderColor ="green";
+        document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
+        document.forms["edithost"]["arec_x"].style.color       ="black";
+        document.getElementById("fn-check").style.display='inline-block';
+        document.getElementById("fn-check").style.backgroundImage="url('/images/inventory_ok.png')";
+        document.getElementById("fn-warning").style.display='none';
+    }
+    else {
+        // things we do if either check is not ok
+        document.forms["edithost"]["arec_x"].style.borderColor ="red";
+        document.forms["edithost"]["arec_x"].style.borderWidth ="2px";
+        document.forms["edithost"]["arec_x"].style.color       ="red";
+    }
+
+    if ( ! name_syntax_ok && ! name_taken ){
+        // only the name syntax is wrong
+        document.getElementById("fn-check").style.display='none';
+        document.getElementById("fn-warning").style.display='';
+        document.getElementById("fn-warning").style.color='red';
+    }
+    
+    if ( name_syntax_ok && name_taken ){
+        // syntax is fine, name is taken
+        document.getElementById("fn-check").style.display='inline-block';
+        document.getElementById("fn-check").style.backgroundImage="url('/images/inventory_critical.png')";
+        document.getElementById("fn-warning").style.display='none';
+    }
+
+}
+
+function nameexists(){
+   
+    var ajax_load="Ajax loading...";
+    var hostname=document.forms["edithost"]["arec_x"].value;
+    
+    var retValue=false;
+    
+    if( hostname==null || hostname.length < 1) {
+        // they are just blanking the entry
+        $("#fn-check").html( '' );  
+    }
+    else {
+        var loadUrl="[% directory %]/hostname-check?hostname=" + hostname;
+        $("#fn-check").html(ajax_load);
+
+        $.ajax({
+           url: loadUrl,
+           type: 'get',
+           dataType: 'html',
+           // we want to wait for the response - this goes against ajax ideals
+           // but we really want to know the result before taking an action
+           async: false,
+           // function to run on success
+           success: function performcheck( responseText ){  
+              regexp_zero=/^0$/;
+              regexp_digit=/^[0-9]*$/;
+    
+              if( regexp_zero.test( responseText ) ){
+                  $("#fn-check").html( '<span style="color:green">This name is free</span>' );  
+                  retValue=false;
+              }
+              else if( regexp_digit.test( responseText ) ) {
+                  $("#fn-check").html( '<span style="color:red;">This name is <a style="text-decoration:underline; color:red;" href="viewhost?host_id=' +responseText +'">taken</a></span>' );  
+                  retValue=true;
+              }
+              else {
+                  // alert("Debug: something unexpected " + responseText );
+              }
+           },
+       });
+    }
+
+    return retValue;
+}

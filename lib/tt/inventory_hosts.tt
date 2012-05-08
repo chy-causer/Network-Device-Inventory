@@ -21,20 +21,27 @@
   <table>
   [% FOR host IN hosts %]
       [% IF edit == host.id %]
-      <tr>
-       <td>Host Name</td>
-       <td class="essential"><input type="text" name="host_name" maxlength="30" value="[% host.name | html_entity %]" /></td>
-       <td>Must be alphanumeric and unique</td>
+     
+      <tr id="fn">
+       <th>Host Name</th>
+       <td>
+         <input type="text" size="25" id="arec_x" name="arec_x" value="[% host.name | html_entity %]" onchange="highlightname(); submitcheck(); " />
+       </td>
+       <td>
+         <span id="fn-essential" class="essential-text"> &#42; required</span>
+         <div id="fn-check"></div>
+         <span id="fn-warning">(e.g. begbroke-iat, <em>not frodo-xxx</em>)</span>
+       </td>
       </tr>
-      
+
       <tr>
-       <td>Host Description</td>
+       <th>Host Description</th>
        <td><input type="text" name="host_description" value="[% host.description | html_entity %]" maxlength="254" /></td>
        <td></td>
       </tr>
       
       <tr>
-       <td>Host Location</td>
+       <th>Host Location</th>
        <td>
        <select name="location_id">
       [% FOR location IN locations %]
@@ -48,7 +55,7 @@
       </tr>
   
       <tr>
-       <td>Host Status</td>
+       <th>Host Status</th>
        <td>
        <select name="status_id">
       [% FOR state IN status %]
@@ -62,7 +69,7 @@
        </tr>
 
       <tr>
-       <td>Model</td>
+       <th>Model</th>
        <td>
        <select name="model_id">
       [% FOR model IN models %]
@@ -80,19 +87,19 @@
       </tr>
 
       <tr>
-       <td>University Asset Tag</td>
+       <th>University Asset Tag</th>
        <td><input type="text" name="host_asset" value="[% host.asset | html_entity %]" maxlength="40" /></td>
        <td></td>
       </tr>
       
       <tr>
-       <td>Manufacturers Serial</td>
+       <th>Manufacturers Serial</th>
        <td><input type="text" name="host_serial" value="[% host.serial | html_entity %]" maxlength="80" /></td>
        <td></td>
       </tr>
   
       <tr>
-       <td>Link to Invoice (optional)</td>
+       <th>Link to Invoice (optional)</th>
        <td>
          <select name="invoice_id">
             <option value="">-- no recorded invoice --</option>
@@ -108,7 +115,7 @@
         <td>
             <input type="hidden" name="host_id" value="[% host.id | html_entity %]" />
             <input type="hidden" name="action" value="edit" /></td>
-        <td><input type="submit" value="Submit Changes" /></td>
+        <td><input type="submit" id="submit" value="Submit changes" /></td>
         <td></td>
       </tr>
       [% END %]
@@ -133,9 +140,6 @@
   [% END %]
 
 [% END %]
-
-
-
 
 [% IF locations.size < 1 %]
 
@@ -168,22 +172,30 @@
 
 [% ELSE %]
 
-<form action="" method="post">
+<form action="hosts" method="post">
   <fieldset><legend>Enter a new record</legend>
   <table>
-    <tr>
-      <td>Host Name</td>
-      <td class="essential"><input type="text" name="host_name" maxlength="30" /></td>
-      <td>Must be alphanumeric and unique</td>
+
+    <tr id="fn">
+      <th>Host Name</th>
+      <td>
+        <input type="text" size="25" id="arec_x" name="arec_x" onchange="highlightname(); submitcheck(); " />
+      </td>
+      <td>
+        <span id="fn-essential" style="" class="essential-text"> &#42; required</span>
+        <div id="fn-check"></div>
+        <span id="fn-warning">(e.g. begbroke-iat, <em>not frodo-xxx</em>)</span>
+      </td>
     </tr>
+    
     <tr>
-      <td>Host Description</td>
+      <th>Host Description</th>
       <td><input type="text" name="host_description" maxlength="254" /></td>
       <td></td>
     </tr>
     
     <tr>
-      <td>Host Location</td>
+      <th>Host Location</th>
       <td> 
        <select name="location_id">
       [% FOR location IN locations %]
@@ -195,7 +207,7 @@
     </tr>
 
     <tr>
-      <td>Status</td>
+      <th>Status</th>
       <td>
        <select name="status_id">
       [% FOR state IN status %]
@@ -207,19 +219,19 @@
     </tr>
 
     <tr>
-      <td>University Asset tag</td>
+      <th>University Asset tag</th>
       <td><input type="text" name="host_asset" maxlength="40" /></td>
       <td></td>
     </tr>
     
     <tr>
-      <td>Manufacturers Serial</td>
+      <th>Manufacturers Serial</th>
       <td><input type="text" name="host_serial" maxlength="80" /></td>
       <td></td>
     </tr>
     
     <tr>
-      <td>Model</td>
+      <th>Model</th>
       <td>
        <select name="model_id">
       [% FOR model IN models %]
@@ -231,7 +243,7 @@
     </tr>
   
   <tr>
-    <td>Link to Invoice (optional)</td>
+    <th>Link to Invoice (optional)</th>
       <td>
        <select name="invoice_id">
             <option value="">-- no recorded invoice --</option>
@@ -247,7 +259,7 @@
       <td></td>
       <td>
       <input type="hidden" name="action" value="create" />
-      <input type="submit" value="Create Entry" /></td>
+      <input type="submit" id="submit" value="Create Entry" />
       <td></td>
     </tr>
   </table>
@@ -337,3 +349,11 @@ $(document).ready(function(){
 [% END %]
 
 </div>
+
+<script type="text/javascript">
+<!--
+  // we want the page to load first before grabbing more javascript
+  // disabled pending further work
+  // jQuery.getScript( 'inventory_hosts.js' );
+//-->
+</script>

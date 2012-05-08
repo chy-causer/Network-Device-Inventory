@@ -760,6 +760,16 @@ div#tabs {
 form#reset {
     clear:both;
 }
+
+#fn-check {
+    /* image is 32x32 */
+    display:none;
+    min-height: 34px;
+    background-repeat: no-repeat;
+    background-position: 0,0;
+    padding-left: 34px;
+}
+
 /*
 LICENSE AND COPYRIGHT
 
