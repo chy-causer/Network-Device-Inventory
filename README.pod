@@ -1,7 +1,7 @@
 =head1 INTRODUCTION
 
 This is a network device inventory that was written in 2007 and used
-internally to university network support team as a central data source and to
+internally to a university network support team as a central data to
 feed a network monitoring system.
 
 It was approved for release as open source code on the 10th February 2012
@@ -10,8 +10,36 @@ At the time of public release the code is in the process of being
 'publicified' so may make references to private/in house systems and terms or
 be in a non working state where parts have been removed. 
 
-It's intended to fix this as soon as possible, a working demonstration site is
-currently being configured.
+=head2 Any demo site?
+
+A working demonstration site is currently online but I've further work to do
+to finish the reporting improvements. It's planned to have an acceptable
+demonstration online by 19th May 2012.
+
+I'll update this page with a link at that time.
+
+=head2 What it is
+
+If you're deploying Nagios or similar and are thinking you'll have to write a
+database to hold all the information, plus write scripts to feed the nagios
+configuration from the database, then this inventory solves your datastore and
+management problem, leaving just the glue scripts to write to build the
+configuration for whichever system you've chosen.
+
+The reporting section is where most of the work is currently taking place, to
+provide better insight into how you're spending your money and what
+systems/network devices are about to go out of warranty.
+
+=head2 What it isn't
+
+This isn't a inventory for tracking software on Windows workstations, there's
+lots of other software that does that. This also doesn't do network discovery,
+SNMP walking or service monitoring.
+
+=head2 Almost does what you want but not quite?
+
+Raise a support ticket here on github if it's minor, email me if you're a
+commercial entity wanting something more major or specific.
 
 =head1 INSTALLATION
 
@@ -50,17 +78,16 @@ DBD,
 DBI,
 Digest,
 File,
-Net,
+Net::DNS,
 NetAddr,
 Regexp,
-Socket,
 Template,
 URI
 
 
 =head1 FUTURE WORK
 
-The todo file contains the full future roadmap in terms of improvements and
+The github tracker features the future roadmap in terms of improvements and
 new features.
 
 =head1 LICENSE AND COPYRIGHT
