@@ -244,6 +244,7 @@ sub get_contracts_info {
            contracts.name,
            contracts.startdate,
            contracts.enddate,
+           date_trunc(?, (contracts.enddate - now())) AS days_remaining,
            contracts.serial,
            contracts.invoice_id,
            invoices.description AS invoice_description,
@@ -262,7 +263,7 @@ sub get_contracts_info {
            contracts.name
         '
         );
-        return if !$sth->execute($id);
+        return if !$sth->execute('days',$id);
     }
     else {
         $sth = $dbh->prepare(
@@ -271,6 +272,7 @@ sub get_contracts_info {
            contracts.name,
            contracts.startdate,
            contracts.enddate,
+           date_trunc(?, (contracts.enddate - now())) AS days_remaining,
            contracts.serial,
            contracts.invoice_id,
            invoices.description AS invoice_description,
@@ -286,7 +288,7 @@ sub get_contracts_info {
            contracts.name
         '
         );
-        return if !$sth->execute();
+        return if !$sth->execute('days',);
     }
 
     my @return_array;
@@ -335,6 +337,7 @@ sub hosts_bycontract_name {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            contracts.id AS contract_id,
+           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
            contracts.name AS contract_name
          FROM hosts
           
@@ -357,7 +360,7 @@ sub hosts_bycontract_name {
            hosts.name
         ' );
 
-    return if !$sth->execute($name);
+    return if !$sth->execute('days',$name);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -404,6 +407,7 @@ sub hosts_bycontract_id {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            contracts.id AS contract_id,
+           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
            contracts.name AS contract_name
          FROM hosts
           
@@ -426,7 +430,7 @@ sub hosts_bycontract_id {
            hosts.name
         ' );
 
-    return if !$sth->execute($name);
+    return if !$sth->execute('days',$name);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -474,6 +478,7 @@ sub hash_hosts_percontract {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            contracts.id AS contract_id,
+           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
            contracts.name AS contract_name
          FROM hosts
           
@@ -494,7 +499,7 @@ sub hash_hosts_percontract {
            hosts.name
         
         ' );
-    return if not $sth->execute();
+    return if not $sth->execute('days');
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {

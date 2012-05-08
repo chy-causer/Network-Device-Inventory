@@ -150,8 +150,8 @@ function pieHover(event, pos, obj) {
   <tr>
     <th>Contracts Name</th>
     <th>Serial</th>
-    <th>Start Date</th>
-    <th>End Date</th>
+    <th>Start Date - End Date</th>
+    <th>Days Remaining</th>
     <th>Invoice</th>
     <th>Servicelevel</th>
   </tr>
@@ -162,23 +162,12 @@ function pieHover(event, pos, obj) {
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% previous_rows_manufacturerid='none' %]
   [% FOR contract IN contracts %]
-
-    [% counter = counter +1 %]
-       [% id = contract.id %]
-       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
-    
-    [% IF 1 > count_sum %]
-      <tr class="block-status-inactive">
-    [% ELSE %]
-      <tr>
-    [% END %]
-      <td>[% contract.name      | html_entity %]</td>
-      <td>[% contract.serial    | html_entity %]</td>
-      <td>[% contract.startdate | html_entity %]</td>
-      <td>[% contract.enddate             | html_entity %]</td>
+    <tr>
+      <td>[% contract.name                | html_entity %]</td>
+      <td>[% contract.serial              | html_entity %]</td>
+      <td>[% contract.startdate           | html_entity %] - [% contract.enddate             | html_entity %]</td>
+      <td>[% contract.days_remaining      | html_entity %]</td>
       <td>[% contract.invoice_description | html_entity %]</td>
       <td>[% contract.servicelevel_name   | html_entity %]</td>
     </tr>
