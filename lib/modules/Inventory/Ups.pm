@@ -308,6 +308,9 @@ sub get_links_info {
               AND interfaces2.host_id = hosts_to_upshost.ups_id
               AND hosts_to_upshost.host_id=hosts1.id
               AND hosts_to_upshost.ups_id=hosts2.id
+
+            ORDER BY
+              ups_name
             ' );
 
         return if !$sth->execute($membership_id);
@@ -332,6 +335,9 @@ sub get_links_info {
               interfaces2.host_id = hosts_to_upshost.ups_id
               AND hosts_to_upshost.host_id=hosts1.id
               AND hosts_to_upshost.ups_id=hosts2.id
+            
+            ORDER BY
+              ups_name
             ' );
         return if !$sth->execute();
     }
