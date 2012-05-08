@@ -28,6 +28,7 @@ our @EXPORT_OK = qw(
   create_hostgroups
   edit_hostgroups
   get_hostgroups_info
+  delete_hostgroups
 );
 
 =pod
@@ -257,6 +258,38 @@ sub get_hostgroups_info {
 
     return @return_array;
 }
+
+=pod
+
+=head2 delete_hostgroups
+
+Delete a single model.
+
+ delete_hostgroups( $dbh, $id );
+
+Returns %hashref of either SUCCESS=> message or ERROR=> message
+
+Checks for missing database handle and id.
+
+=cut
+
+sub delete_hostgroups {
+    my ( $dbh, $id ) = @_;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+    if ( !defined $id )  { return { 'ERROR' => $MSG_PROG_ERR }; }
+
+    my $sth = $dbh->prepare('DELETE FROM introles WHERE id=?');
+    if ( !$sth->execute($id) ) {
+        return { 'ERROR' => $MSG_DELETE_ERR };
+    }
+
+    return { 'SUCCESS' => $MSG_DELETE_OK };
+}
+
+=pod
+
+=head2 hash_hosts_permodel
 
 1;
 __END__

@@ -17,7 +17,7 @@
 
 [% IF edit %]
    <h3>Edit an existing entry</h3>
-<form action="" method="post">
+<form action="introles" method="post">
  <fieldset>
   <table summary="input options for editing a entry">
   [% FOR hashref IN hostgroups %]
@@ -43,7 +43,8 @@
        <td></td>
       </tr>
       <tr>
-        <td><input type="hidden" name="hostgroup_id" value="[% hashref.id  | html_entity %]" /></td>
+        <td><input type="hidden" name="hostgroup_id" value="[% hashref.id  | html_entity %]" />
+        <input type="hidden" name="action" value="edit" /></td>
         <td><input type="submit" value="Submit Changes" /></td>
         <td></td>
       </tr>
@@ -60,7 +61,7 @@
 <form action="introles" method="post">
  <p class="block-warning">Are you sure you want to delete the entry &quot;[% hashref.name | html_entity %]&quot;?
  <br />
- <input type="hidden" name="introles_id" value="[% hashref.id | html_entity %]" />
+ <input type="hidden" name="hostgroup_id" value="[% hashref.id | html_entity %]" />
  <input type="hidden" name="action" value="delete" />
  <a href="models">Abandon</a> or <input type="submit" value="Delete" /></p> 
 </form>
@@ -70,7 +71,7 @@
 [% END %]
 
 <h3>Enter a new record</h3>
-<form action="" method="post">
+<form action="introles" method="post">
  <fieldset>
   <table summary="input options for creating a entry">
     <tr>
@@ -94,7 +95,7 @@
       <td></td>
     </tr>
     <tr>
-      <td></td>
+      <td><input type="hidden" name="action" value="create" /></td>
       <td><input type="submit" value="Create Entry" /></td>
       <td></td>
     </tr>
@@ -131,7 +132,7 @@ $(document).ready(function(){
   </thead>
   
   <tfoot>
-    <tr><td colspan="6">Further information on interface to role mapping can be found on the <a href="introlemembers">Role Memberships</a> page.</td></tr>
+    <tr><td colspan="7">Further information on interface to role mapping can be found on the <a href="introlemembers">Role Memberships</a> page.</td></tr>
   </tfoot>
   
   <tbody>

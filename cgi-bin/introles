@@ -13,7 +13,7 @@ use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Introles 1.0;
+use Inventory::Introles 1.02;
 use Inventory::Introlemembers 1.0;
 
 my $BASEURL = CGI::url( -base => 1 );
