@@ -1,4 +1,6 @@
 <div>
+[%- description = '' -%] 
+[%- INCLUDE inventory_include_hashmessage.tt -%] 
 
 <h3>Active Hosts With No Network Interfaces</h3>
 [% IF hosts_no_interface.size > 0 %]

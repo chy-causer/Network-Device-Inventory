@@ -1,21 +1,6 @@
 <div>
-[% IF message.keys.size %]
-  [% FOR notification IN message.keys %] 
-    [% IF notification == "ERROR" %]
-
-<div class="ui-widget">
-   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-           ERROR: [% message.$notification  | html_entity %]
-      </p>
-   </div>
-</div>
-    
-    [% ELSE %]
-      <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
-    [% END %]
-  [% END %]
-[% END %]
+[%- description = '' -%] 
+[%- INCLUDE inventory_include_hashmessage.tt -%] 
 
 [% IF edit %]
 <form action="" method="post">
