@@ -1,24 +1,4 @@
-[%- IF message_store.size > 0 -%]
-  [%- FOR message IN message_store -%]
-    [%- FOR notification IN message.keys -%] 
-      [%- IF notification.match('ERROR') -%]
-        
-<div class="ui-widget">
-   <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-           ERROR: [% message.$notification  | html_entity %]
-      </p>
-   </div>
-</div>
-        
-      [%- ELSIF notification.match('SUCCESS') -%]
-        <p class="input-success">SUCCESS: [% message.$notification | html_entity %]</p>
-      [%- ELSIF notification != "FATAL" -%]
-        <p class="debug">Weird output from script that I wan't expecting to be output: Key: [% notification | html_entity %] Value: [% message.$notification | html_entity %]</p>
-      [%- END -%]
-    [%- END -%]
-  [%- END -%]
-[% END -%]
+[%- INCLUDE inventory_include_arraymessage.tt -%]
 
 <script type="text/javascript">
 $(document).ready(function() 
