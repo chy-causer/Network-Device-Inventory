@@ -105,8 +105,6 @@
     
     [% IF 1 > count_sum %]
       <tr class="block-status-inactive">
-    [% ELSIF counter % 2 > 0 %]
-      <tr class="stripe">
     [% ELSE %]
       <tr>
     [% END %]

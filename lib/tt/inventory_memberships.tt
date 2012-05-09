@@ -166,8 +166,6 @@ document.getElementById(d).style.display = "";
        [% class="block-status-inactive" %]
     [% ELSIF member.state.match('(?i:decommissioned)') %]
        [% class="block-status-decommissioned" %]
-    [% ELSIF counter % 2 > 0 %]
-      [% class="stripe" %]
     [% END %]
     
     <tr class="[% class | html_entity %]">

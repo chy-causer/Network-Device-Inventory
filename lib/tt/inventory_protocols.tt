@@ -71,20 +71,16 @@
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
   [% FOR protocol IN protocols %]
     [% id = protocol.id %]
     [% sum = interface_count.$id.active %]
 
     [% IF sum < 1 %]
       <tr class="block-status-inactive">
-    [% ELSIF counter % 2 > 0 %]
-      <tr class="stripe">
     [% ELSE %]
       <tr>
     [% END %]
 
-    [% counter = counter +1 %]
       <td><a href="protocols?protocol_id=[% protocol.id | html_entity %]">[% protocol.shortname | html_entity %]</a></td>
       <td>[% protocol.longname | html_entity %]</td>
       <td>[% (service_count.$id.protocol_total||0) | html_entity %]</td>

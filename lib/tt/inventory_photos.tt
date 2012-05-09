@@ -135,8 +135,6 @@
       <tr class="block-status-decommissioned">
     [% ELSIF photo.state =="INSTOCK" %]
       <tr class="block-status-instock">
-    [% ELSIF counter % 2 > 0 %]
-      <tr class="stripe">
     [% ELSE %]
       <tr>
     [% END %]

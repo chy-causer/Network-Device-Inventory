@@ -69,9 +69,6 @@
     [% counter = counter +1 %]
 
     [% class="" %]
-    [% IF counter % 2 > 0 %]
-      [% class="stripe" %]
-    [% END %]
     
     <tr class="[% class | html_entity %]">
       <td><input type="radio" name="location_id" value="[% location.id  | html_entity %]" /></td>

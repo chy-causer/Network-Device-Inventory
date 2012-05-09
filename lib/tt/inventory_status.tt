@@ -59,8 +59,6 @@
     
     [% IF (states_total.$name||0) < 1 %]
       <tr class="block-status-inactive">
-    [% ELSIF counter % 2 > 0 %]
-      <tr class="stripe">
     [% ELSE %]
       <tr>
     [% END %]

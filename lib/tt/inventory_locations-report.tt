@@ -32,8 +32,6 @@
     [% class="" %]
     [% IF sum < 1 %]
        [% class="block-status-inactive" %]
-    [% ELSIF counter % 2 > 0 %]
-      [% class="stripe" %]
     [% END %]
     
     <tr class="[% class | html_entity %]">

@@ -1,1 +1,3 @@
+<script type="text/javascript">
 $("#allresults").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
+</script>
