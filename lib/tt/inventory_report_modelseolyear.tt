@@ -1,0 +1,77 @@
+[%- totalmodels_eol_thisyear = 0 -%]
+[%- FOR model IN models -%]
+     [%- NEXT IF ! model.dateeol -%]
+     [%- NEXT IF model.dateeol_daysremaining < 1 -%]
+     [%- NEXT IF model.dateeol_daysremaining > 365 -%]
+     [% totalmodels_eol_thisyear = totalmodels_eol_thisyear + 1 -%]
+[%- END -%]
+
+[% IF totalmodels_eol_thisyear < 1 -%]
+
+<!-- No model types become End of Life in the next year -->
+
+[%- ELSE -%]
+
+<h3><a href="#">[% totalmodels_eol_thisyear %] model types become End of Life in the next year, affecting [% hostseolyear.size %] devices</a></h3>
+
+<div>
+
+<p>Model types in active use becoming EOL in the next year:</p>
+
+<table id="allresults">
+  <thead>
+  <tr>
+    <th>Model Name</th>
+    <th>End of life</th>
+  </tr>
+  </thead>
+
+  <tfoot></tfoot>
+
+  <tbody>
+  [%- FOR model IN models -%]
+     [%- NEXT IF ! model.dateeol -%]
+     [%- NEXT IF model.dateeol_daysremaining < 1 -%]
+     [%- NEXT IF model.dateeol_daysremaining > 365 -%]
+
+    <tr>
+      <td>([% model.manufacturer_name | html_entity %]) [% model.name | html_entity %]</td>
+      <td>[% model.dateeol | html_entity %]</td>
+    </tr>
+  [%- END -%]
+  </tbody>
+
+</table>
+
+<p>Active devices whose model type is becoming End of Life in the next year:</p>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Location</th>
+    <th>Status</th>
+    <th>Model</th>
+    <th>Last checked</th>
+  </tr>
+  </thead>
+
+  <tfoot></tfoot>
+
+  <tbody>
+  [%- FOR host IN hostseolyear -%]
+    <tr>
+      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>
+      <td>[% host.status_state | html_entity %]</td>
+      <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
+      <td>[% host.lastchecked | html_entity %]</td>
+    </tr>
+  [%- END -%]
+  </tbody>
+
+</table>
+
+</div>
+
+[% END %]

@@ -40,8 +40,89 @@
 [% END %]
 
 
+<div id="rightcolumn">
+    <div id="modelgraph" class="graph"></div>
+    <div id="hover"></div>
+
+ <h4>Specific Hosts by Model</h4>
+    <div id="hosts-bymodel">Select a model above</div>
+
+</div> <!-- right column -->
+
+<div id="middlecolumn">
+<!-- summary --> 
+[%- livehosts=0 %]
+[%- livemodels=0 %]
+[%- FOR model IN models -%]
+     [%- id = model.id -%]
+     [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+     [%- NEXT IF  ( host_counts.$id.active || 0 ) < 1 %]
+     [%- livemodels = livemodels + 1 %]
+     [%- livehosts = livehosts + host_counts.$id.active %]
+[%- END -%]
+
+<p>[% livehosts %] active devices, comprised of [% livemodels %] seperate model types.</p>
+<!-- end summary -->
+
+<!-- alerts and potential projects -->
+
+<div id="accordion">
+
+    [% INCLUDE inventory_report_modelseolyear.tt %]
+
+    [% INCLUDE inventory_report_modelseol.tt %]
+    
+    [% INCLUDE inventory_report_modelsnoeol.tt %]
+    
+</div>
+
+<!-- end alerts -->
+
+<h4>Models Types in Active Use</h4>
+
+<table id="allresults" class="report">
+  <thead>
+  <tr>
+    <th>Model Name</th>
+    <th>End of life</th>
+    <th>Total Hosts</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
+  </tr>
+  </thead>
+
+  <tfoot>
+    <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
+  </tfoot>
+
+  [% counter=0 %]
+  [% previous_rows_manufacturerid='none' %]
+  [%- FOR model IN models -%]
+    [%- counter = counter +1 -%]
+       [%- id = model.id -%]
+       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+       [%- NEXT IF ( host_counts.$id.active || 0 ) < 1 %] 
+      
+    <tr>
+      <td>[% model.manufacturer_name | html_entity %], [% model.name | html_entity %]</td>
+      <td>[% model.dateeol | html_entity %]</td>
+      <td>[% count_sum | html_entity %]</td>
+      <td>
+        <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 
+        <span class="status-inactive">[% (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
+        <span class="status-instock">[% (host_counts.$id.instock || 0)   | html_entity %] </span> / 
+        <span class="status-decommissioned">[% (host_counts.$id.decommissioned || 0) | html_entity %] </span>
+      </td>
+   </tr>
+  [% END %]
+</tbody>
+
+</table>
+</div> <!-- end middle column -->    
+
+</div> <!-- page end -->
 
 <script type="text/javascript">
+
 $(document).ready(function(){ 
         $("#allresults").tablesorter(
             { 
@@ -55,7 +136,7 @@ $(document).ready(function(){
         
         }); 
     } 
-); 
+);
 
 function gethosts(model_name){
    
@@ -70,6 +151,7 @@ function gethosts(model_name){
         
         $("#host-list").html( responseText );  
        }
+    );
 }
 
 $(function () {
@@ -129,64 +211,10 @@ function pieClick(event, pos, obj) {
     gethosts('+obj.series.label+');
 }
 
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+
 });
 
 </script>
-
-
-<div id="rightcolumn">
-    <div id="modelgraph" class="graph"></div>
-    <div id="hover"></div>
-
- <h4>Specific Hosts by Model</h4>
-    <div id="hosts-bymodel">Select a model above</div>
-
-</div> <!-- right column -->
-
-<h4>All Models</h4>
-
-<table id="allresults" class="report">
-  <thead>
-  <tr>
-    <th>Model Name</th>
-    <th>Manufacturer</th>
-    <th>End of life</th>
-    <th>Total Hosts</th>
-    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
-  </tr>
-  </thead>
-
-  <tfoot>
-    <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
-  </tfoot>
-
-  [% counter=0 %]
-  [% previous_rows_manufacturerid='none' %]
-  [%- FOR model IN models -%]
-    [%- counter = counter +1 -%]
-       [%- id = model.id -%]
-       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
-    
-    [% IF 1 > count_sum %]
-      <tr class="block-status-inactive">
-    [% ELSE %]
-      <tr>
-    [% END %]
-      <td>[% model.name | html_entity %]</td>
-      <td>[% model.manufacturer_name | html_entity %]</td>
-      <td>[% model.dateeol | html_entity %]</td>
-      <td>[% count_sum | html_entity %]</td>
-      <td>
-        <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 
-        <span class="status-inactive">[% (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
-        <span class="status-instock">[% (host_counts.$id.instock || 0)   | html_entity %] </span> / 
-        <span class="status-decommissioned">[% (host_counts.$id.decommissioned || 0) | html_entity %] </span>
-      </td>
-  </tr>
-  [% END %]
-</tbody>
-
-</table>
-    
-
-</div> <!-- page end -->

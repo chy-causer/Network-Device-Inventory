@@ -769,6 +769,9 @@ form#reset {
     background-position: 0,0;
     padding-left: 34px;
 }
+div#middlecolumn {
+    width: 60%;
+}
 
 /*
 LICENSE AND COPYRIGHT

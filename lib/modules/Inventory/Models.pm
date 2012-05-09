@@ -10,7 +10,7 @@ Inventory::Models
 
 =head1 VERSION
 
-This document describes Inventory::Models version 1.01
+This document describes Inventory::Models version 1.02
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Functions for dealing with the Model related data and analysis of it.
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_models
@@ -35,6 +35,8 @@ our @EXPORT_OK = qw(
   hosts_bymodel_id
   hosts_bymodel_name
   hash_hosts_permodel
+  hosts_modeleol_thisyear
+  hosts_modeleol
 );
 
 =pod
@@ -71,6 +73,9 @@ the module.
 =cut
 
 Readonly my $MAX_NAME_LENGTH => '45';
+Readonly my $TIMEUNIT        => 'days';
+Readonly my $ACTIVESTRING    => 'ACTIVE';
+
 Readonly my $ENTRY           => 'model';
 Readonly my $MSG_DBH_ERR     => 'Internal Error: Lost the database connection';
 Readonly my $MSG_INPUT_ERR   => 'Input Error: Please check your input';
@@ -217,6 +222,7 @@ sub get_models_info {
            models.name,
            models.manufacturer_id,
            models.dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name
         FROM models,manufacturers 
         WHERE
@@ -226,7 +232,7 @@ sub get_models_info {
            models.name
         '
         );
-        return if !$sth->execute($model_id);
+        return if !$sth->execute($TIMEUNIT,$TIMEUNIT,$model_id);
     }
     else {
         $sth = $dbh->prepare(
@@ -235,6 +241,7 @@ sub get_models_info {
            models.name,
            models.manufacturer_id,
            models.dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name
         FROM models,manufacturers 
         WHERE
@@ -243,7 +250,7 @@ sub get_models_info {
            models.name
         '
         );
-        return if !$sth->execute();
+        return if !$sth->execute($TIMEUNIT,$TIMEUNIT);
     }
 
     my @return_array;
@@ -318,6 +325,7 @@ sub get_frodo_models {
            models.name,
            models.manufacturer_id,
            models.dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name
         FROM models
         LEFT JOIN manufacturers 
@@ -340,7 +348,7 @@ sub get_frodo_models {
            models.name
         '
     );
-    return if !$sth->execute( 'Cisco', 'MGE' );
+    return if !$sth->execute( $TIMEUNIT, $TIMEUNIT, 'Cisco', 'MGE' );
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -374,6 +382,7 @@ sub get_models_waps {
            models.name,
            models.dateeol,
            models.manufacturer_id,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name
         FROM models,manufacturers 
         WHERE
@@ -383,7 +392,7 @@ sub get_models_waps {
            models.name
         '
     );
-    return if !$sth->execute('%AP1%');
+    return if !$sth->execute($TIMEUNIT, $TIMEUNIT, '%AP1%');
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -460,6 +469,8 @@ sub hash_hosts_permodel {
            locations.name AS location_name,
            locations.id AS location_id,
            models.name AS model_name,
+           models.dateeol AS model_dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id
          FROM hosts
@@ -477,7 +488,7 @@ sub hash_hosts_permodel {
            hosts.name
         
         ' );
-    return if not $sth->execute();
+    return if not $sth->execute( $TIMEUNIT, $TIMEUNIT );
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
@@ -528,6 +539,8 @@ sub hosts_bymodel_name {
            status.description AS status_description,
            locations.name AS location_name,
            models.name AS model_name,
+           models.dateeol AS model_dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id
          FROM hosts
@@ -547,7 +560,7 @@ sub hosts_bymodel_name {
            hosts.name
         ' );
 
-    return if !$sth->execute($name);
+    return if !$sth->execute($TIMEUNIT, $TIMEUNIT, $name);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -591,6 +604,8 @@ sub hosts_bymodel_id {
            status.description AS status_description,
            locations.name AS location_name,
            models.name AS model_name,
+           models.dateeol AS model_dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id
          FROM hosts
@@ -610,7 +625,7 @@ sub hosts_bymodel_id {
            hosts.name
         ' );
 
-    return if !$sth->execute($id);
+    return if !$sth->execute($TIMEUNIT, $TIMEUNIT, $id);
 
     my @return_array;
     while ( my $reference = $sth->fetchrow_hashref ) {
@@ -618,6 +633,128 @@ sub hosts_bymodel_id {
     }
     return @return_array;
 }
+
+=pod
+
+=head2 hosts_modeleol_thisyear
+
+Return all hosts whose model type goes end of life within the next 365 days
+
+=cut
+
+sub hosts_modeleol_thisyear {
+    my ( $dbh ) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           models.dateeol AS model_dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE ( date_part(?, date_trunc(?, (models.dateeol - now() ) ) )  > 0 )
+         AND   ( date_part(?, date_trunc(?, (models.dateeol - now() ) ) ) < 365 )
+         AND status.state=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return if !$sth->execute($TIMEUNIT,$TIMEUNIT,$TIMEUNIT, $TIMEUNIT, $TIMEUNIT, $TIMEUNIT, $ACTIVESTRING);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
+=pod
+
+=head2 hosts_modeleol
+
+Return all hosts whose model type is already end of life
+
+=cut
+
+sub hosts_modeleol {
+    my ( $dbh ) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           models.name AS model_name,
+           models.dateeol AS model_dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id
+         
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+         
+         WHERE ( date_part(?, date_trunc(?, (models.dateeol - now() ) ) ) < 1 )
+         AND status.state=?
+
+         ORDER BY
+           hosts.name
+        ' );
+
+    return if !$sth->execute($TIMEUNIT,$TIMEUNIT,$TIMEUNIT,$TIMEUNIT,$ACTIVESTRING);
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+    return @return_array;
+}
+
 
 1;
 __END__

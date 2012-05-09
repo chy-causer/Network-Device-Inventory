@@ -2,19 +2,56 @@
 
 use warnings FATAL => 'all';
 use strict;
-our $VERSION = '1.01';
+
+=pod
+
+=head1 NAME
+
+models-report
+
+=head1 DESCRIPTION
+
+Summarises helpful meta information in the inventory based on model.
+
+=head1 VERSION
+
+This documentation refers to version 1.02 
+
+=cut
+
+our $VERSION = '1.02';
+
+=pod
+
+=head1 DEPENDENCIES
+
+Carp;
+CGI;
+Config::Tiny;
+DBD::Pg;
+DBI;
+Template;
+
+=cut
 
 use Carp;
 use CGI;
 use Config::Tiny;
 use DBD::Pg;
 use DBI;
-use Log::Log4perl;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Models 1.01;
+use Inventory::Models 1.02;
 use Inventory::Manufacturers 1.01;
+
+=pod
+
+=head1 CONFIGURATION
+
+via /srv/www/$HOSTNAME/lib/inventory.ini
+
+=cut
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -37,10 +74,6 @@ my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
-
-Log::Log4perl->init($logconfigfile);
-my $logger = Log::Log4perl->get_logger();
 
 my %message;    # communicate success or failure, sink or swim
 
@@ -59,7 +92,7 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => 'Hardware Models',
+        pagetitle   => 'Model Related Information',
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},
@@ -72,32 +105,23 @@ if ( !exists $CONFIG->{general}->{demo} ) {
     Inventory::acl_checker( $tt, $valid_users );
 }
 
-# I differenciate between get and post, not everyone agrees with this but
-# there is an RFC2616 that suggests that we should. I do so for behaviour not
-# security reasons.
-my %gets = Inventory::populate_query_fields();    # not strictly a get field
-
 # list all the models (array of hashes)
 my @models = Inventory::Models::get_models_info($dbh);
-
-# list all the manufacturers in order to populate dropdown (array of hashes)
-my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
 
 # number of models per manufacturer
 my %host_count = %{ Inventory::Models::count_hosts_permodel($dbh) };
 
 my $hosts = Inventory::Models::hash_hosts_permodel($dbh);
 
-#print '<pre class="debug">';
-#use Data::Dumper;
-#print Dumper $hosts;
-#print "</pre>";
+my @hostseolyear = Inventory::Models::hosts_modeleol_thisyear($dbh);
+my @hostseol = Inventory::Models::hosts_modeleol($dbh);
 
 $tt->process(
     'inventory_models-report.tt',
     {
         models        => \@models,
-        manufacturers => \@manufacturers,
+        hostseolyear  => \@hostseolyear,
+        hostseol      => \@hostseol,
         message       => \%message,
         host_counts   => \%host_count,
         hosts         => $hosts,
@@ -109,34 +133,15 @@ $tt->process( 'inventory_footer.tt', {} );
 
 __END__
 
-=head1 NAME
-
-models-report
-
-=head1 VERSION
-
-This documentation refers to version 1.01 
-
-=head1 USAGE
 
 =head1 REQUIRED ARGUMENTS
 
 =head1 OPTIONS
 
-=head1 DESCRIPTION
-
-Lets the user view helpful meta information in the inventory based on model
-type.
-
 =head1 DIAGNOSTICS
 
 error messages
 
-=head1 CONFIGURATION
-
-/srv/www/$HOSTNAME/lib/inventory.ini
-
-=head1 DEPENDENCIES
 
 =head1 INCOMPATIBILITIES
 

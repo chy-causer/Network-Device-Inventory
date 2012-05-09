@@ -1,0 +1,42 @@
+[%- total_noeol=0 -%]
+[%- FOR model IN models -%]
+    [%- NEXT IF model.dateeol.match('\d+') -%]
+    [%- total_noeol = total_noeol + 1 -%]
+[%- END -%]
+
+[%- IF total_noeol < 1 -%]
+
+<!-- No hosts are missing End of Life dates -->
+
+[%- ELSE -%]
+
+<h3><a href="#">[% total_noeol %] model types need End of Life dates entered if available</a></h3>
+
+<div>
+<p>Model types with no End of Life dates:</p>
+
+<table>
+
+[%#
+ We break loop.index so have to use a counter
+%]
+ [% counter=0 %]
+ [%- FOR model IN models -%]
+    [%- NEXT IF model.dateeol.match('\d+') -%]
+    
+    [% IF counter % 2 %]
+       <tr>
+    [% END %]
+
+    <td><a href="models&model_id=[% model.name | html_entity %]">([% model.manufacturer_name | html_entity %]) [% model.name | html_entity %]</a></td>
+
+    [% IF ! counter % 2 %]
+       </tr>
+    [% END %]
+    [% counter = counter + 1 %]
+ [%- END -%]
+  
+</table>
+
+</div>
+[%- END -%]
