@@ -71,12 +71,7 @@
 <h3>Current Suppliers</h3>
 [% IF suppliers.size > 0 %]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form action="suppliers" method="get">
 <fieldset><legend>Recorded Suppliers</legend>

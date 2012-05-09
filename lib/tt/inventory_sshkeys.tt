@@ -111,12 +111,7 @@ function validatesshkey(formname) {
 
 [% IF sshkeys.size > 0 %]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allsshkeys").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form method="get" action="sshkeys">
 <fieldset><legend>SSH keys for Active hosts</legend>
@@ -136,7 +131,6 @@ $(document).ready(function(){
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
   [% FOR sshkey IN sshkeys %]
     [% NEXT IF sshkey.state != 'ACTIVE' %]
 
@@ -146,12 +140,9 @@ $(document).ready(function(){
       <tr class="block-status-decommissioned">
     [% ELSIF sshkey.state=='INSTOCK' %]
       <tr class="block-status-instock">
-    [% ELSIF counter % 2 > 0 %]
-      <tr class="stripe">
     [% ELSE %]
       <tr>
     [% END %]
-    [% counter = counter +1 %]
       <td><input type="radio" name="sshkey_id" value="[% sshkey.id  | html_entity %]" /></td>
       <td><a href="hosts?host_id=[% sshkey.host_id | html_entity %]">[% sshkey.host_name | html_entity %]</a></td>
       <td><a href="sshkeys?sshkey_id=[% sshkey.id | html_entity %]">[% sshkey.fingerprint | html_entity %]</a></td>

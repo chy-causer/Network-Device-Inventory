@@ -129,12 +129,7 @@
 <h3>Current Invoices</h3>
 [% IF invoices.size > 0 %]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form action="" method="get">
 <fieldset><legend>Recorded Invoices</legend>

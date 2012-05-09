@@ -105,12 +105,7 @@
 
 [% IF models.size > 0 %]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 

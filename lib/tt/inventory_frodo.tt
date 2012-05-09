@@ -8,12 +8,7 @@
 </div>
 
 [% ELSE %]
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <table id="allresults" summary="FroDo project summary">
  <thead>

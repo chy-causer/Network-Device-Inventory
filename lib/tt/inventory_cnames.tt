@@ -99,13 +99,8 @@
 
 <h3>Current Cnames</h3>
 [%- IF cnames.size > 0 -%]
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
 
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form action="" method="get">
 <fieldset><legend>DNS records to create</legend>

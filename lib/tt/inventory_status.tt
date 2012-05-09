@@ -46,12 +46,7 @@
   </fieldset>
 </form>
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <h3>States Registered</h3>
 

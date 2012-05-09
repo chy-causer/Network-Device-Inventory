@@ -95,12 +95,7 @@
 <h3>Current Servicelevels</h3>
 [%- IF servicelevels.size > 0 -%]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form action="servicelevels" method="get">
 <fieldset><legend>Recorded Servicelevels</legend>

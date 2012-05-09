@@ -103,15 +103,9 @@
 
 <form method="get" action="ups">
 <fieldset><legend>Known UPS protected devices</legend>
-[% SET counter=0 %]
 
 [% IF links.size > 0 %]
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 
@@ -130,17 +124,11 @@ $(document).ready(function(){
 
    <tbody>
    [% FOR link IN links %]
-
-    [% IF counter % 2 > 0 %]
-      <tr class="stripe">
-    [% ELSE %]
       <tr>
-    [% END %]
         <td><input type="radio" name="link_id" value="[% link.link_id  | html_entity %]" /></td>
         <td>[% link.ups_name | html_entity %]</td>
         <td>[% link.host_name | html_entity %]</td>
       </tr>
-    [% counter = counter + 1 %]
    [% END %]
    </tbody>
 

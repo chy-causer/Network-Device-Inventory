@@ -128,13 +128,7 @@ is not intended as a full reproduction of the department financial system.</p>
 <h3>Current Invoices</h3>
 [% IF invoices.size > 0 %]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
-
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <table id="allresults">
   <thead>

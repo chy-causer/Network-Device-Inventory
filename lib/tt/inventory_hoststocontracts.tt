@@ -106,12 +106,7 @@
 <h3>Current Host to Contract Mappings</h3>
 [%- IF hoststocontracts.size > 0 -%]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form action="" method="get">
 <fieldset><legend>Recorded Mappings</legend>

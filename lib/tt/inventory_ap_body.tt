@@ -25,7 +25,7 @@ $(document).ready(function()
     { 
          $(".stripethis tr:even").addClass("stripe");
          $(".stripethis tr").mouseover(function() {$(this).addClass("over");}).mouseout(function() {$(this).removeClass("over");});
-         $("#knowndevices").tablesorter(); 
+         $("#knowndevices").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
     } 
 ); 
 </script>

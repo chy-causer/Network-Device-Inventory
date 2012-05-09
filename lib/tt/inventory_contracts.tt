@@ -119,14 +119,9 @@
 <h3>Current Contracts</h3>
 [%- IF contracts.size > 0 -%]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
-<form action="" method="get">
+<form action="contracts" method="get">
 <fieldset><legend>Recorded Contracts</legend>
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 <table id="allresults">

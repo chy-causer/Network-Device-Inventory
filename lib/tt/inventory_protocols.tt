@@ -67,12 +67,7 @@
 
 <h3>Current Locations</h3>
 [% IF protocols.size > 0 %]
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <table id="allresults">
   <thead>

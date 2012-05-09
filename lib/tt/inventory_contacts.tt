@@ -122,12 +122,7 @@ function showHide(shID) {
 <h3>Current Contacts</h3>
 [%- IF contacts.size > 0 -%]
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+[% INCLUDE inventory_include_tablesort.tt %]
 
 <form action="" method="get">
 
