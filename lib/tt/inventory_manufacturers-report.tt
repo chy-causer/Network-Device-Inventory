@@ -1,9 +1,23 @@
 <div>
+<h3>[% pagetitle | html_entity %]</h3>
+
 [%- description = 'This page records hardware manufacturers for the equipment we maintain.' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
 
-<h3>Current Manufacturers</h3>
-[% IF manufacturers.size > 0 %]
+[% IF manufacturers.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no manufacturers at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+
+<!-- middle column -->
 
 [% INCLUDE inventory_include_tablesort.tt %]
 
@@ -52,14 +66,6 @@
 
 </table>
 
-[% ELSE %]
-<div class="ui-widget">
-   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-           I know of no manufacturers at this time. It&#39;s likely none have been entered into the database yet.
-      </p>
-   </div>
-</div>
-[% END %]
+<!-- end middle column -->
 
 </div>

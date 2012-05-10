@@ -1,26 +1,17 @@
-<script>
-    $(function() {
-        $( "#dateeol" ).datepicker();
-        $( "#dateeol_edit" ).datepicker();
-    });
-</script>
-
 <div>
-<h3>[% pagetitle %]</h3>
+<h3>[% pagetitle | html_entity %]</h3>
 
 [%- description = '' -%]
 [%- INCLUDE inventory_include_hashmessage.tt -%]
 
 [% IF contracts.size < 1 %]
-
-<div class="ui-widget">
+ <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
            I know of no hardware contracts at this time. It&#39;s likely none have been entered into the database yet.
       </p>
    </div>
-</div>
-
+ </div>
 </div>
 [% STOP %]
 [% END %]
@@ -42,109 +33,34 @@
 [% END %]
 
 <p>There are <strong>[% supported | html_entity %]</strong> active devices under and <strong>[% unsupported | html_entity %]</strong> not under a valid support contract.</p>
-<p>Of the [% supported | html_entity %] supported devices, <strong>[% oneyear | html_entity %]</strong> will be out of contract a year from now</p>
-
-<script type="text/javascript">
-$(function () {
-    var data = [
-       { label: "Supported",  data: [% supported | html_entity %]},
-       { label: "Unsupported",  data: [% unsupported | html_entity %]},
-    ];
-
-$.plot($("#supportgraph"), data, 
-{
-        series: {
-            pie: { 
-                show: true,
-                // combine results of 2% and less
-                // combine: {
-                //     color: '#999',
-                //    threshold: 0.02
-                // },
-                label: {
-                    show: true,
-                    radius: 3/4,
-                    formatter: function(label, series){
-                        return '<div class="graphlabel">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-                    },
-                    background: { 
-                        opacity: 0.5,
-                        color: '#000'
-                    }
-               },
-            }
-        },
-        grid: {
-            hoverable: true,
-        },
-        legend: {
-            show: false
-        }
-});
-$("#supportgraph").bind("plothover", pieHover);
-
-function pieHover(event, pos, obj) {
-    if (!obj)
-             return;
-    percent = parseFloat(obj.series.percent).toFixed(2);
-    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
-}
-
-});
-
-</script>
-
 
 <div id="rightcolumn">
-    
-[%- IF supported < 1 -%]
-       <p>There are no hosts under contract to graph at this time</p>
-[%- ELSE -%]
-       <div id="supportgraph" class="graph"></div>
-       <div id="hover"></div>
-[%- END -%]
 
- <h4>Specific Hosts by Contract</h4>
+[%- INCLUDE inventory_graph_support.tt -%]
+[%- INCLUDE inventory_graph_contracts.tt -%]
 
-[%- IF !hosts.keys.sort || hosts.keys.sort.size < 1 -%]
-       <p>There are no hosts under contract to show at this time</p>
-[%- ELSE -%]
- <table class="report">
-    <tr><th>Contract</th><th>Hosts</th></tr>
-     [% FOREACH contractname IN hosts.keys.sort -%]
-     [% id = hosts.$contractname.0.contract_id %]   
-       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
-      [%- IF 1 > count_sum -%]
-        <tr class="block-status-inactive">
-      [%- ELSE -%]
-        <tr>
-      [%- END -%]
-    <td>[% contractname | html_entity %]</td><td>
-       [%- FOREACH host IN hosts.$contractname -%]
-          [%- host.name | html_entity %] [% IF host.description %]([% host.description | html_entity %])[% END %] [% IF host.status_name %] ([% host.status_name | html_entity %]) [% END -%]
-          <br />
-       [%- END -%]
-    </td></tr>
-    [%- END -%]
- </table>
-[%- END -%]
+<h4>Print Options</h4>
+<p>[WIP] <a href="">Print all hosts not under a support contract</a></p>
+<p>[WIP] <a href="">Print all hosts indexed by support contract</a></p>
+<p>[WIP] <a href="">Print active hosts indexed by support contract</a></p>
+<p>[WIP] <a href="">Print this report</a></p>
 
-</div> <!-- right column -->
+</div> <!-- end right column -->
 
-<h4>Contracts</h4>
+<!-- alerts and potential projects -->
+<div id="accordion">
+    [% INCLUDE inventory_report_contractendssoon.tt %]
+    [% INCLUDE inventory_report_nocontract.tt %]
+</div>
+<!-- end alerts -->
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-        $("#allresults").tablesorter({ textExtraction:"complex"}); 
-        $("#unsupported").tablesorter({ textExtraction:"complex"}); 
-        $("#supported").tablesorter({ textExtraction:"complex"}); 
-    } 
-); 
-</script>
+<h4>All Active Contracts</h4>
 
 [%- IF !contracts || contracts.size < 1 -%]
    <p>There are no contracts to display.</p>
 [%- ELSE -%]
+
+[%- INCLUDE inventory_include_tablesort.tt -%]
 
 <table id="allresults" class="report">
   <thead>
@@ -177,83 +93,6 @@ $(document).ready(function(){
   </tbody>
 
 </table>
-
-<h4>Hosts Not Under a Support Contract</h4>
-
-<table id="#unsupported">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Details</th>
-    <th>Asset / Serial</th>
-    <th>Invoice</th>
-    <th>Previous Contract</th>
-  </tr>
-  </thead>
-  
-  <tfoot>
-    <tr><td colspan="5">There are [% unsupported | html_entity %] not under a valid support contract</td></tr>
-  </tfoot>
-  
-  <tbody>
-  [% FOR host IN hosts %]
-    [% NEXT IF (host.contract_days_remaining || 0 ) >= 1 %]
-    [% NEXT IF host.status_state != 'ACTIVE' %]
-     <tr>
-      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a> [% IF host.description %]([% host.description | html_entity %]) [% END %]</td>
-      <td>[% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %] based at [% host.location_name | html_entity %]</td>
-      <td>[% host.asset | html_entity %] / [% host.serial | html_entity %]</td>
-      <td>[% IF host.invoice_id %] [% host.invoice_description | html_entity %] ([% host.invoice_date | html_entity %]) [% END %]</td>
-      <td>[% host.contract_name | html_entity %] expired [% host.contract_enddate | html_entity %]</td>
-     </tr>
-   [% END %]
-  </tbody>
-
-</table>
-
-
-<table id="supported">
-  <thead>
-  <tr>
-    <th>Name</th>
-    <th>Details</th>
-    <th>Asset / Serial</th>
-    <th>Invoice</th>
-    <th>Current Contract</th>
-    <th>Days remaining</th>
-  </tr>
-  </thead>
-
-  [% counter = 0 %]
-  [% FOR host IN hosts %]
-    [% NEXT IF !host.contract_days_remaining || host.contract_days_remaining < 1 %]
-    [% counter = counter +1 %]
-  [% END %]
-
-  <tfoot>
-    <tr><td colspan="6">There are [% supported | html_entity %] hosts under a support contract</td></tr>
-  </tfoot>
-  
-  <tbody>
-  [% FOR host IN hosts %]
-    [% NEXT IF !host.contract_days_remaining || host.contract_days_remaining < 1 %]
-    [% NEXT IF host.status_state != 'ACTIVE' %]
-    
-     <tr>
-      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a> [% IF host.description %]([% host.description | html_entity %]) [% END %]</td>
-      <td>[% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %] based at [% host.location_name | html_entity %]</td>
-      <td>[% host.asset | html_entity %] / [% host.serial | html_entity %]</td>
-      <td>[% IF host.invoice_id %] [% host.invoice_description | html_entity %] ([% host.invoice_date | html_entity %]) [% END %]</td>
-      <td>[% host.contract_name | html_entity %] expires [% host.contract_enddate | html_entity %]</td>
-      <td>[% host.contract_days_remaining | html_entity %]</td>
-    </tr>
-  [% END %]
-  </tbody>
-
-</table>
-</fieldset>
-</form>
-
-[% END %] <!-- end tables of hosts -->
+[% END %] <!-- end tables of contracts -->
 
 </div> <!-- page end -->

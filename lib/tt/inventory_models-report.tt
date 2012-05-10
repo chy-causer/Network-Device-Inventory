@@ -1,30 +1,23 @@
-<script>
-    $(function() {
-        $( "#dateeol" ).datepicker();
-        $( "#dateeol_edit" ).datepicker();
-    });
-</script>
-
-<h3>Inventory Information Based on Model</h3>
-
 <div>
+<h3>[% pagetitle | html_entity %]</h3>
+
 [%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
 
-[% IF models.size < 1 %]
 
-<div class="ui-widget">
+[% IF models.size < 1 %]
+ <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
            I know of no hardware models at this time. It&#39;s likely none have been entered into the database yet.
       </p>
    </div>
-</div>
-
+ </div>
 </div>
 [% STOP %]
 [% END %]
 
+<div>
 
 <div id="rightcolumn">
     <div id="modelgraph" class="graph"></div>
@@ -33,7 +26,13 @@
  <h4>Specific Hosts by Model</h4>
     <div id="hosts-bymodel">Select a model above</div>
 
-</div> <!-- right column -->
+ <h4>Print Options</h4>
+
+ <p>[WIP] Print all hosts indexed by model</p>
+ <p>[WIP] Print active hosts indexed by model</p>
+ <p>[WIP] Print this report</p>
+
+</div> <!-- end right column -->
 
 <div id="middlecolumn">
 <!-- summary --> 
@@ -51,17 +50,11 @@
 <!-- end summary -->
 
 <!-- alerts and potential projects -->
-
 <div id="accordion">
-
     [% INCLUDE inventory_report_modelseolyear.tt %]
-
     [% INCLUDE inventory_report_modelseol.tt %]
-    
     [% INCLUDE inventory_report_modelsnoeol.tt %]
-    
 </div>
-
 <!-- end alerts -->
 
 <h4>Models Types in Active Use</h4>
@@ -70,8 +63,9 @@
   <thead>
   <tr>
     <th>Model Name</th>
-    <th>End of life</th>
-    <th>Total Hosts</th>
+    <th>Active Hosts</th>
+    <th>Days until <abbr title="End of Life">EoL</abbr></th>
+    <th>Date of <abbr title="End of Life">EoL</abbr></th>
     <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
   </tr>
   </thead>
@@ -80,18 +74,17 @@
     <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
   </tfoot>
 
-  [% counter=0 %]
   [% previous_rows_manufacturerid='none' %]
   [%- FOR model IN models -%]
-    [%- counter = counter +1 -%]
        [%- id = model.id -%]
        [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
        [%- NEXT IF ( host_counts.$id.active || 0 ) < 1 %] 
       
     <tr>
+      <td>[% (host_counts.$id.active || 0)  | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %], [% model.name | html_entity %]</td>
-      <td>[% model.dateeol | html_entity %]</td>
-      <td>[% count_sum | html_entity %]</td>
+      <td>[% (model.dateeol_daysremaining || '-' ) | html_entity %]</td>
+      <td>[% (model.dateeol || '-' ) | html_entity %]</td>
       <td>
         <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 
         <span class="status-inactive">[% (host_counts.$id.inactive || 0)  | html_entity %] </span> / 

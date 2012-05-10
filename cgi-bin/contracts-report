@@ -47,6 +47,7 @@ my $logger = Log::Log4perl->get_logger();
 
 my %message;    # communicate success or failure, sink or swim
 Readonly my $PAGETITLE => 'Hardware Support Contracts Overview';
+Readonly my $SECTIONTITLE => 'reports';
 
 #############################################################################
 #                                     main                                  #
@@ -63,7 +64,8 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => $PAGETITLE,
+        pagetitle    => $PAGETITLE,
+        sectiontitle => $SECTIONTITLE,
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},
@@ -90,14 +92,18 @@ my @suppliers = Inventory::Suppliers::get_suppliers_info($dbh);
 # list all the hosts (array of hashes)
 my @hosts = Inventory::Hosts::get_hosts_info($dbh);
 
+# hash_hosts_percontract, saves doing it in TT
+my $hostspercontract = Inventory::Contracts::hash_hosts_percontract($dbh);
+
 $tt->process(
     'inventory_contracts-report.tt',
     {
-        pagetitle => $PAGETITLE,
-        contracts => \@contracts,
-        suppliers => \@suppliers,
-        message   => \%message,
-        hosts     => \@hosts,
+        pagetitle         => $PAGETITLE,
+        contracts         => \@contracts,
+        suppliers         => \@suppliers,
+        message           => \%message,
+        hosts             => \@hosts,
+        hostspercontract  => $hostspercontract,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 $tt->process( 'inventory_footer.tt', {} );

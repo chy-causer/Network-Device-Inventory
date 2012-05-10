@@ -48,7 +48,12 @@
 
 <div id="invbar">
   <form method="get" action="viewhost">
-    <h2><a href="[% groupwebsite | html_entity %]">[% groupname | html_entity %]</a> &gt; <a href="index">[% appname | html_entity %]</a>
+    <h2>
+    <a href="[% groupwebsite | html_entity %]">[% groupname | html_entity %]</a> 
+    &gt; <a href="index">[% appname | html_entity %]</a>
+    [%- IF sectiontitle -%]
+        &gt; <a href="[% sectiontitle | html_entity %]">[% sectiontitle FILTER ucfirst | html_entity %]</a>
+    [%- END -%]
     [%- IF pagetitle && pagetitle != Index -%]
         &gt; [%- pagetitle FILTER ucfirst | html_entity -%]
     [%- END -%]

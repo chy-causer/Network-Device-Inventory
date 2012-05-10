@@ -503,7 +503,8 @@ sub get_hosts_info {
            invoices.date AS invoice_date,
            invoices.description AS invoice_description,
            contracts.id AS contract_id,
-           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS contract_enddate_daysremaining,
+           contracts.enddate AS contract_enddate,
            contracts.name AS contract_name
          FROM hosts
           
@@ -552,7 +553,8 @@ sub get_hosts_info {
            invoices.date AS invoice_date,
            invoices.description AS invoice_description,
            contracts.id AS contract_id,
-           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS contract_enddate_daysremaining,
+           contracts.enddate AS contract_enddate,
            contracts.name AS contract_name
          FROM hosts 
           

@@ -9,7 +9,7 @@ use CGI;
 use Config::Tiny;
 use DBD::Pg;
 use DBI;
-use Log::Log4perl;
+use Readonly;
 use Template;
 
 use Inventory 1.0;
@@ -37,10 +37,9 @@ my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
-my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
-Log::Log4perl->init($logconfigfile);
-my $logger = Log::Log4perl->get_logger();
+Readonly my $PAGETITLE => 'Manufacturers';
+Readonly my $SECTIONTITLE => 'reports';
 
 my %message;    # communicate success or failure, sink or swim
 #############################################################################
@@ -58,11 +57,12 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => 'Manufacturers',
-        baseurl     => $BASEURL,
-        groupname   => $CONFIG->{'general'}->{groupname},
-        appname     => $CONFIG->{'general'}->{appname},
-        companyname => $CONFIG->{'general'}->{companyname},
+        pagetitle    => $PAGETITLE,
+        sectiontitle => $SECTIONTITLE,
+        baseurl      => $BASEURL,
+        groupname    => $CONFIG->{'general'}->{groupname},
+        appname      => $CONFIG->{'general'}->{appname},
+        companyname  => $CONFIG->{'general'}->{companyname},
     }
 );
 
