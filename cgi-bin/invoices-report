@@ -46,7 +46,7 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 Readonly my $PAGETITLE => 'Invoice Report';
-Readonly my $SECTIONTITLE => 'admin';
+Readonly my $SECTIONTITLE => 'reports';
 
 #############################################################################
 #                                     main                                  #
