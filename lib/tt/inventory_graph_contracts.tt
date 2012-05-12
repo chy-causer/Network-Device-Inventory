@@ -1,8 +1,9 @@
 <script type="text/javascript">
+<!--
 $(function () {
     var data = [
       [%- FOREACH contract IN hostspercontract.keys %]
-       { label: "[% $contract %]",  data: [% contract.size %] },
+       { label: "[% (contract || 'none' ) %]",  data: [% hostspercontract.$contract.size %] },
       [%- END -%]
     ];
 
@@ -11,11 +12,11 @@ $.plot($("#contractgraph"), data,
         series: {
             pie: { 
                 show: true,
-                 combine results of 2% and less
-                 combine: {
-                     color: '#999',
-                    threshold: 0.02
-                },
+                // combine results of 2% and less
+                // combine: {
+                //     color: '#999',
+                //    threshold: 0.02
+                // },
                 label: {
                     show: true,
                     radius: 3/4,
@@ -46,15 +47,14 @@ function pieHover(event, pos, obj) {
 }
 
 });
-
+-->
 </script>
 
-[%- IF hostspercontract.keys.size < 1 -%]
+[%- IF hostspercontract.keys.size < 1 %]
        <p>There are no hosts under contract to graph at this time</p>
-[%- ELSE -%]
+[%- ELSE %]
        <div id="contractgraph" class="graph"></div>
        <div id="hover"></div>
-[%- END -%]
+[%- END %]
 
- <h4>Hosts by Specific Contract</h4>
-
+<h4>Hosts by Specific Contract</h4>

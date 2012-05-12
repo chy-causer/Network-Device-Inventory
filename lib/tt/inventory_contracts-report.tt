@@ -1,4 +1,3 @@
-<div>
 <h3>[% pagetitle | html_entity %]</h3>
 
 [%- description = '' -%]
@@ -16,21 +15,20 @@
 [% STOP %]
 [% END %]
 
-
-[% unsupported = 0 %]
-[% supported   = 0 %]
-[% oneyear   = 0 %]
-  [% FOR host IN hosts %]
-    [% NEXT IF host.status_state != 'ACTIVE' %]
-    [% IF host.contract_days_remaining >= 1 %]
-        [% supported = supported +1 %]
-        [% IF host.contract_days_remaining < 365 %]
-            [% oneyear = oneyear +1 %]
-        [% END %]
-    [% ELSE %]
-        [% unsupported = unsupported +1 %]
-    [% END %]
-[% END %]
+[%- unsupported = 0 -%]
+[%- supported   = 0 -%]
+[%- oneyear   = 0 -%]
+  [%- FOR host IN hosts -%]
+    [%- NEXT IF host.status_state != 'ACTIVE' -%]
+    [%- IF host.contract_enddate_daysremaining >= 1 -%]
+        [%- supported = supported +1 -%]
+        [%- IF host.contract_enddate_daysremaining < 365 -%]
+            [%- oneyear = oneyear +1 -%]
+        [%- END -%]
+    [%- ELSE -%]
+        [%- unsupported = unsupported +1 -%]
+    [%- END -%]
+[%- END -%]
 
 <p>There are <strong>[% supported | html_entity %]</strong> active devices under and <strong>[% unsupported | html_entity %]</strong> not under a valid support contract.</p>
 
@@ -62,7 +60,7 @@
 
 [%- INCLUDE inventory_include_tablesort.tt -%]
 
-<table id="allresults" class="report">
+<table id="allresults" class="tablesorter report">
   <thead>
   <tr>
     <th>Contracts Name</th>
@@ -80,12 +78,12 @@
 
   <tbody>
   [% FOR contract IN contracts %]
-    [% NEXT IF host.contract_days_remaining >= 1 %]
+    [% NEXT IF host.contract_enddate_daysremaining >= 1 %]
     <tr>
       <td>[% contract.name                | html_entity %]</td>
       <td>[% contract.serial              | html_entity %]</td>
       <td>[% contract.startdate           | html_entity %] - [% contract.enddate             | html_entity %]</td>
-      <td>[% contract.days_remaining      | html_entity %]</td>
+      <td>[% contract.enddate_daysremaining      | html_entity %]</td>
       <td>[% contract.invoice_description | html_entity %]</td>
       <td>[% contract.servicelevel_name   | html_entity %]</td>
     </tr>
@@ -94,5 +92,3 @@
 
 </table>
 [% END %] <!-- end tables of contracts -->
-
-</div> <!-- page end -->

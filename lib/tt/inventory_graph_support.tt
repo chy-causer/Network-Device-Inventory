@@ -1,15 +1,16 @@
-[% unsupported = 0 %]
-[% supported   = 0 %]
-  [% FOR host IN hosts %]
-    [% NEXT IF host.status_state != 'ACTIVE' %]
-    [% IF host.contract_days_remaining >= 1 %]
-        [% supported = supported +1 %]
-    [% ELSE %]
-        [% unsupported = unsupported +1 %]
-    [% END %]
-[% END %]
+[%- unsupported = 0 -%]
+[%- supported   = 0 -%]
+  [%- FOR host IN hosts -%]
+    [%- NEXT IF host.status_state != 'ACTIVE' -%]
+    [%- IF host.contract_enddate_daysremaining >= 1 -%]
+        [%- supported = supported +1 -%]
+    [%- ELSE -%]
+        [%- unsupported = unsupported +1 -%]
+    [%- END -%]
+[%- END -%]
 
 <script type="text/javascript">
+<!--
 $(function () {
     var data = [
        { label: "Supported",  data: [% supported | html_entity %]},
@@ -51,12 +52,12 @@ function pieHover(event, pos, obj) {
 }
 
 });
-
+-->
 </script>
 
-[%- IF supported < 1 -%]
+[%- IF supported < 1 %]
        <p>There are no hosts under contract to graph at this time</p>
-[%- ELSE -%]
+[%- ELSE %]
        <div id="supportgraph" class="graph"></div>
        <div id="supporthover"></div>
-[%- END -%]
+[%- END %]

@@ -244,7 +244,7 @@ sub get_contracts_info {
            contracts.name,
            contracts.startdate,
            contracts.enddate,
-           date_trunc(?, (contracts.enddate - now())) AS days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS enddate_daysremaining,
            contracts.serial,
            contracts.invoice_id,
            invoices.description AS invoice_description,
@@ -272,7 +272,7 @@ sub get_contracts_info {
            contracts.name,
            contracts.startdate,
            contracts.enddate,
-           date_trunc(?, (contracts.enddate - now())) AS days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS enddate_daysremaining,
            contracts.serial,
            contracts.invoice_id,
            invoices.description AS invoice_description,
@@ -337,7 +337,7 @@ sub hosts_bycontract_name {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            contracts.id AS contract_id,
-           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS contract_enddate_daysremaining,
            contracts.name AS contract_name
          FROM hosts
           
@@ -407,7 +407,7 @@ sub hosts_bycontract_id {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            contracts.id AS contract_id,
-           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS contract_enddate_daysremaining,
            contracts.name AS contract_name
          FROM hosts
           
@@ -478,7 +478,7 @@ sub hash_hosts_percontract {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            contracts.id AS contract_id,
-           date_trunc(?, (contracts.enddate - now())) AS contract_days_remaining,
+           date_trunc(?, (contracts.enddate - now())) AS contract_enddate_daysremaining,
            contracts.name AS contract_name
          FROM hosts
           
