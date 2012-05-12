@@ -55,8 +55,9 @@ function pieHover(event, pos, obj) {
 -->
 </script>
 
+<h5>Supported Contracts by Devices Covered</h5>
 [%- IF supported < 1 %]
-       <p>There are no hosts under contract to graph at this time</p>
+       <p>There are no devices under contract to graph at this time</p>
 [%- ELSE %]
        <div id="supportgraph" class="graph"></div>
        <div id="supporthover"></div>

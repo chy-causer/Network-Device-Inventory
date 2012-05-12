@@ -10,6 +10,7 @@ use Config::Tiny;
 use DBD::Pg;
 use DBI;
 use Log::Log4perl;
+use Readonly;
 use Template;
 
 use Inventory 1.0;
@@ -44,6 +45,9 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
+Readonly my $PAGETITLE => 'Invoices';
+Readonly my $SECTIONTITLE => 'admin';
+
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -59,11 +63,12 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => 'Invoices',
-        baseurl     => $BASEURL,
-        groupname   => $CONFIG->{'general'}->{groupname},
-        appname     => $CONFIG->{'general'}->{appname},
-        companyname => $CONFIG->{'general'}->{companyname},
+        pagetitle    => $PAGETITLE,
+        sectiontitle => $SECTIONTITLE,
+        baseurl      => $BASEURL,
+        groupname    => $CONFIG->{'general'}->{groupname},
+        appname      => $CONFIG->{'general'}->{appname},
+        companyname  => $CONFIG->{'general'}->{companyname},
     }
 );
 
