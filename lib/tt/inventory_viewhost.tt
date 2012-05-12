@@ -162,6 +162,15 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
          <td class="input-warning">There are no invoices associated with this hardware (<a href="invoices">create one?</a>)</td>
      [% END %]
   </tr>
+  
+  <tr>
+     <th>Support Contract</th>
+     [% IF hosts.$host.contract_id %]
+         <td><a href="contract?contract_id=[% hosts.$host.contract_id | html_entity %]">[% hosts.$host.contract_name | html_entity %] ([% hosts.$host.contract_enddate_daysremaining | html_entity %] days remaining)</a></td>
+     [% ELSE %]
+         <td class="input-warning">There are no support contracts associated with this hardware (<a href="contracts">create one?</a>)</td>
+     [% END %]
+  </tr>
 
   <tr>
     <th>Interfaces</th>
