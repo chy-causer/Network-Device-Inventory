@@ -1,14 +1,15 @@
 <div>
 <h3>[% pagetitle | html_entity %]</h3>
 
-[%- description = 'This page records hardware manufacturers for the equipment we maintain.' -%] 
+[%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
+
 
 [% IF manufacturers.size < 1 %]
  <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-           I know of no manufacturers at this time. It&#39;s likely none have been entered into the database yet.
+           I know of no hardware manufacturers at this time. It&#39;s likely none have been entered into the database yet.
       </p>
    </div>
  </div>
@@ -16,56 +17,120 @@
 [% STOP %]
 [% END %]
 
+<div>
 
-<!-- middle column -->
+<div id="rightcolumn">
 
-[% INCLUDE inventory_include_tablesort.tt %]
+ [% INCLUDE inventory_graph_manufacturers.tt %]
 
-<table id="allresults">
+ <h4>Specific Hosts by Manufactur</h4>
+    <div id="hosts-bymanufacturer">Select a manufacturer above</div>
+
+ <h4>Print Options</h4>
+
+ <p><a href="">[WIP] Print all devices indexed by manufacturer</a></p>
+ <p><a href="">[WIP] Print active devices indexed by manufacturer</a></p>
+ <p><a href="">[WIP] Print this report</a></p>
+
+</div> <!-- end right column -->
+
+<div id="middlecolumn">
+<!-- summary --> 
+[%- livehosts=0 %]
+[%- livemanufacturers=0 %]
+[%- FOR manufacturer IN manufacturers -%]
+     [%- id = manufacturer.id -%]
+     [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+     [%- NEXT IF  ( host_counts.$id.active || 0 ) < 1 %]
+     [%- livemanufacturers = livemanufacturers + 1 %]
+     [%- livehosts = livehosts + host_counts.$id.active %]
+[%- END -%]
+
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livemanufacturers %]</strong> seperate manufacturer types.</p>
+<!-- end summary -->
+
+<!-- alerts and potential projects -->
+<div id="accordion">
+    [% # INCLUDE inventory_report_manufacturerseolyear.tt %]
+    [% # INCLUDE inventory_report_manufacturerseol.tt %]
+    [% # INCLUDE inventory_report_manufacturersnoeol.tt %]
+</div>
+<!-- end alerts -->
+
+<h4>Manufacturers in Active Use</h4>
+
+<table id="allresults" class="report">
   <thead>
   <tr>
-    <th>Manufacturers Name</th>
-    <th>Number of Known Models</th>
-    <th>Total Hosts</th>
+    <th>Manufacture Name</th>
+    <th>Active Hosts</th>
     <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
   </tr>
   </thead>
-  
+
   <tfoot>
-  <tr><td colspan="5">[% manufacturers.size | html_entity %] results were obtained</td></tr>
+    <tr><td colspan="5">There were [% livemanufacturers | html_entity %] manufacturers returned by the database</td></tr>
   </tfoot>
 
-  <tbody>
-  [% counter=0 %]
-  [% FOR manufacturer IN manufacturers %]
-    [% id = manufacturer.id %]
-    [% count_sum = (host_counts.$id.active||0) + (host_counts.$id.inactive||0) + (host_counts.$id.instock||0) %]
-    
-    [% IF 1 > count_sum %]
-      <tr class="block-status-inactive">
-    [% ELSE %]
-      <tr>
-    [% END %]
-    
-    [% counter = counter +1 %]
-       <td><a href="manufacturers?manufacturer_id=[% manufacturer.id  | html_entity %]">[% manufacturer.name | html_entity %]</a></td>
-       <td>
-         [% model_counts.$id.model_total | html_entity %]
-       </td>
-      <td>[% count_sum | html_entity %]</td>
+  [% previous_rows_manufacturerid='none' %]
+  [%- FOR manufacturer IN manufacturers -%]
+       [%- id = manufacturer.id -%]
+       [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+       [%- NEXT IF ( host_counts.$id.active || 0 ) < 1 %] 
+      
+    <tr>
+      <td>[% manufacturer.name | html_entity %]</td>
+      <td>[% (host_counts.$id.active || 0)  | html_entity %]</td>
       <td>
-        <span class="status-active">[% ( host_counts.$id.active || 0)     | html_entity %] </span>     / 
-        <span class="status-inactive">[% ( host_counts.$id.inactive || 0)  | html_entity %] </span> / 
-        <span class="status-instock">[% (host_counts.$id.instock || 0)    | html_entity %] </span>   / 
-        <span class="status-decommissioned">[% ( host_counts.$id.decommissioned || 0) | html_entity %] </span>
+        <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 
+        <span class="status-inactive">[% (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
+        <span class="status-instock">[% (host_counts.$id.instock || 0)   | html_entity %] </span> / 
+        <span class="status-decommissioned">[% (host_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
    </tr>
-  
   [% END %]
-  </tbody>
+</tbody>
 
 </table>
+</div> <!-- end middle column -->    
 
-<!-- end middle column -->
+</div> <!-- page end -->
 
-</div>
+<script type="text/javascript">
+
+$(document).ready(function(){ 
+        $("#allresults").tablesorter(
+            { 
+            headers: { 
+               4: { 
+                // disable sorting on host status breakdown 
+                sorter: false } 
+               }, 
+
+           textExtraction:"complex",
+        
+        }); 
+    } 
+);
+
+function gethosts(manufacturer_name){
+   
+    var ajax_load="Ajax loading...";
+
+    var loadUrl="[% BASEURL %]/manufacturers-hosts?manufacturer_name=" + manufacturer_name;
+    
+    $("#host-list").html(ajax_load);  
+    $.get(  
+        loadUrl, {},  
+        function(responseText){  
+        
+        $("#host-list").html( responseText );  
+       }
+    );
+}
+
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+
+</script>

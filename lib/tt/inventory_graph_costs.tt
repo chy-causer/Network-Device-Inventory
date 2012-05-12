@@ -1,0 +1,32 @@
+<h5>Expenditure Over Time</h5>
+[%- IF costpermonth.keys.size < 1 %]
+       <p>There is no expenditure recorded at this time</p>
+[%- ELSE %]
+    <div id="costgraph" class="graph"></div>
+[%- END %]
+
+<script type="text/javascript">
+<!--
+$(function () {
+    var data = [
+    [%- FOR month IN costpermonth.keys -%]
+       { label: "[% month | html_entity %]",  data: "[% costpermonth.$month | html_entity %]" },
+    [%- END -%]
+    ];
+
+    var options = {
+        series: {
+            lines: {show: false, steps: false },
+            bars:  {show: true, barWidth: 0.9, align: 'center',},
+        },
+        xaxis: {
+           mode: "time",
+           timeformat: "%y/%m/%d",
+        }
+     };
+
+    $.plot($("#costgraph"), data, options ); 
+
+});
+-->
+</script>

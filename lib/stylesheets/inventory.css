@@ -209,7 +209,7 @@ span.shrink a {
 /* general link settings */
 
 a {
-    text-decoration: none; 
+/*    text-decoration: none;  */
     color: #222255;
 }
 
@@ -734,10 +734,12 @@ div#rightcolumn {
     border-left: 1px solid #f0f0f0; /* a light grey */
 }
 
+/* flot graphs must have dimensions in order to render */
 #rightcolumn div.graph { 
     width:500px;
     height:500px;
 }
+
 #rightcolumn table {
     /* width: 460px; */
 }

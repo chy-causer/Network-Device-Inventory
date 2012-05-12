@@ -1,0 +1,45 @@
+<h3>[% pagetitle | html_entity %]</h3>
+
+[%- description = '' -%]
+[%- INCLUDE inventory_include_hashmessage.tt -%]
+
+[% IF invoices.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no nvoices at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+<p><strong>FIXME</strong> has been spent in the past 365 days</p>
+<p><strong>FIXME</strong> has been spent since the start of the financial year (<strong>FIXME</strong>)</p>
+<p><strong>FIXME</strong> invoices are recorded, covering FIXME active devices</p>
+
+
+<div id="rightcolumn">
+[%- INCLUDE inventory_graph_costs.tt -%]
+
+<h4>Print Options</h4>
+<p>[WIP] <a href="">Print all invoices from this financial year</a></p>
+<p>[WIP] <a href="">Print all invoices from the past 365 days</a></p>
+<p>[WIP] <a href="">Print all hosts indexed by invoice</a></p>
+<p>[WIP] <a href="">Print all hosts without an invoice</a></p>
+<p>[WIP] <a href="">Print this report</a></p>
+
+</div> <!-- end right column -->
+
+<!-- alerts and potential projects -->
+<div id="accordion">
+
+    [% INCLUDE inventory_report_noinvoice.tt %]
+    [% INCLUDE inventory_report_contractendssoon.tt %]
+    [% INCLUDE inventory_report_nocontract.tt %]
+    [% INCLUDE inventory_report_modelseol.tt %]
+
+</div>
+<!-- end alerts -->
+

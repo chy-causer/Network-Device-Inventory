@@ -1,0 +1,71 @@
+<h5>Active Hosts per Location Model</h5>
+[%- IF locations.size < 1 %]
+       <p>There are no locations to graph at this time</p>
+[%- ELSE %]
+    <div id="locationgraph" class="graph"></div>
+    <div id="hover"></div>
+[%- END %]
+
+<script type="text/javascript">
+<!--
+
+$(function () {
+    var data = [
+
+    [%- FOR location IN locations -%]
+       [%- id = location.id -%]
+       [%- NEXT IF (location_counts.$id.active || 0 )< 1 -%]
+       { label: "[% location.name | html_entity %]",  data: [% location_counts.$id.active | html_entity %] },
+    [%- END -%]
+    ];
+
+$.plot($("#locationgraph"), data, 
+{
+        series: {
+            pie: { 
+                show: true,
+                // combine results of 2% and less
+                combine: {
+                    color: '#999',
+                    threshold: 0.02
+                },
+                label: {
+                    show: true,
+                    radius: 3/4,
+                    formatter: function(label, series){
+                        return '<div class="graphlabel">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+                    },
+                    background: { 
+                        opacity: 0.5,
+                        color: '#000'
+                    }
+               },
+            }
+        },
+        grid: {
+            hoverable: true,
+            clickable: true,
+        },
+        legend: {
+            show: false
+        }
+});
+$("#locationgraph").bind("plothover", pieHover);
+$("#locationgraph").bind("plotclick", pieClick);
+
+function pieHover(event, pos, obj) {
+    if (!obj)
+             return;
+    percent = parseFloat(obj.series.percent).toFixed(2);
+    $("#hover").html('<span style="font-weight: bold;">'+obj.series.label+' ('+percent+'%)</span>');
+}
+
+function pieClick(event, pos, obj) {
+    if (!obj)
+             return;
+    gethosts('+obj.series.label+');
+}
+
+});
+-->
+</script>

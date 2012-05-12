@@ -1,0 +1,52 @@
+[% noinvoice = 0 %]
+[%- FOR host IN hosts -%]
+   [%- NEXT IF ( host.invoice_enddate_daysremaining || 0 ) > 1 -%]
+   [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+   [% noinvoice = noinvoice + 1 %]
+[%- END -%]
+
+[%- IF noinvoice < 1 -%]
+
+<!-- All devices are under a valid support invoice  -->
+
+[%- ELSE -%]
+
+<h3><a href="#"><strong>[% noinvoice | html_entity %]</strong> devices are not under a valid hardware support invoice.</a></h3>
+
+<div>
+
+<p>Devices in active use that have no valid support invoice</p>
+
+<script type="text/javascript">
+$("#noinvoice").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
+</script>
+
+<table id="noinvoice">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Location</th>
+    <th>Model</th>
+    <th>Previous Contract</th>
+  </tr>
+  </thead>
+
+  <tfoot><tr><td colspan="4"></td></tr></tfoot>
+  
+  <tbody>
+  [%- FOR host IN hosts -%]
+    [% NEXT IF ( host.invoice_enddate_daysremaining || 0 ) > 0 %]
+    
+    <tr>
+      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>
+      <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
+      <td>[% IF host.invoice_name %]<a href="invoices&id=[% host.invoice_id %]">[% host.invoice_name | html_entity %]</a>[% END %]</td>
+    </tr>
+  [%- END -%]
+  </tbody>
+</table>
+
+</div>
+
+[% END %]

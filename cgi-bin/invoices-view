@@ -45,7 +45,7 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
-Readonly my $PAGETITLE => 'Invoices';
+Readonly my $PAGETITLE => 'Financial Overview';
 Readonly my $SECTIONTITLE => 'admin';
 
 #############################################################################
@@ -113,7 +113,7 @@ my %message;    # communicate success or failure, sink or swim
 my @invoices = Inventory::Invoices::get_invoices_info($dbh);
 
 $tt->process(
-    'inventory_finance.tt',
+    'inventory_finance_report.tt',
     {
         invoice   => \@invoice,
         purchaser => \@purchaser,

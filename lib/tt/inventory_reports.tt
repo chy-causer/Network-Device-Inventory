@@ -1,10 +1,15 @@
 <h4>Data Analysis (work in progress)</h4>
+
 <ul>
-  <li><a href="finance">Financal overview</a></li>
+  <li><a href="finance-report">Financal overview</a></li>
+  <li><a href="invoices-report">Invoices overview</a></li>
+  <li><a href="contracts-report">Support Contracts</a></li>
+</ul>
+
+<ul>
   <li><a href="locations-report">Locations</a></li>
   <li><a href="manufacturers-report">Manufacturers</a></li>
   <li><a href="models-report">Models</a></li>
-  <li><a href="contracts-report">Support Contracts</a></li>
 </ul>
 
 <h4>Troubleshooting and sanity checking</h4>

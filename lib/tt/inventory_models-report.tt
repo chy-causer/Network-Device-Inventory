@@ -20,8 +20,8 @@
 <div>
 
 <div id="rightcolumn">
-    <div id="modelgraph" class="graph"></div>
-    <div id="hover"></div>
+
+ [% INCLUDE inventory_graph_models.tt %]
 
  <h4>Specific Hosts by Model</h4>
     <div id="hosts-bymodel">Select a model above</div>
@@ -133,67 +133,8 @@ function gethosts(model_name){
     );
 }
 
-$(function () {
-    var data = [
-
-    [%- FOR model IN models -%]
-       [%- id = model.id -%]
-       [%- count_sum = (host_counts.$id.active||0) + (host_counts.$id.inactive||0) + (host_counts.$id.instock||0) -%]
-       { label: "[% model.name | html_entity %]",  data: [% count_sum | html_entity %]},
-    [%- END -%]
-    ];
-
-$.plot($("#modelgraph"), data, 
-{
-        series: {
-            pie: { 
-                show: true,
-                // combine results of 2% and less
-                combine: {
-                    color: '#999',
-                    threshold: 0.02
-                },
-                label: {
-                    show: true,
-                    radius: 3/4,
-                    formatter: function(label, series){
-                        return '<div class="graphlabel">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
-                    },
-                    background: { 
-                        opacity: 0.5,
-                        color: '#000'
-                    }
-               },
-            }
-        },
-        grid: {
-            hoverable: true,
-            clickable: true,
-        },
-        legend: {
-            show: false
-        }
-});
-$("#modelgraph").bind("plothover", pieHover);
-$("#modelgraph").bind("plotclick", pieClick);
-
-function pieHover(event, pos, obj) {
-    if (!obj)
-             return;
-    percent = parseFloat(obj.series.percent).toFixed(2);
-    $("#hover").html('<span style="font-weight: bold;">'+obj.series.label+' ('+percent+'%)</span>');
-}
-
-function pieClick(event, pos, obj) {
-    if (!obj)
-             return;
-    gethosts('+obj.series.label+');
-}
-
 $(document).ready(function() {
     $("#accordion").accordion({ autoHeight: false });
-});
-
 });
 
 </script>

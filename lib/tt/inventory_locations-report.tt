@@ -4,12 +4,12 @@
 [%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
 
-[% IF locations.size < 1 %]
 
+[% IF locations.size < 1 %]
  <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-           I know of no locations contracts at this time. It&#39;s likely none have been entered into the database yet.
+           I know of no hardware locations at this time. It&#39;s likely none have been entered into the database yet.
       </p>
    </div>
  </div>
@@ -17,50 +17,119 @@
 [% STOP %]
 [% END %]
 
-<h4>All known locations</h4>
-[% INCLUDE inventory_include_tablesort.tt %]
+<div>
 
-<table id="allresults">
+<div id="rightcolumn">
+
+ [% INCLUDE inventory_graph_locations.tt %]
+
+ <h4>Specific Hosts by Location</h4>
+    <div id="hosts-bylocation">Select a location above</div>
+
+ <h4>Print Options</h4>
+
+ <p><a href="">[WIP] Print all hosts indexed by location</a></p>
+ <p><a href="">[WIP] Print active hosts indexed by location</a></p>
+ <p><a href="">[WIP] Print this report</a></p>
+
+</div> <!-- end right column -->
+
+<div id="middlecolumn">
+<!-- summary --> 
+[%- livehosts=0 %]
+[%- livelocations=0 %]
+[%- FOR location IN locations -%]
+     [%- id = location.id -%]
+     [%- count_sum = ( location_counts.$id.active || 0 ) + ( location_counts.$id.inactive || 0 ) + ( location_counts.$id.instock || 0 ) -%]
+     [%- NEXT IF  ( location_counts.$id.active || 0 ) < 1 %]
+     [%- livelocations = livelocations + 1 %]
+     [%- livehosts = livehosts + ( location_counts.$id.active || 0 ) %]
+[%- END -%]
+
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livelocations %]</strong> seperate location types.</p>
+<!-- end summary -->
+
+<!-- alerts and potential projects -->
+<div id="accordion">
+    [% # INCLUDE inventory_report_locationseolyear.tt %]
+    [% # INCLUDE inventory_report_locationseol.tt %]
+    [% # INCLUDE inventory_report_locationsnoeol.tt %]
+</div>
+<!-- end alerts -->
+
+<h4>Locations in Active Use</h4>
+
+<table id="allresults" class="report">
   <thead>
   <tr>
-    <th>Locations Name</th>
-    <th>Total Hosts present<br />Excl decommissioned</th>
-    <th>Breakdown by Host State<br />Active / Inactive / Instock / Decommissioned</th>
+    <th>Location Name</th>
+    <th>Active Hosts</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
   </tr>
   </thead>
 
   <tfoot>
-   <tr>
-    <td colspan="3">There are [% locations.size | html_entity %] locations recorded</td>
-   </tr>
+    <tr><td colspan="5">There were [% locations.size | html_entity %] locations returned by the database</td></tr>
   </tfoot>
 
-  <tbody>
-  [% counter=0 %]
-  [% FOR location IN locations %]
-    [% id = location.id %]
-    [% counter = counter +1 %]
-    [% sum = (location_counts.$id.active||0) + (location_counts.$id.instock||0) + (location_counts.$id.decommissioned||0) %]
-
-    [% class="" %]
-    [% IF sum < 1 %]
-       [% class="block-status-inactive" %]
-    [% END %]
-    
-    <tr class="[% class | html_entity %]">
-    
-      <td><a href="locations?location_id=[% location.id | html_entity %]">[% location.name | html_entity %]</a></td>
-      <td>[% sum | html_entity %]</td>
+  [%- FOR location IN locations -%]
+       [%- id = location.id -%]
+       [%- count_sum = ( location_counts.$id.active || 0 ) + ( location_counts.$id.inactive || 0 ) + ( location_counts.$id.instock || 0 ) -%]
+       [%- NEXT IF ( location_counts.$id.active || 0 ) < 1 %] 
+      
+    <tr>
+      <td>[% location.name | html_entity %]</td>
+      <td>[% (location_counts.$id.active || 0)  | html_entity %]</td>
       <td>
-        <span class="status-active">[% (location_counts.$id.active||0) | html_entity %]</span>
-        / <span class="status-inactive">[% (location_counts.$id.inactive||0) | html_entity %]</span> 
-        / <span class="status-instock">[% (location_counts.$id.instock||0) | html_entity %]</span>
-        / <span class="status-decommissioned">[% (location_counts.$id.decommissioned||0) | html_entity %]</span> 
+        <span class="status-active">[% (location_counts.$id.active || 0)      | html_entity %] </span> / 
+        <span class="status-inactive">[% (location_counts.$id.inactive || 0)  | html_entity %] </span> / 
+        <span class="status-instock">[% (location_counts.$id.instock || 0)   | html_entity %] </span> / 
+        <span class="status-decommissioned">[% (location_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
-  </tr>
+   </tr>
   [% END %]
-  </tbody>
+</tbody>
 
 </table>
+</div> <!-- end middle column -->    
 
-</div>
+</div> <!-- page end -->
+
+<script type="text/javascript">
+
+$(document).ready(function(){ 
+        $("#allresults").tablesorter(
+            { 
+            headers: { 
+               4: { 
+                // disable sorting on host status breakdown 
+                sorter: false } 
+               }, 
+
+           textExtraction:"complex",
+        
+        }); 
+    } 
+);
+
+function gethosts(location_name){
+   
+    var ajax_load="Ajax loading...";
+
+    var loadUrl="[% BASEURL %]/locations-hosts?location_name=" + location_name;
+    
+    $("#host-list").html(ajax_load);  
+    $.get(  
+        loadUrl, {},  
+        function(responseText){  
+        
+        $("#host-list").html( responseText );  
+       }
+    );
+}
+
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+
+</script>

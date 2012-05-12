@@ -1,0 +1,97 @@
+<h3>[% pagetitle | html_entity %]</h3>
+
+[%- description = '' -%]
+[%- INCLUDE inventory_include_hashmessage.tt -%]
+
+[% IF invoices.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware invoices at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+[%- invoiced = 0 -%]
+[%- active = 0 -%]
+[%- oneyear   = 0 -%]
+  [%- FOR host IN hosts -%]
+    [%- NEXT IF host.status_state != 'ACTIVE' -%]
+    [%- IF host.invoice_id -%]
+        [%- invoiced = invoiced +1 -%]
+    [%- END -%]
+    [%- active = active +1 -%]
+[%- END -%]
+
+<p>There are <strong>[% active | html_entity %]</strong> active devices under and <strong>[% invoiced | html_entity %]</strong> not under a valid support invoice.</p>
+
+<div id="rightcolumn">
+
+[%- # INCLUDE inventory_graph_support.tt -%]
+[%- INCLUDE inventory_graph_costs.tt -%]
+
+<h4>Print Options</h4>
+<p>[WIP] <a href="">Print all hosts not under a support invoice</a></p>
+<p>[WIP] <a href="">Print all hosts indexed by support invoice</a></p>
+<p>[WIP] <a href="">Print active hosts indexed by support invoice</a></p>
+<p>[WIP] <a href="">Print this report</a></p>
+
+</div> <!-- end right column -->
+
+<!-- alerts and potential projects -->
+<div id="accordion">
+    [% # INCLUDE inventory_report_invoiceendssoon.tt %]
+    [% # INCLUDE inventory_report_noinvoice.tt %]
+</div>
+<!-- end alerts -->
+
+<h4>Invoices Relating to Active Devices</h4>
+
+[%- IF !invoices || invoices.size < 1 -%]
+   <p>There are no invoices to display.</p>
+[%- ELSE -%]
+
+[%- INCLUDE inventory_include_tablesort.tt -%]
+
+<table id="allresults" class="tablesorter report">
+  <thead>
+  <tr>
+    <th>Description</th>
+    <th>Supplier</th>
+    <th>Date</th>
+    <th>Purchaser</th>
+    <th>Signitory</th>
+    <th>Total cost</th> 
+    <th>PO Number</th>
+    <th>REQ Number</th>
+    <th>Cost Centre</th>
+    <th>Natural Account</th>
+  </tr>
+  </thead>
+  
+  <tfoot>
+    <tr><td colspan="10">There were [% invoices.size | html_entity %] invoices returned by the database</td></tr>
+  </tfoot>
+
+  <tbody>
+  [% FOR invoice IN invoices %]
+    <tr>
+      <td>[% invoice.description    | html_entity %]</td>
+      <td>[% invoice.supplier_name  | html_entity %]</td>
+      <td>[% invoice.date           | html_entity %]</td>
+      <td>[% invoice.purchaser_name | html_entity %]</td>
+      <td>[% invoice.signitory_name | html_entity %]</td>
+      <td>[% invoice.totalcost      | html_entity %]</td>
+      <td>[% invoice.ponumber       | html_entity %]</td>
+      <td>[% invoice.reqnumber      | html_entity %]</td>
+      <td>[% invoice.costcentre     | html_entity %]</td>
+      <td>[% invoice.natacct        | html_entity %]</td>
+    </tr>
+  [% END %]
+  </tbody>
+
+</table>
+[% END %] <!-- end tables of invoices -->

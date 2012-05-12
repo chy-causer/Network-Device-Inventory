@@ -10,7 +10,7 @@ Inventory::Invoices
 
 =head1 VERSION
 
-This document describes Inventory::Invoices version 1.03
+This document describes Inventory::Invoices version 1.04
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Module for manipulating the interface to interface role information
 
 =cut
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_invoices
@@ -30,6 +30,7 @@ our @EXPORT_OK = qw(
   edit_invoices
   delete_invoices
   get_hosts_byinvoice
+  cost_per_month
 );
 
 =pod
@@ -352,6 +353,112 @@ sub get_hosts_byinvoice {
         push @return_array, $reference;
     }
     return @return_array;
+}
+
+=pod
+
+=head2 hash_hosts_perinvoice
+
+Return all hosts, indexed by invoice
+
+=cut
+
+sub hash_hosts_perinvoice {
+    my ($dbh) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare( '
+         SELECT 
+           hosts.id,
+           hosts.name,
+           hosts.description,
+           hosts.location_id,
+           hosts.status_id,
+           hosts.asset,
+           hosts.serial,
+           hosts.model_id,
+           hosts.lastchecked,
+           status.state AS status_state,
+           status.description AS status_description,
+           locations.name AS location_name,
+           locations.id AS location_id,
+           models.name AS model_name,
+           manufacturers.name AS manufacturer_name,
+           manufacturers.id AS manufacturer_id,
+           hosts.invoice_id,
+           invoices.date AS invoice_date,
+           invoices.description AS invoice_description
+         FROM hosts
+          
+          LEFT JOIN locations
+          ON hosts.location_id=locations.id
+          LEFT JOIN status
+          ON hosts.status_id=status.id
+          LEFT JOIN models
+          ON hosts.model_id=models.id
+          LEFT JOIN manufacturers
+          ON manufacturers.id=models.manufacturer_id
+          LEFT JOIN invoices
+          ON hosts.invoice_id=invoices.id
+         
+         ORDER BY
+           hosts.name
+        
+        ' );
+    return if not $sth->execute();
+
+    my %index;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+       
+        next if not exists  $ref->{'invoice_description'};
+        next if not defined $ref->{'invoice_description'};
+        next if length $ref->{'invoice_description'} < 1;
+        
+        if ( !exists $index{ $ref->{'invoice_description'} } ) {
+            my @data = ($ref);
+            $index{ $ref->{'invoice_description'} } = \@data;
+        }
+        else {
+            push @{ $index{ $ref->{'invoice_description'} } }, $ref;
+        }
+    }
+
+
+    return \%index;
+}
+
+=pod
+
+=head2 cost_per_month
+
+Returns the total expenditure totalled per month, for example
+
+    2011-01-01 4123.45
+    2012-02-01 6204.12
+
+=cut
+
+sub cost_per_month {
+    my ($dbh) = @_;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare("
+               SELECT 
+                     SUM(totalcost) AS cost,
+                     date_trunc('month', date)::date AS month 
+               FROM invoices
+               GROUP BY date_trunc('month', date)
+        ");
+    return if not $sth->execute();
+
+    my %data;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+          $data{ $ref->{'month'} } = $ref->{'cost'};
+    }
+
+    return \%data;
 }
 
 1;
