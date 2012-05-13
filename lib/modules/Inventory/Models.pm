@@ -663,7 +663,7 @@ sub hosts_modeleol_thisyear {
            locations.name AS location_name,
            models.name AS model_name,
            models.dateeol AS model_dateeol,
-           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS model_dateeol_daysremaining,
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id
          
@@ -724,7 +724,7 @@ sub hosts_modeleol {
            locations.name AS location_name,
            models.name AS model_name,
            models.dateeol AS model_dateeol,
-           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS model_dateeol_daysremaining,
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id
          

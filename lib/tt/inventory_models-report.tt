@@ -28,9 +28,9 @@
 
  <h4>Print Options</h4>
 
- <p>[WIP] Print all hosts indexed by model</p>
- <p>[WIP] Print active hosts indexed by model</p>
- <p>[WIP] Print this report</p>
+ <p><a href="">[WIP] Print all hosts indexed by model</a></p>
+ <p><a href="">[WIP] Print active hosts indexed by model</a></p>
+ <p><a href="">[WIP] Print this report</a></p>
 
 </div> <!-- end right column -->
 
@@ -92,7 +92,12 @@ $(document).ready(function() {
     <tr>
       <td>[% (host_counts.$id.active || 0)  | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %], [% model.name | html_entity %]</td>
-      <td>[% (model.dateeol_daysremaining || '-' ) | html_entity %]</td>
+      <td>
+          [% IF ! model.dateeol_daysremaining %] - 
+          [% ELSIF model.dateeol_daysremaining < 0 %] 0 
+          [% ELSE %] [% model.dateeol_daysremaining | html_entity %]
+          [% END %]
+      </td>
       <td>[% (model.dateeol || '-' ) | html_entity %]</td>
       <td>
         <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 

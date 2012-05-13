@@ -1,17 +1,27 @@
-[%- totalmodels_eol = 0 -%]
-[%- FOR model IN models -%]
-     [%- NEXT IF ! model.dateeol -%]
-     [%- NEXT IF model.dateeol_daysremaining > 0 -%]
-     [%- totalmodels_eol = totalmodels_eol + 1 -%]
-[%- END -%]
+  [% countexpired = 0 %]
+  
+  [%- FOR host IN hostseol -%]
+     [%- NEXT IF ! host.model_dateeol -%]
+     [%- NEXT IF ( host.model_dateeol_daysremaining || 0 ) > 0 -%]
+     [%- mname = host.model_name %]
+     [%- expired.$mname = { 
+                              name              => host.model_name, 
+                              id                => host.model_id,
+                              manufacturer_id   => host.manufacturer_id,
+                              manufacturer_name => host.manufacturer_name,
+                              dateeol           => host.model_dateeol,
+                            }
+                              %]
+     [% countexpired = countexpired +1 %]
+  [% END %]
 
-[%- IF totalmodels_eol < 1 -%]
+[% IF ( countexpired || 0 ) < 1 %]
 
 <!-- No active model types are End of Life  -->
 
 [%- ELSE -%]
 
-<h3><a href="#">[% totalmodels_eol %] model types in active use are End of Life, affecting [% hostseol.size %] devices</a></h3>
+<h3><a href="#">[% ( expired.keys.size || 0 ) %] model types in active use are End of Life, affecting [% countexpired %] devices</a></h3>
 
 <div>
 
@@ -25,17 +35,15 @@
   </tr>
   </thead>
 
-  <tfoot>
+  <tfoot><tr><td colspan="2"></td></tr>
   </tfoot>
 
   <tbody>
-  [%- FOR model IN models -%]
-     [%- NEXT IF ! model.dateeol -%]
-     [%- NEXT IF model.dateeol_daysremaining > 0 -%]
-
+  [% FOR model IN expired.keys %]
     <tr>
-      <td>([% model.manufacturer_name | html_entity %]) [% model.name | html_entity %]</td>
-      <td>[% model.dateeol | html_entity %]</td>
+      <td><a href="models&model_id=[% expired.$model.id | html_entity %]">([% expired.$model.manufacturer_name | html_entity %]) 
+           [% expired.$model.name | html_entity %]</a></td>
+      <td>[% expired.$model.dateeol | html_entity %]</td>
     </tr>
   [%- END -%]
   </tbody>
@@ -50,7 +58,6 @@
     <th>Location</th>
     <th>Status</th>
     <th>Model</th>
-    <th>Last checked</th>
   </tr>
   </thead>
 
@@ -64,10 +71,9 @@
     
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
-      <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>
+      <td>[% host.location_name | html_entity %]</td>
       <td>[% host.status_state | html_entity %]</td>
       <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
-      <td>[% host.lastchecked | html_entity %]</td>
     </tr>
   [%- END -%]
   </tbody>

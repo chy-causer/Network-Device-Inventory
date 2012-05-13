@@ -60,9 +60,7 @@ $(document).ready(function() {
 
 <!-- alerts and potential projects -->
 <div id="accordion">
-    [% INCLUDE inventory_report_locationseolyear.tt %]
-    [% INCLUDE inventory_report_locationseol.tt %]
-    [% INCLUDE inventory_report_locationsnoeol.tt %]
+    [% # INCLUDE inventory_report_locationsnoeol.tt %]
 </div>
 <!-- end alerts -->
 
