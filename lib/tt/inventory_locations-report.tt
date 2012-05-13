@@ -35,6 +35,15 @@
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
+
+<script>
+    <!--
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+    -->
+</script>
+
 <!-- summary --> 
 [%- livehosts=0 %]
 [%- livelocations=0 %]
@@ -51,9 +60,9 @@
 
 <!-- alerts and potential projects -->
 <div id="accordion">
-    [% # INCLUDE inventory_report_locationseolyear.tt %]
-    [% # INCLUDE inventory_report_locationseol.tt %]
-    [% # INCLUDE inventory_report_locationsnoeol.tt %]
+    [% INCLUDE inventory_report_locationseolyear.tt %]
+    [% INCLUDE inventory_report_locationseol.tt %]
+    [% INCLUDE inventory_report_locationsnoeol.tt %]
 </div>
 <!-- end alerts -->
 

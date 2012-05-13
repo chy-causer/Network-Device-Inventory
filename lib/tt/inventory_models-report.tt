@@ -35,6 +35,15 @@
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
+
+<script>
+    <!--
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+    -->
+</script>
+
 <!-- summary --> 
 [%- livehosts=0 %]
 [%- livemodels=0 %]

@@ -45,6 +45,16 @@
 
 </div> <!-- end right column -->
 
+<div id="middlecolumn">
+
+<script>
+    <!--
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+    -->
+</script>
+
 <!-- alerts and potential projects -->
 <div id="accordion">
     [% INCLUDE inventory_report_contractendssoon.tt %]
@@ -92,3 +102,5 @@
 
 </table>
 [% END %] <!-- end tables of contracts -->
+
+</div> <!-- end middle column -->

@@ -26,7 +26,7 @@
   </tr>
   </thead>
 
-  <tfoot></tfoot>
+  <tfoot><tr><td colspan="2"></td></tr></tfoot>
 
   <tbody>
   [%- FOR model IN models -%]
@@ -43,7 +43,7 @@
 
 </table>
 
-<p>Active devices whose model type is becoming End of Life in the next year:</p>
+<p>Active devices whose model type is becoming End of Life in the next year (showing the first 40)</p>
 
 <table>
   <thead>
@@ -59,7 +59,11 @@
   <tfoot></tfoot>
 
   <tbody>
+  [% limit = 40 %]
   [%- FOR host IN hostseolyear -%]
+    [% NEXT IF limit < 1 %]
+    [% limit = limit - 1 %]
+    
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
       <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>

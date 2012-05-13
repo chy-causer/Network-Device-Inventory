@@ -25,17 +25,18 @@ our $VERSION = '1.02';
 
 =head1 DEPENDENCIES
 
-Carp;
-CGI;
-Config::Tiny;
-DBD::Pg;
-DBI;
-Log::Log4perl;
-Readonly;
-Template;
+Carp
+CGI
+Config::Tiny
+DBD::Pg
+DBI
+Log::Log4perl
+Readonly
+Template
 
-Inventory 1.0;
-Inventory::Invoices 1.04;
+Inventory 1.0
+Inventory::Invoices 1.04
+Inventory::Hosts 1.02
 
 =cut
 
@@ -49,6 +50,7 @@ use Readonly;
 use Template;
 
 use Inventory 1.0;
+use Inventory::Hosts 1.02;
 use Inventory::Invoices 1.04;
 
 my $HOSTNAME = CGI::url( -base => 1 );
@@ -121,12 +123,14 @@ if ( !exists $CONFIG->{general}->{demo} ) {
 # retrieve data we need
 my @invoices     = Inventory::Invoices::get_invoices_info($dbh);
 my @costpermonth = Inventory::Invoices::cost_per_month( $dbh );
+my @hosts        = Inventory::Hosts::get_hosts_info($dbh);
     
 $tt->process(
     'inventory_finance-report.tt',
     {
         costpermonth => \@costpermonth,
         invoices     => \@invoices,
+        hosts          => \@hosts,
         message      => \%message,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";

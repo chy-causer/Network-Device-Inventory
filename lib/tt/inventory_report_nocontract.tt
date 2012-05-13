@@ -15,7 +15,7 @@
 
 <div>
 
-<p>Devices in active use that have no valid support contract</p>
+<p>Devices in active use that have no valid support contract (showing the first 40)</p>
 
 <script type="text/javascript">
 $("#nocontract").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
@@ -34,14 +34,19 @@ $("#nocontract").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], })
   <tfoot><tr><td colspan="4"></td></tr></tfoot>
   
   <tbody>
+  
+  [% limit = 40 %]
   [%- FOR host IN hosts -%]
+    [% NEXT IF limit < 1 %]
+    [% limit = limit - 1 %]
+    
     [% NEXT IF ( host.contract_enddate_daysremaining || 0 ) > 0 %]
     
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
-      <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>
-      <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
-      <td>[% IF host.contract_name %]<a href="contracts&id=[% host.contract_id %]">[% host.contract_name | html_entity %]</a>[% END %]</td>
+      <td>[% host.location_name | html_entity %]</td>
+      <td>[% host.model_name | html_entity %]</td>
+      <td>[% IF host.contract_id %]<a href="contracts&id=[% host.contract_id %]">[% host.contract_name | html_entity %]</a>[% END %]</td>
     </tr>
   [%- END -%]
   </tbody>

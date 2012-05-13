@@ -41,7 +41,7 @@
   </tbody>
 </table>
 
-<p>Active devices whose model type has reached End of Life</p>
+<p>Active devices whose model type has reached End of Life (showing the first 40)</p>
 
 <table>
   <thead>
@@ -54,11 +54,14 @@
   </tr>
   </thead>
 
-  <tfoot>
-  </tfoot>
+  <tfoot><tr><td colspan="5"></td></tr></tfoot>
   
   <tbody>
+  [% limit = 40 %]
   [%- FOR host IN hostseol -%]
+    [% NEXT IF limit < 1 %]
+    [% limit = limit - 1 %]
+    
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
       <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>

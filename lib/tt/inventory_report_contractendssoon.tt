@@ -16,7 +16,7 @@
 
 <div>
 
-<p>Devices in active use that have no valid support contract</p>
+<p>Devices in active use that have no valid support contract (showing the first 40)</p>
 
 <script type="text/javascript">
 $("#contractatrisk").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
@@ -35,7 +35,11 @@ $("#contractatrisk").tablesorter({ textExtraction:"complex",  widgets: ['zebra']
   <tfoot><tr><td colspan="4"></td></tr></tfoot>
   
   <tbody>
+  [% limit = 40 %]
   [%- FOR host IN hosts -%]
+    [% NEXT IF limit < 1 %]
+    [% limit = limit - 1 %]
+    
     [% NEXT IF ( host.contract_enddate_daysremaining || 0 ) < 1 %]
     [% NEXT IF ( host.contract_enddate_daysremaining || 0 ) > 365 %]
     
