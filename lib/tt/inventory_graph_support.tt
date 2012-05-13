@@ -2,7 +2,7 @@
 [%- supported   = 0 -%]
   [%- FOR host IN hosts -%]
     [%- NEXT IF host.status_state != 'ACTIVE' -%]
-    [%- IF host.contract_enddate_daysremaining >= 1 -%]
+    [%- IF ( host.contract_enddate_daysremaining || 0 ) >= 1 -%]
         [%- supported = supported +1 -%]
     [%- ELSE -%]
         [%- unsupported = unsupported +1 -%]
@@ -55,7 +55,7 @@ function pieHover(event, pos, obj) {
 -->
 </script>
 
-<h5>Supported Contracts by Devices Covered</h5>
+<h5>Unsupported versus Supported Devices</h5>
 [%- IF supported < 1 %]
        <p>There are no devices under contract to graph at this time</p>
 [%- ELSE %]

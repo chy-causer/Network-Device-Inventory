@@ -20,9 +20,9 @@
 [%- oneyear   = 0 -%]
   [%- FOR host IN hosts -%]
     [%- NEXT IF host.status_state != 'ACTIVE' -%]
-    [%- IF host.contract_enddate_daysremaining >= 1 -%]
+    [%- IF ( host.contract_enddate_daysremaining || 0 ) >= 1 -%]
         [%- supported = supported +1 -%]
-        [%- IF host.contract_enddate_daysremaining < 365 -%]
+        [%- IF ( host.contract_enddate_daysremaining || 0 ) < 365 -%]
             [%- oneyear = oneyear +1 -%]
         [%- END -%]
     [%- ELSE -%]
@@ -78,7 +78,7 @@
 
   <tbody>
   [% FOR contract IN contracts %]
-    [% NEXT IF host.contract_enddate_daysremaining >= 1 %]
+    [% NEXT IF ( contract.enddate_daysremaining || 0 ) >= 1 %]
     <tr>
       <td>[% contract.name                | html_entity %]</td>
       <td>[% contract.serial              | html_entity %]</td>
