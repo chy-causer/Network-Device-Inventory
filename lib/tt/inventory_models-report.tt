@@ -1,5 +1,5 @@
 <div>
-<h3>[% pagetitle | html_entity %]</h3>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
@@ -30,7 +30,7 @@
 
  <p><a href="">[WIP] Print all hosts indexed by model</a></p>
  <p><a href="">[WIP] Print active hosts indexed by model</a></p>
- <p><a href="">[WIP] Print this report</a></p>
+<p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
 

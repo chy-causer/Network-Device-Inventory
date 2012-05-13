@@ -18,7 +18,7 @@
 
 <p>Model types in active use becoming EOL in the next year:</p>
 
-<table id="allresults">
+<table class="report">
   <thead>
   <tr>
     <th>Model Name</th>
@@ -45,7 +45,7 @@
 
 <p>Active devices whose model type is becoming End of Life in the next year (showing the first 40)</p>
 
-<table>
+<table class="report">
   <thead>
   <tr>
     <th>Name</th>
@@ -66,9 +66,9 @@
     
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
-      <td><a href="locations?location_id=[% host.location_id | html_entity %]">[% host.location_name | html_entity %]</a></td>
+      <td>[% host.location_name | html_entity %]</td>
       <td>[% host.status_state | html_entity %]</td>
-      <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
+      <td>[% host.model_name | html_entity %] ([% host.manufacturer_name | html_entity %])</td>
       <td>[% host.lastchecked | html_entity %]</td>
     </tr>
   [%- END -%]

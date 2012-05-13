@@ -1,4 +1,4 @@
-<h3>[% pagetitle | html_entity %]</h3>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%]
 [%- INCLUDE inventory_include_hashmessage.tt -%]
@@ -15,18 +15,24 @@
 [% STOP %]
 [% END %]
 
-[%- invoiced = 0 -%]
+[%- invoiced  = 0 -%]
+[%- noinvoice = 0 -%]
 [%- active = 0 -%]
 [%- oneyear   = 0 -%]
   [%- FOR host IN hosts -%]
     [%- NEXT IF host.status_state != 'ACTIVE' -%]
     [%- IF host.invoice_id -%]
         [%- invoiced = invoiced +1 -%]
+    [%- ELSE -%]
+        [%- noinvoice = noinvoice + 1 -%]
     [%- END -%]
     [%- active = active +1 -%]
 [%- END -%]
 
-<p>There are <strong>[% active | html_entity %]</strong> active devices under and <strong>[% invoiced | html_entity %]</strong> not under a valid support invoice.</p>
+<p>
+   There are <strong>[% active | html_entity %]</strong> active devices, 
+   <strong>[% invoiced | html_entity %]</strong> are associated with an invoice, 
+   <strong>[% noinvoice %]</strong> are not related to a support invoice.</p>
 
 <div id="rightcolumn">
 
@@ -37,24 +43,16 @@
 <p>[WIP] <a href="">Print all hosts not under a support invoice</a></p>
 <p>[WIP] <a href="">Print all hosts indexed by support invoice</a></p>
 <p>[WIP] <a href="">Print active hosts indexed by support invoice</a></p>
-<p>[WIP] <a href="">Print this report</a></p>
+<p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
 
-<script>
-    <!--
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
-    -->
-</script>
 
 <!-- alerts and potential projects -->
 <div id="accordion">
-    [% # INCLUDE inventory_report_invoiceendssoon.tt %]
-    [% # INCLUDE inventory_report_noinvoice.tt %]
+    [% INCLUDE inventory_report_noinvoice.tt %]
 </div>
 <!-- end alerts -->
 
@@ -66,7 +64,7 @@ $(document).ready(function() {
 
 [%- INCLUDE inventory_include_tablesort.tt -%]
 
-<table id="allresults" class="tablesorter report">
+<table id="allresults" class="report">
   <thead>
   <tr>
     <th>Description</th>
@@ -107,3 +105,26 @@ $(document).ready(function() {
 [% END %] <!-- end tables of invoices -->
 
 </div> <!-- end middle column -->
+
+<script type="text/javascript">
+<!--
+
+$(document).ready(function(){
+      $("#allresults").tablesorter({
+          sortList:[[0,0], [1,0]],
+          // widgets: ['zebra'],
+          textExtraction:"complex",
+          headers: { 
+              2: { 
+              // disable sorting on host status breakdown 
+              sorter: false } 
+          },  
+      }); 
+});
+
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+
+-->
+</script>

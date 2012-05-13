@@ -21,7 +21,7 @@
 $("#nocontract").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
 </script>
 
-<table id="nocontract">
+<table id="nocontract" class="report">
   <thead>
   <tr>
     <th>Name</th>
@@ -46,7 +46,7 @@ $("#nocontract").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], })
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
       <td>[% host.location_name | html_entity %]</td>
       <td>[% host.model_name | html_entity %]</td>
-      <td>[% IF host.contract_id %]<a href="contracts&id=[% host.contract_id %]">[% host.contract_name | html_entity %]</a>[% END %]</td>
+      <td>[% IF host.contract_id %] [% host.contract_name | html_entity %] [% END %]</td>
     </tr>
   [%- END -%]
   </tbody>

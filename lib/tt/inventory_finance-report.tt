@@ -1,4 +1,4 @@
-<h3>[% pagetitle | html_entity %]</h3>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%]
 [%- INCLUDE inventory_include_hashmessage.tt -%]
@@ -23,7 +23,7 @@
 <p>[WIP] <a href="">Print all invoices from the past 365 days</a></p>
 <p>[WIP] <a href="">Print all hosts indexed by invoice</a></p>
 <p>[WIP] <a href="">Print all hosts without an invoice</a></p>
-<p>[WIP] <a href="">Print this report</a></p>
+<p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
 

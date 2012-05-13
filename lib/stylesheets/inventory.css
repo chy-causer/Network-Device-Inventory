@@ -223,6 +223,9 @@ a:link img, a:visited img {
     text-decoration:none;
 }
 
+#sidebar a { text-decoration: none; }
+#invbar a { text-decoration: none; }
+
 /* inventory */
 .error {
     font-weight: bold;
@@ -773,6 +776,23 @@ form#reset {
 }
 div#middlecolumn {
     width: 60%;
+}
+
+/* all center aligned except first column */
+tbody.leftfirst tr td { text-align:center;  }
+tbody.leftfirst tr td:first-child { text-align:left; }
+
+/* all left aligned except last column */
+tbody.middlelast tr td { text-align:left;  }
+tbody.middlelast tr td:last-child {  text-align:center; }
+
+/* row selection */
+tr.highlight, tr.highlight td  { color: black; background-color: #4887ab; }
+
+table.report tr:hover { color: white; background-color: #4887ab; }
+
+table.report td {
+    border-bottom: 1px solid #F0F0F0;
 }
 
 /*

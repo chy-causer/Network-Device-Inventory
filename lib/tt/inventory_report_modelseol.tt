@@ -27,7 +27,7 @@
 
 <p>Model types in active use that have reached EOL</p>
 
-<table id="allresults">
+<table class="report">
   <thead>
   <tr>
     <th>Model Name</th>
@@ -51,7 +51,7 @@
 
 <p>Active devices whose model type has reached End of Life (showing the first 40)</p>
 
-<table>
+<table class="report">
   <thead>
   <tr>
     <th>Name</th>

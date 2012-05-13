@@ -1,9 +1,11 @@
 [% noinvoice = 0 %]
-
 [%- FOR host IN hosts -%]
-   [%- NEXT IF ( host.invoice_enddate_daysremaining || 0 ) > 1 -%]
-   [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
-   [% noinvoice = noinvoice + 1 %]
+   [%- NEXT IF host.status_state != 'ACTIVE' -%]
+    [%- IF host.invoice_id -%]
+        [%- invoiced = invoiced +1 -%]
+    [%- ELSE -%]
+        [%- noinvoice = noinvoice + 1 -%]
+    [%- END -%]
 [%- END -%]
 
 [%- IF noinvoice < 1 -%]
@@ -24,7 +26,7 @@ $("#noinvoice").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
 -->
 </script>
 
-<table id="noinvoice">
+<table id="noinvoice" class="report">
   <thead>
   <tr>
     <th>Name</th>

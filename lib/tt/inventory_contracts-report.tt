@@ -1,4 +1,4 @@
-<h3>[% pagetitle | html_entity %]</h3>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%]
 [%- INCLUDE inventory_include_hashmessage.tt -%]
@@ -41,19 +41,12 @@
 <p>[WIP] <a href="">Print all hosts not under a support contract</a></p>
 <p>[WIP] <a href="">Print all hosts indexed by support contract</a></p>
 <p>[WIP] <a href="">Print active hosts indexed by support contract</a></p>
-<p>[WIP] <a href="">Print this report</a></p>
+<p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
 
-<script>
-    <!--
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
-    -->
-</script>
 
 <!-- alerts and potential projects -->
 <div id="accordion">
@@ -70,11 +63,10 @@ $(document).ready(function() {
 
 [%- INCLUDE inventory_include_tablesort.tt -%]
 
-<table id="allresults" class="tablesorter report">
+<table id="allresults" class="report">
   <thead>
   <tr>
     <th>Contracts Name</th>
-    <th>Serial</th>
     <th>Start Date - End Date</th>
     <th>Days Remaining</th>
     <th>Invoice</th>
@@ -86,12 +78,11 @@ $(document).ready(function() {
     <tr><td colspan="6">There were [% contracts.size | html_entity %] contracts returned by the database</td></tr>
   </tfoot>
 
-  <tbody>
+  <tbody class="leftfirst">
   [% FOR contract IN contracts %]
-    [% NEXT IF ( contract.enddate_daysremaining || 0 ) >= 1 %]
+    [% NEXT IF ( contract.enddate_daysremaining || 0 ) < 1 %]
     <tr>
       <td>[% contract.name                | html_entity %]</td>
-      <td>[% contract.serial              | html_entity %]</td>
       <td>[% contract.startdate           | html_entity %] - [% contract.enddate             | html_entity %]</td>
       <td>[% contract.enddate_daysremaining      | html_entity %]</td>
       <td>[% contract.invoice_description | html_entity %]</td>
@@ -104,3 +95,21 @@ $(document).ready(function() {
 [% END %] <!-- end tables of contracts -->
 
 </div> <!-- end middle column -->
+
+<script>
+<!--
+
+$(document).ready(function() {
+    $("#accordion").accordion({ autoHeight: false });
+});
+
+$(document).ready(function(){
+      $("#allresults").tablesorter({
+          sortList:[[0,0], [1,0]],
+          // widgets: ['zebra'],
+          textExtraction:"complex",
+      }); 
+});
+
+-->
+</script>

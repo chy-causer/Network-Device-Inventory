@@ -1,9 +1,8 @@
 <div>
-<h3>[% pagetitle | html_entity %]</h3>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
-
 
 [% IF locations.size < 1 %]
  <div class="ui-widget">
@@ -30,19 +29,11 @@
 
  <p><a href="">[WIP] Print all hosts indexed by location</a></p>
  <p><a href="">[WIP] Print active hosts indexed by location</a></p>
- <p><a href="">[WIP] Print this report</a></p>
+ <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
-
-<script>
-    <!--
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
-    -->
-</script>
 
 <!-- summary --> 
 [%- livehosts=0 %]
@@ -71,7 +62,7 @@ $(document).ready(function() {
   <tr>
     <th>Location Name</th>
     <th>Active Hosts</th>
-    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock </th>
   </tr>
   </thead>
 
@@ -79,6 +70,7 @@ $(document).ready(function() {
     <tr><td colspan="5">There were [% locations.size | html_entity %] locations returned by the database</td></tr>
   </tfoot>
 
+  <tbody class="leftfirst">
   [%- FOR location IN locations -%]
        [%- id = location.id -%]
        [%- count_sum = ( location_counts.$id.active || 0 ) + ( location_counts.$id.inactive || 0 ) + ( location_counts.$id.instock || 0 ) -%]
@@ -91,11 +83,10 @@ $(document).ready(function() {
         <span class="status-active">[% (location_counts.$id.active || 0)      | html_entity %] </span> / 
         <span class="status-inactive">[% (location_counts.$id.inactive || 0)  | html_entity %] </span> / 
         <span class="status-instock">[% (location_counts.$id.instock || 0)   | html_entity %] </span> / 
-        <span class="status-decommissioned">[% (location_counts.$id.decommissioned || 0) | html_entity %] </span>
       </td>
    </tr>
   [% END %]
-</tbody>
+  </tbody>
 
 </table>
 </div> <!-- end middle column -->    
@@ -104,20 +95,18 @@ $(document).ready(function() {
 
 <script type="text/javascript">
 
-$(document).ready(function(){ 
-        $("#allresults").tablesorter(
-            { 
-            headers: { 
-               4: { 
-                // disable sorting on host status breakdown 
-                sorter: false } 
-               }, 
-
-           textExtraction:"complex",
-        
-        }); 
-    } 
-);
+$(document).ready(function(){
+      $("#allresults").tablesorter({
+          sortList:[[0,0], [1,0]],
+          // widgets: ['zebra'],
+          textExtraction:"complex",
+          headers: { 
+              2: { 
+              // disable sorting on host status breakdown 
+              sorter: false } 
+          },  
+      }); 
+});
 
 function gethosts(location_name){
    

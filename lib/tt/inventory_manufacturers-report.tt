@@ -1,9 +1,8 @@
 <div>
-<h3>[% pagetitle | html_entity %]</h3>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
-
 
 [% IF manufacturers.size < 1 %]
  <div class="ui-widget">
@@ -17,32 +16,22 @@
 [% STOP %]
 [% END %]
 
-<div>
-
 <div id="rightcolumn">
 
  [% INCLUDE inventory_graph_manufacturers.tt %]
 
- <h4>Specific Hosts by Manufactur</h4>
+ <h4>Specific Hosts by Manufacturer</h4>
     <div id="hosts-bymanufacturer">Select a manufacturer above</div>
 
  <h4>Print Options</h4>
 
  <p><a href="">[WIP] Print all devices indexed by manufacturer</a></p>
  <p><a href="">[WIP] Print active devices indexed by manufacturer</a></p>
- <p><a href="">[WIP] Print this report</a></p>
+ <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
-
-<script>
-    <!--
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
-    -->
-</script>
 
 <!-- summary --> 
 [%- livehosts=0 %]
@@ -55,7 +44,7 @@ $(document).ready(function() {
      [%- livehosts = livehosts + host_counts.$id.active %]
 [%- END -%]
 
-<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livemanufacturers %]</strong> seperate manufacturer types.</p>
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livemanufacturers %]</strong> separate manufacturer types.</p>
 <!-- end summary -->
 
 <!-- alerts and potential projects -->
@@ -73,7 +62,7 @@ $(document).ready(function() {
   <tr>
     <th>Manufacture Name</th>
     <th>Active Hosts</th>
-    <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
+    <th>Breakdown by Host State<br />Active / Inactive / In stock</th>
   </tr>
   </thead>
 
@@ -81,20 +70,27 @@ $(document).ready(function() {
     <tr><td colspan="5">There were [% livemanufacturers | html_entity %] manufacturers returned by the database</td></tr>
   </tfoot>
 
+  <tbody class="leftfirst">
+
   [% previous_rows_manufacturerid='none' %]
   [%- FOR manufacturer IN manufacturers -%]
        [%- id = manufacturer.id -%]
        [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
        [%- NEXT IF ( host_counts.$id.active || 0 ) < 1 %] 
-      
+
+<!--
+    <tr id="[% manufacturer.id | html_entity %]" 
+        onclick='RowClick([% manufacturer.id | html_entity %]);'
+        onmouseover='ChangeColour("[% manufacturer.id | html_entity %]");'>
+-->
+
     <tr>
       <td>[% manufacturer.name | html_entity %]</td>
       <td>[% (host_counts.$id.active || 0)  | html_entity %]</td>
       <td>
         <span class="status-active">[% (host_counts.$id.active || 0)      | html_entity %] </span> / 
         <span class="status-inactive">[% (host_counts.$id.inactive || 0)  | html_entity %] </span> / 
-        <span class="status-instock">[% (host_counts.$id.instock || 0)   | html_entity %] </span> / 
-        <span class="status-decommissioned">[% (host_counts.$id.decommissioned || 0) | html_entity %] </span>
+        <span class="status-instock">[% (host_counts.$id.instock || 0)   | html_entity %] </span>  
       </td>
    </tr>
   [% END %]
@@ -105,22 +101,44 @@ $(document).ready(function() {
 
 </div> <!-- page end -->
 
+
+
+
+
+
+
+
+
+
+
 <script type="text/javascript">
+<!--
 
-$(document).ready(function(){ 
-        $("#allresults").tablesorter(
-            { 
-            headers: { 
-               4: { 
-                // disable sorting on host status breakdown 
-                sorter: false } 
-               }, 
+// function ChangeColour(tableRow, highLight) {{
+//    if (highLight) {
+//      tableRow.class = 'highlight';
+//    }
+//    else {
+//      tableRow.class = '';
+//    }
+// };
 
-           textExtraction:"complex",
-        
-        }); 
-    } 
-);
+// function RowClick(tableRow) {
+//   alert( "You choose Table Row #" + tableRow );
+// };
+
+$(document).ready(function(){
+      $("#allresults").tablesorter({
+          sortList:[[0,0], [1,0]],
+          // widgets: ['zebra'],
+          textExtraction:"complex",
+          headers: { 
+              2: { 
+              // disable sorting on host status breakdown 
+              sorter: false } 
+          },  
+      }); 
+});
 
 function gethosts(manufacturer_name){
    
@@ -141,5 +159,5 @@ function gethosts(manufacturer_name){
 $(document).ready(function() {
     $("#accordion").accordion({ autoHeight: false });
 });
-
+-->
 </script>

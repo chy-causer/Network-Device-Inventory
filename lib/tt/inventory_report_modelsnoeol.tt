@@ -15,7 +15,7 @@
 <div>
 <p>Model types with no End of Life dates:</p>
 
-<table>
+<table class="report">
 
 [%#
  We break loop.index so have to use a counter
