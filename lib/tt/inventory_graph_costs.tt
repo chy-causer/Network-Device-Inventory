@@ -1,5 +1,5 @@
 <h5>Expenditure Over Time</h5>
-[%- IF costpermonth.keys.size < 1 %]
+[%- IF costpermonth.size < 1 %]
        <p>There is no expenditure recorded at this time</p>
 [%- ELSE %]
     <div id="costgraph" class="graph"></div>
@@ -8,25 +8,31 @@
 <script type="text/javascript">
 <!--
 $(function () {
-    var data = [
-    [%- FOR month IN costpermonth.keys -%]
-       { label: "[% month | html_entity %]",  data: "[% costpermonth.$month | html_entity %]" },
+
+    var dataset = [
+    [%- FOR entry IN costpermonth -%]
+       [[% entry.month_javascript | html_entity %], [% entry.cost | html_entity %]],
     [%- END -%]
     ];
 
-    var options = {
-        series: {
-            lines: {show: false, steps: false },
-            bars:  {show: true, barWidth: 0.9, align: 'center',},
+    $.plot($("#costgraph"), [dataset], {
+        bars: {
+           show: true
+        },
+        yaxis: {
+           mode: "currency",
         },
         xaxis: {
+           min: Date.UTC(2010, 0, 0, 0, 0), 
+           max: Date.UTC(2013, 1, 0, 0, 0),
            mode: "time",
-           timeformat: "%y/%m/%d",
-        }
-     };
-
-    $.plot($("#costgraph"), data, options ); 
-
+           labelAngle: 45,
+        },
+        legend: {
+            show: false,
+        },
+    });
 });
+
 -->
 </script>

@@ -447,18 +447,20 @@ sub cost_per_month {
     my $sth = $dbh->prepare("
                SELECT 
                      SUM(totalcost) AS cost,
-                     date_trunc('month', date)::date AS month 
+                     date_trunc('month', date)::date AS month,
+                     date_part('epoch', (date AT TIME ZONE 'GMT')::timestamp)*1000 AS month_javascript 
                FROM invoices
-               GROUP BY date_trunc('month', date)
+               GROUP BY month, month_javascript
+               ORDER BY month_javascript
         ");
     return if not $sth->execute();
 
-    my %data;
+    my @data;
     while ( my $ref = $sth->fetchrow_hashref ) {
-          $data{ $ref->{'month'} } = $ref->{'cost'};
+          push @data, $ref;
     }
-
-    return \%data;
+    
+    return @data;
 }
 
 1;

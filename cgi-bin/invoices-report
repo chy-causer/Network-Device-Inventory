@@ -2,7 +2,45 @@
 
 use warnings FATAL => 'all';
 use strict;
+
+=pod
+
+=head1 NAME
+
+Invoices Report
+
+=head1 DESCRIPTION
+
+Show useful summaries based on the invoice data
+
+=head1 VERSION
+
+This documentation refers to version 1.0.2
+
+=cut
+
 our $VERSION = '1.02';
+
+=pod
+
+=head1 DEPENDENCIES
+
+Carp
+CGI
+Config::Tiny
+DBD::Pg
+DBI
+Log::Log4perl
+Readonly
+Template
+
+Inventory 1.0
+Inventory::Invoices 1.04
+Inventory::Suppliers 1.0
+Inventory::Contacts 1.0
+Inventory::Hosts 1.02
+
+=cut
 
 use Carp;
 use CGI;
@@ -28,6 +66,14 @@ $HOSTNAME =~ s/\..*$//gx;
 # remove everything from the start to the last /
 $HOSTNAME =~ s/^.*\///gx;
 
+=pod
+
+=head1 CONFIGURATION
+
+via /srv/www/$HOSTNAME/lib/inventory.ini
+
+=cut
+
 my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
 $CONFIG = Config::Tiny->read("$CONFIG_FILE");
@@ -47,6 +93,8 @@ my $logger = Log::Log4perl->get_logger();
 
 Readonly my $PAGETITLE => 'Invoice Report';
 Readonly my $SECTIONTITLE => 'reports';
+
+my %message;    # communicate success or failure
 
 #############################################################################
 #                                     main                                  #
@@ -77,14 +125,12 @@ if ( !exists $CONFIG->{general}->{demo} ) {
     Inventory::acl_checker( $tt, $valid_users );
 }
 
-my %message;    # communicate success or failure
-
 my @invoices       = Inventory::Invoices::get_invoices_info($dbh);
 my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
 my @contacts       = Inventory::Contacts::get_contacts_info( $dbh );
 my @suppliers      = Inventory::Suppliers::get_suppliers_info( $dbh );
 my $hostsbyinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
-my $costpermonth   = Inventory::Invoices::cost_per_month( $dbh );
+my @costpermonth   = Inventory::Invoices::cost_per_month( $dbh );
 
 $tt->process(
     'inventory_invoice-report.tt',
@@ -95,39 +141,21 @@ $tt->process(
         invoices       => \@invoices,
         hostsbyinvoice => $hostsbyinvoice,
         message        => \%message,
-        costpermonth   => $costpermonth,
+        costpermonth   => \@costpermonth,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+
 $tt->process( 'inventory_footer.tt', {} );
 
 __END__
 
-=head1 NAME
-Invoices
-
-=head1 VERSION
-
-This documentation refers to version 1.0.0 
+=pod
 
 =head1 USAGE
 
 =head1 REQUIRED ARGUMENTS
 
 =head1 OPTIONS
-
-=head1 DESCRIPTION
-
-Lets the user view and edit the list of hardware invoices that the inventory database knows about
-
-=head1 DIAGNOSTICS
-
-error messages
-
-=head1 CONFIGURATION
-
-/srv/www/$HOSTNAME/lib/inventory.ini
-
-=head1 DEPENDENCIES
 
 =head1 INCOMPATIBILITIES
 
