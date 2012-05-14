@@ -1,0 +1,183 @@
+#!/usr/bin/perl
+
+use warnings FATAL => 'all';
+use strict;
+
+=pod
+
+=head1 NAME
+
+Manufacturers Print
+
+=head1 DESCRIPTION
+
+Show basic data based on the manufacturer data
+
+=head1 VERSION
+
+This documentation refers to version 1.02
+
+=cut
+
+our $VERSION = '1.02';
+
+=pod
+
+=head1 DEPENDENCIES
+
+Carp
+CGI
+Config::Tiny
+DBD::Pg
+DBI
+Log::Log4perl
+Readonly
+Template
+
+Inventory 1.0
+Inventory::Hosts 1.02
+Inventory::Manufacturers 1.02
+
+=cut
+
+use Carp;
+use CGI;
+use Config::Tiny;
+use DBD::Pg;
+use DBI;
+use Log::Log4perl;
+use Readonly;
+use Template;
+
+use Inventory 1.0;
+use Inventory::Hosts 1.02;
+use Inventory::Manufacturers 1.02;
+
+my $HOSTNAME = CGI::url( -base => 1 );
+my $BASEURL = $HOSTNAME;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+=pod
+
+=head1 CONFIGURATION
+
+via /srv/www/$HOSTNAME/lib/inventory.ini
+
+=cut
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost      = $CONFIG->{'database'}->{db_host};
+my $dbname      = $CONFIG->{'database'}->{db_name};
+my $dbuser      = $CONFIG->{'database'}->{db_user};
+my $dbpass      = $CONFIG->{'database'}->{db_pass};
+my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
+my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
+
+Log::Log4perl->init($logconfigfile);
+my $logger = Log::Log4perl->get_logger();
+
+Readonly my $PAGETITLE => 'Manufacturer Report';
+Readonly my $SECTIONTITLE => 'reports';
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
+
+# print the stock header (banner and title)
+$tt->process( 'inventory_print_header.tt', { pagetitle    => $PAGETITLE, });
+
+=pod
+
+=head1 OPTIONS
+
+use with ?selection=active to only show active hosts
+
+default is to show all hosts
+
+I differentiate between get and post, not everyone agrees with this but
+there is an RFC2616 that suggests that we should. I do so for behaviour not
+security reasons.
+
+=cut
+
+my %gets = Inventory::populate_query_fields();    # not strictly a get field
+
+# invalid users get no further than the next line
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
+}
+
+my $selection='all';
+if( exists $gets{'selection'} ){
+   $selection=$gets{'selection'};
+}
+
+my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
+my @manufacturers       = Inventory::Manufacturers::get_manufacturers_info($dbh);
+my $hostsbymanufacturer = Inventory::Manufacturers::hash_hosts_permanufacturer( $dbh );
+
+$tt->process(
+    'inventory_manufacturers-print.tt',
+    {
+        hosts          => \@hosts,
+        selection      => $selection,
+        manufacturers       => \@manufacturers,
+        hostsbymanufacturer => $hostsbymanufacturer,
+    }
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+
+
+__END__
+
+=pod
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+Network Device Inventory - keep a database of devices to feed other systems
+(such as monitoring software). Copyright 2007 University of Oxford
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+The University of Oxford agrees to the release under the GPL of in the program
+`Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
+Oxford University Computer Services.
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
+also agreed to the code release under the GPL.

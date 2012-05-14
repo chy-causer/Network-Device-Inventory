@@ -25,8 +25,8 @@
 
  <h4>Print Options</h4>
 
- <p><a href="">[WIP] Print all devices indexed by manufacturer</a></p>
- <p><a href="">[WIP] Print active devices indexed by manufacturer</a></p>
+ <p><a href="manufacturers-print?selection=all">Print all devices indexed by manufacturer</a></p>
+ <p><a href="manufacturers-print?selection=active">Print active devices indexed by manufacturer</a></p>
  <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->

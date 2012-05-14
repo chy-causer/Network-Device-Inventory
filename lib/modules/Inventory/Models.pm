@@ -492,12 +492,12 @@ sub hash_hosts_permodel {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        if ( !exists( $index{ $ref->{'model_name'} } ) ) {
+        if ( !exists( $index{ $ref->{'model_id'} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'model_name'} } = \@data;
+            $index{ $ref->{'model_id'} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'model_name'} } }, $ref;
+            push @{ $index{ $ref->{'model_id'} } }, $ref;
         }
     }
 

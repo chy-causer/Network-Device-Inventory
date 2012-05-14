@@ -363,12 +363,12 @@ sub hash_hosts_permanufacturer {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        if ( !exists( $index{ $ref->{'manufacturers_name'} } ) ) {
+        if ( !exists( $index{ $ref->{'manufacturer_id'} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'manufacturers_name'} } = \@data;
+            $index{ $ref->{'manufacturer_id'} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'manufacturers_name'} } }, $ref;
+            push @{ $index{ $ref->{'manufacturer_id'} } }, $ref;
         }
     }
 

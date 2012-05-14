@@ -1,0 +1,42 @@
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
+
+[% IF models.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware models at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+[%- IF selection == 'active' -%]
+   <h3>Active Hosts Indexed by Model</h3>
+[%- ELSIF selection == 'all' -%]
+   <h3>All Hosts Indexed by Model (Regardless of Status)</h3>
+[%- END -%]
+
+[%- FOREACH model IN hostsbymodel.keys -%]
+       
+       <div id="model-[% model | html_entity %]" class="bymodel">
+          [%- FOREACH ldetails IN models -%]
+              [%- IF ldetails.id == model -%]
+                  <p>Of Model Type "[% ldetails.name | html_entity %]" ([% ldetails.manufacturer_name | html_entity %])</p>
+              [%- END -%]
+          [%- END -%]
+
+          <ul>
+          [%- FOREACH host IN hostsbymodel.$model -%]
+             [%- NEXT IF selection == 'active' && host.status_state !='ACTIVE' -%]
+             <li>[% host.name | html_entity %] 
+                  [%- IF selection == 'all' %] [ [% host.status_state | html_entity %] ] [% END -%]
+             </li>
+          [%- END -%]
+          </ul>
+       </div>
+
+[%- END -%]
+ </body>
+</html>

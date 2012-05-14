@@ -28,8 +28,8 @@
 
  <h4>Print Options</h4>
 
- <p><a href="">[WIP] Print all hosts indexed by model</a></p>
- <p><a href="">[WIP] Print active hosts indexed by model</a></p>
+ <p><a href="models-print?selection=all">Print all hosts indexed by model</a></p>
+ <p><a href="models-print?selection=active">Print active hosts indexed by model</a></p>
 <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
