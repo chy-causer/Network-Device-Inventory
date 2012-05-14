@@ -797,6 +797,10 @@ table.report td {
     border-bottom: 1px solid #F0F0F0;
 }
 
+abbr {
+    border-bottom: 1px solid #F0F0F0;
+}
+
 /*
 LICENSE AND COPYRIGHT
 

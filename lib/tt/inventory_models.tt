@@ -9,6 +9,8 @@
 [%- description = 'This page lists the hardware models we maintain.' -%]
 [%- INCLUDE inventory_include_hashmessage.tt -%]
 
+[%- cisco_eol_desc='The last date to receive service and support for the product. After this date, all support services for the product are unavailable, and the product becomes obsolete.' -%]
+
 [% IF edit %]
 <form action="models" method="post">
  <fieldset><legend>Edit an existing entry</legend>
@@ -27,7 +29,12 @@
           [% END %]
          </select>
          </td></tr>
-        <tr><th>End of Life Date</th><td><input type="text" id="dateeol_edit" name="model_dateeol" maxlength="15" value="[% model.dateeol | html_entity %]" /> (if known)</td></tr>
+       <tr>
+           <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
+           <td><input type="text" id="dateeol" value="[% model.dateeol | html_entity %]" name="model_dateeol" maxlength="15" />
+        (optional, leave blank if not known)
+
+        </td></tr>
         <tr><td colspan="2">
         
         <input type="hidden" name="model_id" value="[% model.id | html_entity %]" />
@@ -75,7 +82,11 @@
           <option value="[% manufacturer.id | html_entity %]">[% manufacturer.name | html_entity %]</option>
           [% END %]
           </select></td></tr>
-       <tr><th>End of Life Date </th><td><input type="text" id="dateeol" name="model_dateeol" maxlength="15" /> (if known)</td</tr>
+       <tr>
+         <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
+         <td><input type="text" id="dateeol" name="model_dateeol" maxlength="15" />
+        (optional, leave blank if not known)
+       </td</tr>
       <tr><td colspan="2">
         <input type="hidden" name="create" value="edit" />
         <input type="submit" value="Create Entry" />
@@ -100,7 +111,7 @@
     <th></th>
     <th>Model Name</th>
     <th>Manufacturer</th>
-    <th>End of life</th>
+    <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of Hardware Support</abbr></th>
   </tr>
   </thead>
 

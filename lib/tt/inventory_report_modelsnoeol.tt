@@ -10,10 +10,10 @@
 
 [%- ELSE -%]
 
-<h3><a href="#">[% total_noeol %] model types need End of Life dates entered if available</a></h3>
+<h3><a href="#">[% total_noeol %] model types need the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> entered if available</a></h3>
 
 <div>
-<p>Model types with no End of Life dates:</p>
+<p>Model types with no the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> entered:</p>
 
 <table class="warning-report">
 

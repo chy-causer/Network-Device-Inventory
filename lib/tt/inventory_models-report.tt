@@ -17,6 +17,8 @@
 [% STOP %]
 [% END %]
 
+[%- cisco_eol_desc='The last date to receive service and support for the product. After this date, all support services for the product are unavailable, and the product becomes obsolete.' -%]
+
 <div>
 
 <div id="rightcolumn">
@@ -82,8 +84,8 @@
   <tr>
     <th>Model Name</th>
     <th>Active Hosts</th>
-    <th>Days until <abbr title="End of Life">EoL</abbr></th>
-    <th>Date of <abbr title="End of Life">EoL</abbr></th>
+    <th>Days until <abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
+    <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
     <th>Breakdown by Host State<br />Active / Inactive / In stock / Decommissioned</th>
   </tr>
   </thead>

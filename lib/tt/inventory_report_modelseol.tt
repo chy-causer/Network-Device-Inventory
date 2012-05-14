@@ -21,17 +21,23 @@
 
 [%- ELSE -%]
 
-<h3><a href="#">[% ( expired.keys.size || 0 ) %] model types in active use are End of Life, affecting [% countexpired %] devices</a></h3>
+<h3><a href="#">[% ( expired.keys.size || 0 ) %] model types in active use
+have reached the 
+
+<abbr title="[% cisco_eol_desc | html_entity %]">
+last date of hardware support</abbr>, affecting [% countexpired %] devices</a></h3>
 
 <div>
 
-<p>Model types in active use that have reached EOL</p>
+<p>Model types in active use that have reached the 
+<abbr title="[% cisco_eol_desc | html_entity %]">
+last date of hardware support</abbr></p>
 
 <table class="warning-report">
   <thead>
   <tr>
     <th>Model Name</th>
-    <th>End of life</th>
+    <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
   </tr>
   </thead>
 
@@ -49,7 +55,8 @@
   </tbody>
 </table>
 
-<p>Active devices whose model type has reached End of Life (showing the first 40)</p>
+<p>Active devices whose model type has reached the 
+<abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> (showing the first 40)</p>
 
 <table class="warning-report">
   <thead>

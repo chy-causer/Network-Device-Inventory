@@ -12,7 +12,9 @@
 
 [%- ELSE -%]
 
-<h3><a href="#">[% totalmodels_eol_thisyear %] model types become End of Life in the next year, affecting [% hostseolyear.size %] devices</a></h3>
+<h3><a href="#">[% totalmodels_eol_thisyear %] model types reach the 
+<abbr title="[% cisco_eol_desc | html_entity %]">
+last date of hardware support</abbr> in the next year, affecting [% hostseolyear.size %] devices</a></h3>
 
 <div>
 
@@ -22,7 +24,9 @@
   <thead>
   <tr>
     <th>Model Name</th>
-    <th>End of life</th>
+    
+    <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
+
   </tr>
   </thead>
 
@@ -43,7 +47,7 @@
 
 </table>
 
-<p>Active devices whose model type is becoming End of Life in the next year (showing the first 40)</p>
+<p>Active devices whose model type is ireaching the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> in the next year (showing the first 40)</p>
 
 <table class="warning-report">
   <thead>
