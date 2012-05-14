@@ -22,13 +22,30 @@
 
  [% INCLUDE inventory_graph_locations.tt %]
 
- <h4>Specific Hosts by Location</h4>
-    <div id="hosts-bylocation">Select a location above</div>
+ <h4>Active Hosts by Specific Location</h4>
+    <div id="hosts-bylocation"> (Select a location from the table) </div>
+
+    [% FOREACH location IN hostsbylocation.keys %]
+       
+       <div id="location-[% location | html_entity %]" class="bylocation" style="display:none">
+          [% FOREACH ldetails IN locations %]
+              [% IF ldetails.id == location %]
+                  <p>Active hosts at [% ldetails.name | html_entity %]</p>
+              [% END %]
+          [% END %]
+
+          <ul>
+          [% FOREACH host IN hostsbylocation.$location %]
+             <li>[% host.name | html_entity %] [% host.model_name | html_entity %]</li>
+          [% END %]
+          </ul>
+       </div>
+    [% END %]
 
  <h4>Print Options</h4>
 
- <p><a href="">[WIP] Print all hosts indexed by location</a></p>
- <p><a href="">[WIP] Print active hosts indexed by location</a></p>
+ <p><a href="locations-print?selection=all">Print all hosts indexed by location</a></p>
+ <p><a href="locations-print?selection=active">Print active hosts indexed by location</a></p>
  <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
@@ -76,7 +93,7 @@
        [%- count_sum = ( location_counts.$id.active || 0 ) + ( location_counts.$id.inactive || 0 ) + ( location_counts.$id.instock || 0 ) -%]
        [%- NEXT IF ( location_counts.$id.active || 0 ) < 1 %] 
       
-    <tr>
+    <tr onclick="ShowId([% location.id %] )">
       <td>[% location.name | html_entity %]</td>
       <td>[% (location_counts.$id.active || 0)  | html_entity %]</td>
       <td>
@@ -127,5 +144,24 @@ function gethosts(location_name){
 $(document).ready(function() {
     $("#accordion").accordion({ autoHeight: false });
 });
+
+function ShowId(id) {
+    var mainclass = "bylocation";
+
+    // hide the helptext, which is first show when no selection has been made
+    document.getElementById("hosts-bylocation").style.display = "none";
+    
+    // hide all results
+    var elements = document.getElementsByTagName('*');
+    for (i=0; i<elements.length; i++){
+           if (elements[i].className==mainclass){
+       elements[i].style.display="none"
+       }
+    }
+    
+    // show the selected result
+    document.getElementById("location-" + id ).style.display = "";
+
+}
 
 </script>

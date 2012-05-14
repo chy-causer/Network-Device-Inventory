@@ -293,12 +293,12 @@ sub hash_hosts_perlocation {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        if ( !exists( $index{ $ref->{'location_name'} } ) ) {
+        if ( !exists( $index{ $ref->{'location_id'} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'location_name'} } = \@data;
+            $index{ $ref->{'location_id'} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'location_name'} } }, $ref;
+            push @{ $index{ $ref->{'location_id'} } }, $ref;
         }
     }
 

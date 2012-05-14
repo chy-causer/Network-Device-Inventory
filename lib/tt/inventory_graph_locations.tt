@@ -1,4 +1,4 @@
-<h5>Active Hosts per Location Model</h5>
+<h5>Active Hosts per Location</h5>
 [%- IF locations.size < 1 %]
        <p>There are no locations to graph at this time</p>
 [%- ELSE %]
@@ -43,8 +43,8 @@ $.plot($("#locationgraph"), data,
             }
         },
         grid: {
-            hoverable: true,
-            clickable: true,
+        //    hoverable: true,
+        //    clickable: true,
         },
         legend: {
             show: false
@@ -63,7 +63,8 @@ function pieHover(event, pos, obj) {
 function pieClick(event, pos, obj) {
     if (!obj)
              return;
-    gethosts('+obj.series.label+');
+    // we have no way of passing the id to this function yet
+    // ShowId('+obj.series.id+');
 }
 
 });

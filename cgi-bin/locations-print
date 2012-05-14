@@ -44,7 +44,7 @@ my $logger = Log::Log4perl->get_logger();
 
 my %message;    # communicate success or failure, sink or swim
 
-Readonly my $PAGETITLE => 'Locations';
+Readonly my $PAGETITLE => 'Hosts By location';
 Readonly my $SECTIONTITLE => 'reports';
 
 #############################################################################
@@ -58,18 +58,7 @@ print $q->header();
 my $tt = Template->new(
     { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
-# print the stock header (banner and title)
-$tt->process(
-    'inventory_header.tt',
-    {
-        pagetitle   => $PAGETITLE,
-        sectiontitle => $SECTIONTITLE,
-        baseurl     => $BASEURL,
-        groupname   => $CONFIG->{'general'}->{groupname},
-        appname     => $CONFIG->{'general'}->{appname},
-        companyname => $CONFIG->{'general'}->{companyname},
-    }
-);
+$tt->process( 'inventory_print_header.tt', { pagetitle=>$PAGETITLE, } );
 
 # invalid users get no further than the next line
 if ( !exists $CONFIG->{general}->{demo} ) {
@@ -85,24 +74,36 @@ if ( $ENV{REQUEST_METHOD} eq 'POST' ) {
     %POSTS = $q->Vars;
 }
 
+=pod
+
+=head1 OPTIONS
+
+use with ?selection=active to only show active hosts
+
+default is to show all hosts
+
+=cut
+
+my $selection='all';
+if( exists $gets{'selection'} && $gets{'selection'} eq 'active' ){
+   # only show active hosts
+   $selection='active';
+}
+
 # list all the locations (array of hashes)
 my @locations       = Inventory::Locations::get_locations_info($dbh);
-my %location_counts = %{ Inventory::Locations::count_hosts_perlocation($dbh) };
-my $hosts = Inventory::Hosts::get_hosts_info($dbh);
 my $hostsbylocation = Inventory::Locations::hash_hosts_perlocation( $dbh );
 
 $tt->process(
-    'inventory_locations-report.tt',
+    'inventory_locations-print.tt',
     {
+        selection       => $selection,
         locations       => \@locations,
-        hosts           => $hosts,
         message         => \%message,
-        location_counts => \%location_counts,
         hostsbylocation => $hostsbylocation,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
-$tt->process( 'inventory_footer.tt', {} );
 
 __END__
 

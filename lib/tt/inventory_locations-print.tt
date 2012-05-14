@@ -1,0 +1,42 @@
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
+
+[%- description = '' -%] 
+[%- INCLUDE inventory_include_hashmessage.tt -%] 
+
+[% IF locations.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware locations at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+[% IF selection == 'active' %]
+   <h3>Active hosts indexed by location</h3>
+[% ELSIF selection == 'all' %]
+   <h3>All hosts indexed by location (regardless of status)</h3>
+[% END %]
+
+[% FOREACH location IN hostsbylocation.keys %]
+       
+       <div id="location-[% location | html_entity %]" class="bylocation">
+          [% FOREACH ldetails IN locations %]
+              [% IF ldetails.id == location %]
+                  <p>At [% ldetails.name | html_entity %]</p>
+              [% END %]
+          [% END %]
+
+          <ul>
+          [% FOREACH host IN hostsbylocation.$location %]
+             [% NEXT IF selection == 'active' && host.status_state !='ACTIVE' %]
+             <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %])</li>
+          [% END %]
+          </ul>
+       </div>
+
+[% END %]
+
