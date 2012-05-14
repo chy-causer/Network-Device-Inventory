@@ -486,7 +486,9 @@ add interfaces, create interface roles
 sub _add_interface {
     my ( $dbh, $POSTS, $messages ) = @_;
     return if !exists $POSTS->{'interface_x_ip'};
-
+    return if !defined $POSTS->{'interface_x_ip'};
+    return if length $POSTS->{'interface_x_ip'} < 1;
+   
     push @{$messages},
       Inventory::Interfaces::create_interfaces(
         $dbh,
