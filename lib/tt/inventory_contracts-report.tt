@@ -96,7 +96,7 @@
 
 </div> <!-- end middle column -->
 
-<script>
+<script type="text/javascript">
 <!--
 
 $(document).ready(function() {

@@ -1,4 +1,4 @@
-<script>
+<script type="text/javascript">
     $(function() {
         $( "#dateeol" ).datepicker();
         $( "#dateeol_edit" ).datepicker();

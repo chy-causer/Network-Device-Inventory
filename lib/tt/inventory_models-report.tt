@@ -36,14 +36,6 @@
 
 <div id="middlecolumn">
 
-<script>
-    <!--
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
-    -->
-</script>
-
 <!-- summary --> 
 [%- livehosts=0 %]
 [%- livemodels=0 %]
@@ -115,6 +107,7 @@ $(document).ready(function() {
 </div> <!-- page end -->
 
 <script type="text/javascript">
+<!--
 
 $(document).ready(function(){ 
         $("#allresults").tablesorter(
@@ -151,4 +144,5 @@ $(document).ready(function() {
     $("#accordion").accordion({ autoHeight: false });
 });
 
+-->
 </script>

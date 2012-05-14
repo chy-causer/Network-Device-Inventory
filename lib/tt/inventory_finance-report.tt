@@ -32,12 +32,14 @@
 <p><strong>FIXME</strong> has been spent in the past 365 days</p>
 <p><strong>FIXME</strong> has been spent since the start of the financial year (<strong>FIXME</strong>)</p>
 
-<script>
-    <!--
+<script type="text/javascript">
+<!--
+
 $(document).ready(function() {
     $("#accordion").accordion({ autoHeight: false });
 });
-    -->
+
+-->
 </script>
 
 <!-- alerts and potential projects -->
