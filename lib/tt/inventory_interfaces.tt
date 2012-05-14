@@ -16,7 +16,7 @@
 [% END %]
 
 [% IF edit %]
-<form action="" method="post">
+<form action="interfaces" method="post">
   <fieldset><legend>Edit an existing entry</legend>
   [% FOR interface IN interfaces %]
       [% IF edit == interface.id %]
@@ -44,20 +44,35 @@
        </select>
 
        <input type="hidden" name="interface_id" value="[% interface.id | html_entity %]" />
+       <input type="hidden" name="action" value="edit" />
        <input name="edit" type="submit" value="Submit Changes and Update Cached DNS Lookup" /><br />
-       <input name="delete" type="submit" value="Delete this entry without further confirmation" /></p>
       [% END %]
   [% END %]
   </fieldset>
 </form>
-[% END %]
+
+[%- ELSIF delete -%]
+
+  [%- FOR interface IN interfaces -%]
+      [%- IF delete == interface.id -%]
+<form action="interfaces" method="post">
+ <p class="block-warning">Are you sure you want to delete this interface with address &quot;[% interface.address | html_entity %]&quot;?
+ <br />
+ <input type="hidden" name="interface_id" value="[% interface.id | html_entity %]" />
+ <input type="hidden" name="action" value="delete" />
+ <a href="interfaces">Abandon</a> or <input type="submit" value="Delete" /></p> 
+</form>
+      [%- END -%]
+  [%- END -%]
+
+[%- END -%]
 
 
-[% IF hosts.size < 1  %]
+[%- IF hosts.size < 1  -%]
     <p class="input-warning">It's not possible to add new group interface records until you've created some hosts on the <a href="hosts">hosts page</a>.</p>
 
-[% ELSE %]
-<form action="" method="post">
+[%- ELSE -%]
+<form action="interfaces" method="post">
 <fieldset><legend>Enter a new interface</legend>
   <p>This host: 
         <select name="host_id">
@@ -77,22 +92,27 @@
 </fieldset>
 </form>
 
-[% END %]
+[%- END -%]
 
 <h3>Current Host Interfaces</h3>
-[% IF interfaces.size > 0 %]
+[%- IF interfaces.size > 0 -%]
 
-[% INCLUDE inventory_include_tablesort.tt %]
+[%- INCLUDE inventory_include_tablesort.tt -%]
+
+<form action="interfaces" method="get">
+ <fieldset><legend>All known interfaces</legend>
+
+<p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 
 <table id="allresults">
   <thead>
   <tr>
+    <th></th>
     <th>Hosts Name</th>
     <th>Interface Address</th>
     <th>Resolves to</th>
     <th>Last Updated</th>
     <th>Status</th>
-    <th>Options</th>
   </tr>
   </thead>
   
@@ -101,43 +121,40 @@
   </tfoot>
 
   <tbody>
-  [% counter=0 %]
-  [% FOR interface IN interfaces %]
-    [% stateclass="" rankclass="" %]
+  [%- FOR interface IN interfaces -%]
+    [%- stateclass="" rankclass="" -%]
 
-    [% IF interface.state=='INACTIVE' %]
-        [% stateclass="block-status-inactive" %]
-    [% ELSIF interface.state=='DECOMMISSIONED' %]
-        [% stateclass="block-status-decommissioned" %]
-    [% ELSIF interface.state=='INSTOCK' %]
-        [% stateclass="block-status-instock" %]
-    [% END %]
+    [%- IF interface.state=='INACTIVE' -%]
+        [%- stateclass="block-status-inactive" -%]
+    [%- ELSIF interface.state=='DECOMMISSIONED' -%]
+        [%- stateclass="block-status-decommissioned" -%]
+    [%- ELSIF interface.state=='INSTOCK' -%]
+        [%- stateclass="block-status-instock" -%]
+    [%- END -%]
 
-    [% IF interface.isprimary=='1' %]
-        [% rankclass="primary-interface" %]
-    [% ELSE %]
-        [% rankclass="secondary-interface" %]
-    [% END %]
+    [%- IF interface.isprimary=='1' -%]
+        [%- rankclass="primary-interface" -%]
+    [%- ELSE -%]
+        [%- rankclass="secondary-interface" -%]
+    [%- END -%]
 
     <tr class="[% stateclass | html_entity %] [% rankclass | html_entity %]">
-    
-    [% counter = counter +1 %]
+      <td><input type="radio" name="interface_id" value="[% interface.id  | html_entity %]" /></td>
       <td [% IF interface.isprimary !='1' %] class="secondary"[% END %]>[% interface.host_name | html_entity %]</td>
       <td [% IF interface.isprimary !='1' %] class="secondary"[% END %]>[% interface.address | html_entity %]</td>
       <td [% IF interface.state=='ACTIVE' && interface.lastresolvedfqdn=='UNRESOLVED' %] class="input-error" [% END %]>[% interface.lastresolvedfqdn | html_entity %]</td>
       <td>[% interface.lastresolveddate | html_entity %]</td>
       <td>[% interface.state | html_entity %]</td>
-      <td>
-          <a href="interfaces?interface_id=[% interface.id | html_entity %]">edit this interface</a> /
-          <a href="hosts?host_id=[% interface.host_id | html_entity %]">edit this host</a>
-      </td>
-  </tr>
-  [% END %]
+    </tr>
+  [%- END -%]
   </tbody>
 
 </table>
 
-[% ELSE %]
+</fieldset>
+</form>
+
+[%- ELSE -%]
 <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
       <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -145,6 +162,6 @@
       </p>
    </div>
 </div>
-[% END %]
+[%- END -%]
 
 </div>
