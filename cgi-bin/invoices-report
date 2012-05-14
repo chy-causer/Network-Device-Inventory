@@ -133,7 +133,7 @@ my $hostsbyinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
 my @costpermonth   = Inventory::Invoices::cost_per_month( $dbh );
 
 $tt->process(
-    'inventory_invoice-report.tt',
+    'inventory_invoices-report.tt',
     {
         suppliers      => \@suppliers,
         contacts       => \@contacts,

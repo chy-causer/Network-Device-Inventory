@@ -126,7 +126,7 @@ my @costpermonth = Inventory::Invoices::cost_per_month( $dbh );
 my @hosts        = Inventory::Hosts::get_hosts_info($dbh);
     
 $tt->process(
-    'inventory_finance-report.tt',
+    'inventory_finances-report.tt',
     {
         costpermonth => \@costpermonth,
         invoices     => \@invoices,
