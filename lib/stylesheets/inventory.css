@@ -791,7 +791,7 @@ tbody.middlelast tr td:last-child {  text-align:center; }
 tr.highlight, tr.highlight td  { color: black; background-color: #4887ab; }
 
 table.report tr:hover { color: white; background-color: #4887ab; }
-.bylocation { color: white; background-color: #4887ab; }
+.bylocation { padding:0.5em; border: 1px solid #4887ab; }
 
 table.report td {
     border-bottom: 1px solid #F0F0F0;

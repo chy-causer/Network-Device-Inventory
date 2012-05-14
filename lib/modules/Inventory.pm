@@ -136,7 +136,7 @@ sub populate_query_fields {
 
 =head2 acl_checker
 
-I differenciate between get and post, not everyone agrees with this but there
+I differentiate between get and post, not everyone agrees with this but there
 is an RFC2616 that suggests that we should. I do so for behaviour not security
 reasons.
 

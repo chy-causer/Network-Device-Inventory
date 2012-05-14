@@ -1,35 +1,43 @@
 <h4>Inventory Tables</h4>
 
+<div class="submenu">
 <h5>Core Tables</h5>
 <ul>
-  <li><a href="manufacturers">Hardware Manufacturers</a></li>
-  <li><a href="models">Hardware Models</a></li>
+  <li><a href="manufacturers">Hardware manufacturers</a></li>
+  <li><a href="models">Hardware models</a></li>
   <li><a href="hosts">Hosts</a></li>
   <li><a href="interfaces">Interfaces</a></li>
   <li><a href="photos">Photos of hosts</a></li>
   <li><a href="locations">Locations</a></li>
-  <li><a href="sshkeys">SSH keys</a></li>
+  <li><a href="sshkeys"><abbr title="Secure Shell">SSH</abbr> keys</a></li>
   <li><a href="status">Status</a></li>
-  <li><a href="ups">UPS Protection</a></li>
+  <li><a href="ups"><abbr title="Uninterruptable Power Supply">UPS</abbr> protection</a></li>
 </ul>
+</div>
 
+<div class="submenu">
 <h5>Finance and Support</h5>
 <ul>
   <li><a href="contacts">Contacts (people)</a></li>
   <li><a href="suppliers">Suppliers</a></li>
-  <li><a href="servicelevels">Service Levels</a></li>
+  <li><a href="servicelevels">Service levels</a></li>
   <li><a href="contracts">Contracts (warranties, support contracts)</a></li>
   <li><a href="hoststocontracts">Map hosts to support contracts</a></li>
   <li><a href="invoices">Invoices</a></li>
 </ul>
+</div>
 
-<h5>Opsview specific</h5>
+<div class="submenu">
+<h5>Opsview Specific</h5>
 <ul>
   <li><a href="introles">Interface Roles</a></li>
   <li><a href="introlemembers">Role Memberships</a></li>
 </ul>
+</div>
 
+<div class="submenu">
 <h5>Frodos DNS</h5>
 <ul>
-  <li><a href="cnames">FroDo Cnames</a> (full many-many interface)</li>
+  <li><a href="cnames"><abbr title="[Switch provided to the] Front Door">FroDo</abb> CNAMEs</a> (full many-many interface)</li>
 </ul>
+</div>
