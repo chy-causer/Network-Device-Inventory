@@ -387,6 +387,7 @@ sub hash_hosts_perinvoice {
            manufacturers.name AS manufacturer_name,
            manufacturers.id AS manufacturer_id,
            hosts.invoice_id,
+           invoices.id AS invoice_id,
            invoices.date AS invoice_date,
            invoices.description AS invoice_description
          FROM hosts
@@ -411,19 +412,18 @@ sub hash_hosts_perinvoice {
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
        
-        next if not exists  $ref->{'invoice_description'};
-        next if not defined $ref->{'invoice_description'};
-        next if length $ref->{'invoice_description'} < 1;
+        next if not exists  $ref->{'invoice_id'};
+        next if not defined $ref->{'invoice_id'};
+        next if length $ref->{'invoice_id'} < 1;
         
-        if ( !exists $index{ $ref->{'invoice_description'} } ) {
+        if ( !exists $index{ $ref->{'invoice_id'} } ) {
             my @data = ($ref);
-            $index{ $ref->{'invoice_description'} } = \@data;
+            $index{ $ref->{'invoice_id'} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'invoice_description'} } }, $ref;
+            push @{ $index{ $ref->{'invoice_id'} } }, $ref;
         }
     }
-
 
     return \%index;
 }

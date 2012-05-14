@@ -7,15 +7,15 @@ use strict;
 
 =head1 NAME
 
-Invoices Report
+Invoices Print
 
 =head1 DESCRIPTION
 
-Show useful summaries based on the invoice data
+Show basic data based on the invoice data
 
 =head1 VERSION
 
-This documentation refers to version 1.0.2
+This documentation refers to version 1.02
 
 =cut
 
@@ -36,8 +36,6 @@ Template
 
 Inventory 1.0
 Inventory::Invoices 1.04
-Inventory::Suppliers 1.0
-Inventory::Contacts 1.0
 Inventory::Hosts 1.02
 
 =cut
@@ -52,10 +50,8 @@ use Readonly;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Invoices 1.04;
-use Inventory::Suppliers 1.0;
-use Inventory::Contacts 1.0;
 use Inventory::Hosts 1.02;
+use Inventory::Invoices 1.04;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -94,8 +90,6 @@ my $logger = Log::Log4perl->get_logger();
 Readonly my $PAGETITLE => 'Invoice Report';
 Readonly my $SECTIONTITLE => 'reports';
 
-my %message;    # communicate success or failure
-
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -108,27 +102,7 @@ my $tt = Template->new(
     { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
 
 # print the stock header (banner and title)
-$tt->process(
-    'inventory_print_header.tt',
-    {
-        pagetitle    => $PAGETITLE,
-        sectiontitle => $SECTIONTITLE,
-        baseurl      => $BASEURL,
-        groupname    => $CONFIG->{'general'}->{groupname},
-        appname      => $CONFIG->{'general'}->{appname},
-        companyname  => $CONFIG->{'general'}->{companyname},
-    }
-);
-
-# I differentiate between get and post, not everyone agrees with this but
-# there is an RFC2616 that suggests that we should. I do so for behaviour not
-# security reasons.
-my %gets = Inventory::populate_query_fields();    # not strictly a get field
-
-# invalid users get no further than the next line
-if ( !exists $CONFIG->{general}->{demo} ) {
-    Inventory::acl_checker( $tt, $valid_users );
-}
+$tt->process( 'inventory_print_header.tt', { pagetitle    => $PAGETITLE, });
 
 =pod
 
@@ -138,23 +112,35 @@ use with ?selection=active to only show active hosts
 
 default is to show all hosts
 
+I differentiate between get and post, not everyone agrees with this but
+there is an RFC2616 that suggests that we should. I do so for behaviour not
+security reasons.
+
 =cut
 
-my $selection='all';
-if( exists $gets{'selection'} && $gets{'selection'} eq 'active' ){
-   # only show active hosts
-   $selection='active';
+my %gets = Inventory::populate_query_fields();    # not strictly a get field
+
+# invalid users get no further than the next line
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
 }
 
+my $selection='all';
+if( exists $gets{'selection'} ){
+   $selection=$gets{'selection'};
+}
+
+my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
 my @invoices       = Inventory::Invoices::get_invoices_info($dbh);
 my $hostsbyinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
 
 $tt->process(
-    'inventory_invoice-report.tt',
+    'inventory_invoices-print.tt',
     {
+        hosts          => \@hosts,
+        selection      => $selection,
         invoices       => \@invoices,
         hostsbyinvoice => $hostsbyinvoice,
-        message        => \%message,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
@@ -162,16 +148,6 @@ $tt->process(
 __END__
 
 =pod
-
-=head1 USAGE
-
-=head1 REQUIRED ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 INCOMPATIBILITIES
-
-none known
 
 =head1 BUGS AND LIMITATIONS
 

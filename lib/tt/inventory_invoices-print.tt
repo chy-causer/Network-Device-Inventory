@@ -1,8 +1,5 @@
 [% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
-[%- description = '' -%] 
-[%- INCLUDE inventory_include_hashmessage.tt -%] 
-
 [% IF invoices.size < 1 %]
  <div class="ui-widget">
    <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
@@ -15,28 +12,45 @@
 [% STOP %]
 [% END %]
 
-[% IF selection == 'active' %]
-   <h3>Active hosts indexed by invoice</h3>
-[% ELSIF selection == 'all' %]
-   <h3>All hosts indexed by invoice (regardless of status)</h3>
-[% END %]
+[%- IF selection == 'active' -%]
+   <h3>Active Hosts Indexed by Invoice</h3>
+[%- ELSIF selection == 'all' -%]
+   <h3>All Hosts Indexed by Invoice (Regardless of Status)</h3>
+[%- ELSIF selection == 'missing' -%]
+   <h3>Hosts With No Associated Invoice</h3>
+   
+   <ul>
+   [%- FOR host IN hosts -%]
+       [%- NEXT IF ( host.invoice_id.size || 0 > 0) -%]
+       <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %]) [ [% host.status_state | html_entity %] ]</li>    
+   [%- END -%]
+   </ul>
 
-[% FOREACH invoice IN hostsbyinvoice.keys %]
+     </body>
+   </html>
+   [% STOP %]
+
+[%- END -%]
+
+[%- FOREACH invoice IN hostsbyinvoice.keys -%]
        
        <div id="invoice-[% invoice | html_entity %]" class="byinvoice">
-          [% FOREACH ldetails IN invoices %]
-              [% IF ldetails.id == invoice %]
-                  <p>At [% ldetails.name | html_entity %]</p>
-              [% END %]
-          [% END %]
+          [%- FOREACH ldetails IN invoices -%]
+              [%- IF ldetails.id == invoice -%]
+                  <p>On invoice "[% ldetails.description | html_entity %]" ([% ldetails.date | html_entity %])</p>
+              [%- END -%]
+          [%- END -%]
 
           <ul>
-          [% FOREACH host IN hostsbyinvoice.$invoice %]
-             [% NEXT IF selection == 'active' && host.status_state !='ACTIVE' %]
-             <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %])</li>
-          [% END %]
+          [%- FOREACH host IN hostsbyinvoice.$invoice -%]
+             [%- NEXT IF selection == 'active' && host.status_state !='ACTIVE' -%]
+             <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %])
+                  [%- IF selection == 'all' %] [ [% host.status_state | html_entity %] ] [% END -%]
+             </li>
+          [%- END -%]
           </ul>
        </div>
 
-[% END %]
-
+[%- END -%]
+ </body>
+</html>

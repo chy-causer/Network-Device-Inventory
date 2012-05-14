@@ -40,9 +40,9 @@
 [%- INCLUDE inventory_graph_costs.tt -%]
 
 <h4>Print Options</h4>
-<p>[WIP] <a href="">Print all hosts not under a support invoice</a></p>
-<p>[WIP] <a href="">Print all hosts indexed by support invoice</a></p>
-<p>[WIP] <a href="">Print active hosts indexed by support invoice</a></p>
+<p><a href="invoices-print?selection=all">Print all hosts indexed by invoice</a></p>
+<p><a href="invoices-print?selection=active">Print active hosts indexed by invoice</a></p>
+<p><a href="invoices-print?selection=missing">Print all hosts without an associated invoice</a></p>
 <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->
