@@ -38,9 +38,9 @@
 [%- INCLUDE inventory_graph_contracts.tt -%]
 
 <h4>Print Options</h4>
-<p>[WIP] <a href="">Print all hosts not under a support contract</a></p>
-<p>[WIP] <a href="">Print all hosts indexed by support contract</a></p>
-<p>[WIP] <a href="">Print active hosts indexed by support contract</a></p>
+<p><a href="contracts-print?selection=missing">Print all active hosts not under a support contract</a></p>
+<p><a href="contracts-print?selection=all">Print all hosts indexed by support contract</a></p>
+<p><a href="contracts-print?selection=active">Print active hosts indexed by support contract</a></p>
 <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
 
 </div> <!-- end right column -->

@@ -503,16 +503,16 @@ sub hash_hosts_percontract {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        next if !exists $ref->{'contract_name'};
-        next if !defined $ref->{'contract_name'};
-        next if length $ref->{'contract_name'} < 1;
+        next if !exists $ref->{'contract_id'};
+        next if !defined $ref->{'contract_id'};
+        next if length $ref->{'contract_id'} < 1;
 
-        if ( !exists( $index{ $ref->{'contract_name'} } ) ) {
+        if ( !exists( $index{ $ref->{'contract_id'} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'contract_name'} } = \@data;
+            $index{ $ref->{'contract_id'} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'contract_name'} } }, $ref;
+            push @{ $index{ $ref->{'contract_id'} } }, $ref;
         }
     }
 
