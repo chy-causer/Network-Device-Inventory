@@ -18,7 +18,7 @@
    <h3>All Hosts Indexed by Manufacturer (Regardless of Status)</h3>
 [%- END -%]
 
-[%- FOREACH manufacturer IN hostsbymanufacturer.keys -%]
+[%- FOREACH manufacturer IN hostspermanufacturer.keys -%]
        
        <div id="manufacturer-[% manufacturer | html_entity %]" class="bymanufacturer">
           [%- FOREACH ldetails IN manufacturers -%]
@@ -28,7 +28,7 @@
           [%- END -%]
 
           <ul>
-          [%- FOREACH host IN hostsbymanufacturer.$manufacturer -%]
+          [%- FOREACH host IN hostspermanufacturer.$manufacturer -%]
              [%- NEXT IF selection == 'active' && host.status_state !='ACTIVE' -%]
              <li>[% host.name | html_entity %] ([% host.model_name | html_entity %])
                   [%- IF selection == 'all' %] [ [% host.status_state | html_entity %] ] [% END -%]

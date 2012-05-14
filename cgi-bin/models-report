@@ -76,7 +76,7 @@ my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 
-my %message;    # communicate success or failure, sink or swim
+my %message;    # communicate success or failure
 Readonly my $PAGETITLE => 'Models';
 Readonly my $SECTIONTITLE => 'reports';
 
@@ -113,12 +113,12 @@ if ( !exists $CONFIG->{general}->{demo} ) {
 my @models = Inventory::Models::get_models_info($dbh);
 
 # number of models per manufacturer
-my %host_count = %{ Inventory::Models::count_hosts_permodel($dbh) };
-
-my $hosts = Inventory::Models::hash_hosts_permodel($dbh);
-
+my $host_count   = Inventory::Models::count_hosts_permodel($dbh);
 my @hostseolyear = Inventory::Models::hosts_modeleol_thisyear($dbh);
-my @hostseol = Inventory::Models::hosts_modeleol($dbh);
+my @hostseol     = Inventory::Models::hosts_modeleol($dbh);
+
+my $hostspermodelname = Inventory::Models::hash_hosts_permodel($dbh, 'name');
+my $hostspermodelid   = Inventory::Models::hash_hosts_permodel($dbh);
 
 $tt->process(
     'inventory_models-report.tt',
@@ -127,9 +127,10 @@ $tt->process(
         hostseolyear  => \@hostseolyear,
         hostseol      => \@hostseol,
         message       => \%message,
-        host_counts   => \%host_count,
-        hosts         => $hosts,
+        host_counts   => $host_count,
         baseurl       => $BASEURL,
+        hostspermodelname => $hostspermodelname,
+        hostspermodelid   => $hostspermodelid,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
@@ -137,19 +138,7 @@ $tt->process( 'inventory_footer.tt', {} );
 
 __END__
 
-
-=head1 REQUIRED ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 DIAGNOSTICS
-
-error messages
-
-
-=head1 INCOMPATIBILITIES
-
-none known
+=pod
 
 =head1 BUGS AND LIMITATIONS
 

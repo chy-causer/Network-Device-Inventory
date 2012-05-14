@@ -18,7 +18,7 @@
    <h3>All Hosts Indexed by Model (Regardless of Status)</h3>
 [%- END -%]
 
-[%- FOREACH model IN hostsbymodel.keys -%]
+[%- FOREACH model IN hostspermodel.keys -%]
        
        <div id="model-[% model | html_entity %]" class="bymodel">
           [%- FOREACH ldetails IN models -%]
@@ -28,7 +28,7 @@
           [%- END -%]
 
           <ul>
-          [%- FOREACH host IN hostsbymodel.$model -%]
+          [%- FOREACH host IN hostspermodel.$model -%]
              [%- NEXT IF selection == 'active' && host.status_state !='ACTIVE' -%]
              <li>[% host.name | html_entity %] 
                   [%- IF selection == 'all' %] [ [% host.status_state | html_entity %] ] [% END -%]

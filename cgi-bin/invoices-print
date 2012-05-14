@@ -132,7 +132,7 @@ if( exists $gets{'selection'} ){
 
 my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
 my @invoices       = Inventory::Invoices::get_invoices_info($dbh);
-my $hostsbyinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
+my $hostsperinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
 
 $tt->process(
     'inventory_invoices-print.tt',
@@ -140,7 +140,7 @@ $tt->process(
         hosts          => \@hosts,
         selection      => $selection,
         invoices       => \@invoices,
-        hostsbyinvoice => $hostsbyinvoice,
+        hostsperinvoice => $hostsperinvoice,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

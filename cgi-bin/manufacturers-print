@@ -132,7 +132,7 @@ if( exists $gets{'selection'} ){
 
 my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
 my @manufacturers       = Inventory::Manufacturers::get_manufacturers_info($dbh);
-my $hostsbymanufacturer = Inventory::Manufacturers::hash_hosts_permanufacturer( $dbh );
+my $hostspermanufacturer = Inventory::Manufacturers::hash_hosts_permanufacturer( $dbh );
 
 $tt->process(
     'inventory_manufacturers-print.tt',
@@ -140,7 +140,7 @@ $tt->process(
         hosts          => \@hosts,
         selection      => $selection,
         manufacturers       => \@manufacturers,
-        hostsbymanufacturer => $hostsbymanufacturer,
+        hostspermanufacturer => $hostspermanufacturer,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

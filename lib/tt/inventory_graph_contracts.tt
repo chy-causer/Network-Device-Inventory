@@ -2,8 +2,8 @@
 <!--
 $(function () {
     var data = [
-      [%- FOREACH contract IN hostspercontract.keys %]
-       { label: "[% (contract || 'none' ) %]",  data: [% hostspercontract.$contract.size %] },
+      [%- FOREACH contract IN hostspercontractname.keys %]
+       { label: "[% (contract || 'none' ) %]",  data: [% hostspercontractname.$contract.size %] },
       [%- END -%]
     ];
 
@@ -31,27 +31,28 @@ $.plot($("#contractgraph"), data,
             }
         },
         grid: {
-            hoverable: true,
+            // hoverable: true,
         },
         legend: {
             show: false
         }
 });
-$("#contractgraph").bind("plothover", pieHover);
 
-function pieHover(event, pos, obj) {
-    if (!obj)
-             return;
-    percent = parseFloat(obj.series.percent).toFixed(2);
-    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
-}
+// $("#contractgraph").bind("plothover", pieHover);
+
+// function pieHover(event, pos, obj) {
+//    if (!obj)
+//             return;
+//    percent = parseFloat(obj.series.percent).toFixed(2);
+//    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
+// }
 
 });
 -->
 </script>
 
 <h5>Support Contracts by Devices Covered</h5>
-[%- IF hostspercontract.keys.size < 1 %]
+[%- IF hostspercontractname.keys.size < 1 %]
        <p>There are no hosts under contract to graph at this time</p>
 [%- ELSE %]
        <div id="contractgraph" class="graph"></div>

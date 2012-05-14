@@ -10,7 +10,7 @@ Inventory::Contracts
 
 =head1 VERSION
 
-This document describes Inventory::Contracts version 1.01
+This document describes Inventory::Contracts version 1.02
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Functions for dealing with the Contracts related data and analysis of it.
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_contracts
@@ -443,11 +443,18 @@ sub hosts_bycontract_id {
 
 return all hosts indexed by contract
 
- hash_hosts_percontract ($dbh)
+ hash_hosts_percontract ($dbh, $optionalkey)
 
 returns a hash
 
- $contract_name => @hosts
+ hash_hosts_percontract ($dbh, 'id')
+       $contract_id => @hosts
+ 
+ hash_hosts_percontract ($dbh)
+       $contract_id => @hosts
+
+ hash_hosts_percontract ($dbh, 'name')
+       $contract_name => @hosts
 
 where @hosts is an array of individual hashes, each has containing a hosts
 data.
@@ -455,9 +462,15 @@ data.
 =cut
 
 sub hash_hosts_percontract {
-    my ($dbh) = @_;
+    my ($dbh,$key) = @_;
 
     return if !defined $dbh;
+    if ( not defined $key
+         or ( $key ne 'id' and $key ne 'name' )
+        ){
+      
+       $key = 'id';
+    }
 
     my $sth = $dbh->prepare( '
          SELECT 
@@ -503,16 +516,16 @@ sub hash_hosts_percontract {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        next if !exists $ref->{'contract_id'};
-        next if !defined $ref->{'contract_id'};
-        next if length $ref->{'contract_id'} < 1;
+        next if !exists $ref->{"contract_$key"};
+        next if !defined $ref->{"contract_$key"};
+        next if length $ref->{"contract_$key"} < 1;
 
-        if ( !exists( $index{ $ref->{'contract_id'} } ) ) {
+        if ( !exists( $index{ $ref->{"contract_$key"} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'contract_id'} } = \@data;
+            $index{ $ref->{"contract_$key"} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'contract_id'} } }, $ref;
+            push @{ $index{ $ref->{"contract_$key"} } }, $ref;
         }
     }
 

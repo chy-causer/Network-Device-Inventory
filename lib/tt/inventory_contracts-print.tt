@@ -32,7 +32,7 @@
 
 [%- END -%]
 
-[%- FOREACH contract IN hostsbycontract.keys -%]
+[%- FOREACH contract IN hostspercontract.keys -%]
        <div id="contract-[% contract | html_entity %]" class="bycontract">
           [%- FOREACH ldetails IN contracts -%]
               [%- IF ldetails.id == contract -%]
@@ -41,7 +41,7 @@
           [%- END -%]
 
           <ul>
-          [%- FOREACH host IN hostsbycontract.$contract -%]
+          [%- FOREACH host IN hostspercontract.$contract -%]
              [%- NEXT IF selection == 'active' && host.status_state !='ACTIVE' -%]
              <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %])
                   [%- IF selection == 'all' %] [ [% host.status_state | html_entity %] ] [% END -%]

@@ -129,7 +129,7 @@ my @invoices       = Inventory::Invoices::get_invoices_info($dbh);
 my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
 my @contacts       = Inventory::Contacts::get_contacts_info( $dbh );
 my @suppliers      = Inventory::Suppliers::get_suppliers_info( $dbh );
-my $hostsbyinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
+my $hostsperinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
 my @costpermonth   = Inventory::Invoices::cost_per_month( $dbh );
 
 $tt->process(
@@ -139,7 +139,7 @@ $tt->process(
         contacts       => \@contacts,
         hosts          => \@hosts,
         invoices       => \@invoices,
-        hostsbyinvoice => $hostsbyinvoice,
+        hostsperinvoice => $hostsperinvoice,
         message        => \%message,
         costpermonth   => \@costpermonth,
     }

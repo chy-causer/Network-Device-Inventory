@@ -43,28 +43,28 @@ $.plot($("#modelgraph"), data,
             }
         },
         grid: {
-            hoverable: true,
-            clickable: true,
+       //     hoverable: true,
+       //     clickable: true,
         },
         legend: {
             show: false
         }
 });
-$("#modelgraph").bind("plothover", pieHover);
-$("#modelgraph").bind("plotclick", pieClick);
+// $("#modelgraph").bind("plothover", pieHover);
+// $("#modelgraph").bind("plotclick", pieClick);
 
-function pieHover(event, pos, obj) {
-    if (!obj)
-             return;
-    percent = parseFloat(obj.series.percent).toFixed(2);
-    $("#hover").html('<span style="font-weight: bold;">'+obj.series.label+' ('+percent+'%)</span>');
-}
+// function pieHover(event, pos, obj) {
+//    if (!obj)
+//             return;
+//    percent = parseFloat(obj.series.percent).toFixed(2);
+//    $("#hover").html('<span style="font-weight: bold;">'+obj.series.label+' ('+percent+'%)</span>');
+// }
 
-function pieClick(event, pos, obj) {
-    if (!obj)
-             return;
-    gethosts('+obj.series.label+');
-}
+// function pieClick(event, pos, obj) {
+//    if (!obj)
+//             return;
+//    gethosts('+obj.series.label+');
+// }
 
 });
 -->

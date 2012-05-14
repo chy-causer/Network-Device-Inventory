@@ -32,7 +32,7 @@
 
 [%- END -%]
 
-[%- FOREACH invoice IN hostsbyinvoice.keys -%]
+[%- FOREACH invoice IN hostsperinvoice.keys -%]
        
        <div id="invoice-[% invoice | html_entity %]" class="byinvoice">
           [%- FOREACH ldetails IN invoices -%]
@@ -42,7 +42,7 @@
           [%- END -%]
 
           <ul>
-          [%- FOREACH host IN hostsbyinvoice.$invoice -%]
+          [%- FOREACH host IN hostsperinvoice.$invoice -%]
              [%- NEXT IF selection == 'active' && host.status_state !='ACTIVE' -%]
              <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %])
                   [%- IF selection == 'all' %] [ [% host.status_state | html_entity %] ] [% END -%]

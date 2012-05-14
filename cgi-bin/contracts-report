@@ -15,7 +15,7 @@ use Template;
 
 use Inventory 1.0;
 use Inventory::Hosts 1.03;
-use Inventory::Contracts 1.0;
+use Inventory::Contracts 1.01;
 use Inventory::Suppliers 1.0;
 use Inventory::Servicelevels 1.0;
 
@@ -83,27 +83,21 @@ if ( !exists $CONFIG->{general}->{demo} ) {
 # security reasons.
 my %gets = Inventory::populate_query_fields();    # not strictly a get field
 
-# list all the contracts (array of hashes)
-my @contracts = Inventory::Contracts::get_contracts_info($dbh);
-
-# list all the suppliers in order to populate dropdown (array of hashes)
-my @suppliers = Inventory::Suppliers::get_suppliers_info($dbh);
-
-# list all the hosts (array of hashes)
-my @hosts = Inventory::Hosts::get_hosts_info($dbh);
-
-# hash_hosts_percontract, saves doing it in TT
-my $hostspercontract = Inventory::Contracts::hash_hosts_percontract($dbh);
+# gather common data needed
+my @contracts            = Inventory::Contracts::get_contracts_info($dbh);
+my @hosts                = Inventory::Hosts::get_hosts_info($dbh);
+my $hostspercontractname = Inventory::Contracts::hash_hosts_percontract($dbh, 'name');
+my $hostspercontractid   = Inventory::Contracts::hash_hosts_percontract($dbh);
 
 $tt->process(
     'inventory_contracts-report.tt',
     {
         pagetitle         => $PAGETITLE,
         contracts         => \@contracts,
-        suppliers         => \@suppliers,
         message           => \%message,
         hosts             => \@hosts,
-        hostspercontract  => $hostspercontract,
+        hostspercontractname  => $hostspercontractname,
+        hostspercontractid    => $hostspercontractid,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 $tt->process( 'inventory_footer.tt', {} );

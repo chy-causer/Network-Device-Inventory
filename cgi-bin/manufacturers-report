@@ -13,7 +13,7 @@ use Readonly;
 use Template;
 
 use Inventory 1.0;
-use Inventory::Manufacturers 1.0;
+use Inventory::Manufacturers 1.03;
 use Inventory::Models 1.0;
 
 my $BASEURL = CGI::url( -base => 1 );
@@ -76,6 +76,7 @@ if ( !exists $CONFIG->{general}->{demo} ) {
 # security reasons.
 my %gets = Inventory::populate_query_fields();    # not strictly a get field
 
+
 # list all the manufacturers (array of hashes)
 my @manufacturers = Inventory::Manufacturers::get_manufacturers_info($dbh);
 
@@ -86,6 +87,8 @@ my %model_count =
 # number of models per manufacturer
 my %host_count =
   %{ Inventory::Manufacturers::count_hosts_permanufacturer($dbh) };
+my $hostspermanufacturername = Inventory::Manufacturers::hash_hosts_permanufacturer($dbh, 'name');
+my $hostspermanufacturerid   = Inventory::Manufacturers::hash_hosts_permanufacturer($dbh);
 
 $tt->process(
     'inventory_manufacturers-report.tt',
@@ -94,6 +97,8 @@ $tt->process(
         message       => \%message,
         model_counts  => \%model_count,
         host_counts   => \%host_count,
+        hostspermanufacturername => $hostspermanufacturername,
+        hostspermanufacturerid   => $hostspermanufacturerid,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

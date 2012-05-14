@@ -10,7 +10,7 @@ Inventory::Manufacturers
 
 =head1 VERSION
 
-This document describes Inventory::Manufacturers version 1.02
+This document describes Inventory::Manufacturers version 1.03
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Functions for dealing with the Manufacturer related data and analysis of it.
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_manufacturers
@@ -310,21 +310,35 @@ sub delete_manufacturers {
 
 return all hosts indexed by manufacturer name
 
- hash_hosts_permanufacturer ($dbh)
+ hash_hosts_permanufacturer ($dbh, $optionalkey)
 
 returns a hash
 
- $manufacturer_name => @hosts
+ hash_hosts_permanufacturer ($dbh, 'id')
+       $manufacturer_id => @hosts
+ 
+ hash_hosts_permanufacturer ($dbh)
+       $manufacturer_id => @hosts
 
-where @ hosts is an array of individual hashes, each has containing a hosts
+ hash_hosts_permanufacturer ($dbh, 'name')
+       $manufacturer_name => @hosts
+
+where @hosts is an array of individual hashes, each has containing a hosts
 data.
 
 =cut
 
-sub hash_hosts_permanufacturer {
-    my ($dbh) = @_;
+sub hash_hosts_permanufacturer{
+    my ($dbh,$key) = @_;
 
     return if !defined $dbh;
+    
+    if ( not defined $key
+         or ( $key ne 'id' and $key ne 'name' )
+        ){
+      
+       $key = 'id';
+    }
 
     my $sth = $dbh->prepare( '
          SELECT 
@@ -363,12 +377,12 @@ sub hash_hosts_permanufacturer {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        if ( !exists( $index{ $ref->{'manufacturer_id'} } ) ) {
+        if ( !exists( $index{ $ref->{"manufacturer_$key"} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'manufacturer_id'} } = \@data;
+            $index{ $ref->{"manufacturer_$key"} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'manufacturer_id'} } }, $ref;
+            push @{ $index{ $ref->{"manufacturer_$key"} } }, $ref;
         }
     }
 

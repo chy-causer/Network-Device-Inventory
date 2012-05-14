@@ -25,7 +25,7 @@
  <h4>Active Hosts by Specific Location</h4>
     <div id="hosts-bylocation"> (Select a location from the table) </div>
 
-    [% FOREACH location IN hostsbylocation.keys %]
+    [% FOREACH location IN hostsperlocation.keys %]
        
        <div id="location-[% location | html_entity %]" class="bylocation" style="display:none">
           [% FOREACH ldetails IN locations %]
@@ -35,7 +35,7 @@
           [% END %]
 
           <ul>
-          [% FOREACH host IN hostsbylocation.$location %]
+          [% FOREACH host IN hostsperlocation.$location %]
              <li>[% host.name | html_entity %] [% host.model_name | html_entity %]</li>
           [% END %]
           </ul>

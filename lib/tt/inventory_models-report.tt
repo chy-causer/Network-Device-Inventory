@@ -24,7 +24,24 @@
  [% INCLUDE inventory_graph_models.tt %]
 
  <h4>Specific Hosts by Model</h4>
-    <div id="hosts-bymodel">Select a model above</div>
+    <div id="hosts-bymodel">(Select a model from the table)</div>
+
+    [% FOREACH model IN hostspermodelid.keys %]
+       
+       <div id="model-[% model | html_entity %]" class="bymodel" style="display:none">
+          [%- FOREACH ldetails IN models -%]
+              [%- IF ldetails.id == model -%]
+                  <p>Active hosts of model type [% ldetails.name | html_entity %] ([% ldetails.manufacturer_name | html_entity %])</p>
+              [%- END -%]
+          [%- END -%]
+
+          <ul>
+          [%- FOREACH host IN hostspermodelid.$model -%]
+             <li>[% host.name | html_entity %] ([% host.location_name | html_entity %])</li>
+          [%- END -%]
+          </ul>
+       </div>
+    [%- END -%]
 
  <h4>Print Options</h4>
 
@@ -47,7 +64,7 @@
      [%- livehosts = livehosts + host_counts.$id.active %]
 [%- END -%]
 
-<p>[% livehosts %] active devices, comprised of [% livemodels %] seperate model types.</p>
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livemodels %]</strong> seperate model types.</p>
 <!-- end summary -->
 
 <!-- alerts and potential projects -->
@@ -81,7 +98,7 @@
        [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
        [%- NEXT IF ( host_counts.$id.active || 0 ) < 1 %] 
       
-    <tr>
+    <tr onclick="ShowId([% model.id %] )">
       <td>[% (host_counts.$id.active || 0)  | html_entity %]</td>
       <td>[% model.manufacturer_name | html_entity %], [% model.name | html_entity %]</td>
       <td>
@@ -143,6 +160,25 @@ function gethosts(model_name){
 $(document).ready(function() {
     $("#accordion").accordion({ autoHeight: false });
 });
+
+function ShowId(id) {
+    var mainclass = "bymodel";
+
+    // hide the helptext, which is first show when no selection has been made
+    document.getElementById("hosts-bymodel").style.display = "none";
+    
+    // hide all results
+    var elements = document.getElementsByTagName('*');
+    for (i=0; i<elements.length; i++){
+           if (elements[i].className==mainclass){
+       elements[i].style.display="none"
+       }
+    }
+    
+    // show the selected result
+    document.getElementById("model-" + id ).style.display = "";
+
+}
 
 -->
 </script>

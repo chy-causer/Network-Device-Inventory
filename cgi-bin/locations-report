@@ -85,7 +85,7 @@ my %gets = Inventory::populate_query_fields();    # not strictly a get field
 my @locations       = Inventory::Locations::get_locations_info($dbh);
 my %location_counts = %{ Inventory::Locations::count_hosts_perlocation($dbh) };
 my $hosts = Inventory::Hosts::get_hosts_info($dbh);
-my $hostsbylocation = Inventory::Locations::hash_hosts_perlocation( $dbh );
+my $hostsperlocation = Inventory::Locations::hash_hosts_perlocation( $dbh );
 
 $tt->process(
     'inventory_locations-report.tt',
@@ -94,7 +94,7 @@ $tt->process(
         hosts           => $hosts,
         message         => \%message,
         location_counts => \%location_counts,
-        hostsbylocation => $hostsbylocation,
+        hostsperlocation => $hostsperlocation,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

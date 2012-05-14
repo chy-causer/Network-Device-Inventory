@@ -435,23 +435,36 @@ sub delete_models {
 
 =head2 hash_hosts_permodel
 
-return all hosts indexed by modelname
+return all hosts indexed by model
 
- hash_hosts_permodel ($dbh)
+ hash_hosts_permodel ($dbh, $optionalkey)
 
 returns a hash
 
- $model_name => @hosts
+ hash_hosts_permodel ($dbh, 'id')
+       $model_id => @hosts
+ 
+ hash_hosts_permodel ($dbh)
+       $model_id => @hosts
 
-where @ hosts is an array of individual hashes, each has containing a hosts
+ hash_hosts_permodel ($dbh, 'name')
+       $model_name => @hosts
+
+where @hosts is an array of individual hashes, each has containing a hosts
 data.
 
 =cut
 
 sub hash_hosts_permodel {
-    my ($dbh) = @_;
+    my ($dbh,$key) = @_;
 
     return if !defined $dbh;
+    if ( not defined $key
+         or ( $key ne 'id' and $key ne 'name' )
+        ){
+      
+       $key = 'id';
+    }
 
     my $sth = $dbh->prepare( '
          SELECT 
@@ -492,12 +505,12 @@ sub hash_hosts_permodel {
 
     my %index;
     while ( my $ref = $sth->fetchrow_hashref ) {
-        if ( !exists( $index{ $ref->{'model_id'} } ) ) {
+        if ( !exists( $index{ $ref->{"model_$key"} } ) ) {
             my @data = ($ref);
-            $index{ $ref->{'model_id'} } = \@data;
+            $index{ $ref->{"model_$key"} } = \@data;
         }
         else {
-            push @{ $index{ $ref->{'model_id'} } }, $ref;
+            push @{ $index{ $ref->{"model_$key"} } }, $ref;
         }
     }
 

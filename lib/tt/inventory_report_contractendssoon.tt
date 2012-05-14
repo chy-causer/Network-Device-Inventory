@@ -22,7 +22,7 @@
 $("#contractatrisk").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
 </script>
 
-<table id="contractatrisk" class="report">
+<table id="contractatrisk" class="warning-report">
   <thead>
   <tr>
     <th>Name</th>

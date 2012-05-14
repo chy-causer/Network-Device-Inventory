@@ -88,7 +88,7 @@ if( exists $gets{'selection'} && $gets{'selection'} eq 'active' ){
 
 # list all the locations (array of hashes)
 my @locations       = Inventory::Locations::get_locations_info($dbh);
-my $hostsbylocation = Inventory::Locations::hash_hosts_perlocation( $dbh );
+my $hostsperlocation = Inventory::Locations::hash_hosts_perlocation( $dbh );
 
 $tt->process(
     'inventory_locations-print.tt',
@@ -96,7 +96,7 @@ $tt->process(
         selection       => $selection,
         locations       => \@locations,
         message         => \%message,
-        hostsbylocation => $hostsbylocation,
+        hostsperlocation => $hostsperlocation,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

@@ -27,7 +27,7 @@
 
 <p>Model types in active use that have reached EOL</p>
 
-<table class="report">
+<table class="warning-report">
   <thead>
   <tr>
     <th>Model Name</th>
@@ -51,12 +51,11 @@
 
 <p>Active devices whose model type has reached End of Life (showing the first 40)</p>
 
-<table class="report">
+<table class="warning-report">
   <thead>
   <tr>
     <th>Name</th>
     <th>Location</th>
-    <th>Status</th>
     <th>Model</th>
   </tr>
   </thead>
@@ -72,7 +71,6 @@
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
       <td>[% host.location_name | html_entity %]</td>
-      <td>[% host.status_state | html_entity %]</td>
       <td><a href="models?model_id=[% host.model_id | html_entity %]">[% host.model_name | html_entity %]</a> ([% host.manufacturer_name | html_entity %])</td>
     </tr>
   [%- END -%]

@@ -132,7 +132,7 @@ if( exists $gets{'selection'} ){
 
 my @hosts          = Inventory::Hosts::get_hosts_info($dbh);
 my @contracts       = Inventory::Contracts::get_contracts_info($dbh);
-my $hostsbycontract = Inventory::Contracts::hash_hosts_percontract( $dbh );
+my $hostspercontract = Inventory::Contracts::hash_hosts_percontract( $dbh );
 
 $tt->process(
     'inventory_contracts-print.tt',
@@ -140,7 +140,7 @@ $tt->process(
         hosts          => \@hosts,
         selection      => $selection,
         contracts       => \@contracts,
-        hostsbycontract => $hostsbycontract,
+        hostspercontract => $hostspercontract,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

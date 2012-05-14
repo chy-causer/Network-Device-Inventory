@@ -24,7 +24,7 @@ $("#noinvoice").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
 -->
 </script>
 
-<table id="noinvoice" class="report">
+<table id="noinvoice" class="warning-report">
   <thead>
   <tr>
     <th>Name</th>
