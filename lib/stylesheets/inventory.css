@@ -224,7 +224,8 @@ a:link img, a:visited img {
 }
 
 #sidebar a { text-decoration: none; }
-#invbar a { text-decoration: none; }
+#invbar  a { text-decoration: none; }
+.submenu a { text-decoration: none; }
 
 /* inventory */
 .error {

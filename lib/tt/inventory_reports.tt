@@ -1,9 +1,11 @@
-<h4>Data Analysis (work in progress)</h4>
+
+<div class="submenu">
+<h4>Reports and Data Analysis</h4>
 
 <ul>
-  <li><a href="finance-report">Financal overview</a></li>
+  <li><a href="finance-report">Financial overview</a></li>
   <li><a href="invoices-report">Invoices overview</a></li>
-  <li><a href="contracts-report">Support Contracts</a></li>
+  <li><a href="contracts-report">Support contracts</a></li>
 </ul>
 
 <ul>
@@ -11,10 +13,14 @@
   <li><a href="manufacturers-report">Manufacturers</a></li>
   <li><a href="models-report">Models</a></li>
 </ul>
+</submenu>
 
-<h4>Troubleshooting and sanity checking</h4>
+<div class="submenu">
+<h4>Troubleshooting and Sanity Checking</h4>
+
 <ul>
   <li><a href="problems_interfaces">Interface Problems</a></li>
   <li><a href="about">Application History, Support, License</a></li>
   <li><a href="updates">Program updates</a></li>
 </ul>
+</submenu>
