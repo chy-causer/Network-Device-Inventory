@@ -1,0 +1,42 @@
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
+
+[%- description = '' -%] 
+[%- INCLUDE inventory_include_hashmessage.tt -%] 
+
+[% IF invoices.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware invoices at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+[% IF selection == 'active' %]
+   <h3>Active hosts indexed by invoice</h3>
+[% ELSIF selection == 'all' %]
+   <h3>All hosts indexed by invoice (regardless of status)</h3>
+[% END %]
+
+[% FOREACH invoice IN hostsbyinvoice.keys %]
+       
+       <div id="invoice-[% invoice | html_entity %]" class="byinvoice">
+          [% FOREACH ldetails IN invoices %]
+              [% IF ldetails.id == invoice %]
+                  <p>At [% ldetails.name | html_entity %]</p>
+              [% END %]
+          [% END %]
+
+          <ul>
+          [% FOREACH host IN hostsbyinvoice.$invoice %]
+             [% NEXT IF selection == 'active' && host.status_state !='ACTIVE' %]
+             <li>[% host.name | html_entity %] ([% host.manufacturer_name | html_entity %] [% host.model_name | html_entity %])</li>
+          [% END %]
+          </ul>
+       </div>
+
+[% END %]
+
