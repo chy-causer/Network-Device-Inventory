@@ -124,6 +124,13 @@ sub create_models {
     {
         return { 'ERROR' => $MSG_INPUT_ERR };
     }
+    
+    # can't input "" as undef into postgres, it has to be a real undef
+    if ( exists $posts->{'model_dateeol'}
+        && length $posts->{'model_dateeol'} < 1 )
+    {
+        $posts->{'model_dateeol'} = undef;
+    }
 
     my $sth = $dbh->prepare(
         'INSERT INTO models(name,manufacturer_id,dateeol) VALUES(?,?,?)');
