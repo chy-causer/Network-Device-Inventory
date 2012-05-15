@@ -10,7 +10,7 @@
       [% IF edit == invoice.id %]
        <table>
        <tr><th>Description</th><td><input type="text" name="invoice_description" maxlength="135" value="[% invoice.description | html_entity %]" /></td></tr>
-       <tr><th>Order Date</th><td><input type="text" name="invoice_date" maxlength="135" value="[% invoice.date | html_entity %]" /></td></tr>
+       <tr><th>Order Date</th><td><input type="text" name="invoice_date" id="editdate" maxlength="135" value="[% invoice.date | html_entity %]" /></td></tr>
        <tr><th>Supplier</th><td>
                              <select name="supplier_id">
                                [% FOR supplier IN suppliers %] 
@@ -70,11 +70,11 @@
 
 [% END %]
 
-<form action="" method="post">
+<form action="invoices" method="post">
   <fieldset><legend>Enter a new invoice</legend>
      <table>
        <tr><th>Description</th><td><input type="text" name="invoice_description" maxlength="135" /></td></tr>
-       <tr><th>Order Date</th><td><input type="text" name="invoice_date" maxlength="135" /></td></tr>
+       <tr><th>Order Date</th><td><input type="text" name="invoice_date" id="newdate" maxlength="135" /></td></tr>
        <tr><th>Supplier</th><td>
                              <select name="supplier_id">
                                [% FOR supplier IN suppliers %] 
@@ -170,3 +170,11 @@
 [% END %]
 
 </div>
+
+<script type="text/javascript">
+    $(function() {
+        $( "#editdate" ).datepicker();
+        $( "#newdate" ).datepicker();
+    });
+</script>
+
