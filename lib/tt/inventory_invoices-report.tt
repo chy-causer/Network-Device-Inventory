@@ -51,7 +51,7 @@
 
 
 <!-- alerts and potential projects -->
-<div id="accordion">
+<div id="accordion" class="warning-accordion">
     [% INCLUDE inventory_report_noinvoice.tt %]
 </div>
 <!-- end alerts -->
@@ -122,9 +122,7 @@ $(document).ready(function(){
       }); 
 });
 
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
+[%- INCLUDE inventory_include_accordion.tt -%]
 
 -->
 </script>

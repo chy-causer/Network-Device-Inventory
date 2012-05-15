@@ -800,6 +800,12 @@ table.report td {
 abbr {
     border-bottom: 1px solid #F0F0F0;
 }
+.warning-accordion h3 {
+    /* use important to override jquery */
+    color: black;
+    background: #fff9e5; /* light orange */
+    border: 1px solid #ffc600; /* medium orange */
+}
 
 /*
 LICENSE AND COPYRIGHT

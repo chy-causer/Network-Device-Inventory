@@ -65,7 +65,7 @@
 <!-- end summary -->
 
 <!-- alerts and potential projects -->
-<div id="accordion">
+<div id="accordion" class="warning-accordion">
     [% # INCLUDE inventory_report_fooalert.tt %]
 </div>
 <!-- end alerts -->
@@ -159,9 +159,7 @@ function gethosts(manufacturer_name){
     );
 }
 
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
+[%- INCLUDE inventory_include_accordion.tt -%]
 
 function ShowId(id) {
     var mainclass = "bymanufacturer";

@@ -1,0 +1,11 @@
+$(document).ready(function() {
+    $("#accordion").accordion({ 
+    // show fully collapsed on page load
+    active: false,
+    // all sections can be closed
+    collapsible: true,
+    // adjust height based on content
+    autoHeight: false,
+    }); 
+});
+

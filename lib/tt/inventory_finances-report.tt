@@ -35,15 +35,13 @@
 <script type="text/javascript">
 <!--
 
-$(document).ready(function() {
-    $("#accordion").accordion({ autoHeight: false });
-});
+[%- INCLUDE inventory_include_accordion.tt -%]
 
 -->
 </script>
 
 <!-- alerts and potential projects -->
-<div id="accordion">
+<div id="accordion" class="warning-accordion">
     [% INCLUDE inventory_report_noinvoice.tt %]
     [% INCLUDE inventory_report_contractendssoon.tt %]
     [% INCLUDE inventory_report_nocontract.tt %]
