@@ -95,7 +95,9 @@ sub create_invoices {
     my ( $dbh, $input ) = @_;
 
     if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
-
+    
+    $input->{'invoice_totalcost'} =~ s/,//;
+    
     my $sth = $dbh->prepare(
         'INSERT INTO invoices(
                           supplier_id,date,description,
