@@ -90,13 +90,13 @@ my $delete;
 if ( $gets{'supplier_id'} && $gets{'supplier_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
         $logger->debug(
-"$ENV{REMOTE_USER} takes first step to edit ID $POSTS{'supplier_id'}"
+"$ENV{REMOTE_USER} takes first step to edit ID $gets{'supplier_id'}"
         );
         $edit = $gets{'supplier_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
         $logger->debug(
-"$ENV{REMOTE_USER} takes first step to delete ID $POSTS{'supplier_id'}"
+"$ENV{REMOTE_USER} takes first step to delete ID $gets{'supplier_id'}"
         );
         $delete = $gets{'supplier_id'};
     }

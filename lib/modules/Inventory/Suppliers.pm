@@ -195,7 +195,7 @@ sub delete_suppliers {
         return { 'ERROR' => $MSG_DELETE_ERR };
     }
 
-    return { 'ERROR' => $MSG_DELETE_OK };
+    return { 'SUCCESS' => $MSG_DELETE_OK };
 }
 
 =pod
