@@ -1,0 +1,213 @@
+#!/usr/bin/perl
+
+use warnings FATAL => 'all';
+use strict;
+
+=pod
+
+=head1 NAME
+
+data-report
+
+=head1 DESCRIPTION
+
+List all potential problems with the inventory data on one page
+
+=head1 VERSION
+
+This documentation refers to version 1.0 
+
+=cut
+
+our $VERSION = '1.0';
+
+=pod
+
+=head1 DEPENDENCIES
+
+Carp
+CGI
+Config::Tiny
+DBD::Pg
+DBI
+Template
+
+Inventory 1.0
+Inventory::Hosts 1.02
+Inventory::Interfaces 1.04
+Inventory::Invoices 1.04
+Inventory::Manufacturers 1.01
+Inventory::Models 1.02
+Inventory::Photos 1.0
+Inventory::Sshkeys 1.0
+Inventory::Suppliers 1.0
+Inventory::Ups 1.0
+
+=cut
+
+use Carp;
+use CGI;
+use Config::Tiny;
+use DBD::Pg;
+use DBI;
+use Readonly;
+use Template;
+
+use Inventory 1.0;
+use Inventory::Hosts 1.02;
+use Inventory::Interfaces 1.04;
+use Inventory::Invoices 1.04;
+use Inventory::Manufacturers 1.01;
+use Inventory::Models 1.02;
+use Inventory::Photos 1.0;
+use Inventory::Sshkeys 1.0;
+use Inventory::Suppliers 1.0;
+use Inventory::Ups 1.0;
+
+
+=pod
+
+=head1 CONFIGURATION
+
+via /srv/www/$HOSTNAME/lib/inventory.ini
+
+=cut
+
+my $HOSTNAME = CGI::url( -base => 1 );
+my $BASEURL = $HOSTNAME;
+
+# remove everything from the first . onwards
+$HOSTNAME =~ s/\..*$//gx;
+
+# remove everything from the start to the last /
+$HOSTNAME =~ s/^.*\///gx;
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE");
+
+my $dbhost      = $CONFIG->{'database'}->{db_host};
+my $dbname      = $CONFIG->{'database'}->{db_name};
+my $dbuser      = $CONFIG->{'database'}->{db_user};
+my $dbpass      = $CONFIG->{'database'}->{db_pass};
+my $dbh         = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+my $valid_users = $CONFIG->{'general'}->{allowed_users};
+my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
+my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
+
+my %message;    # communicate success or failure
+Readonly my $PAGETITLE    => 'Data Consistency';
+Readonly my $SECTIONTITLE => 'reports';
+
+#############################################################################
+#                                     main                                  #
+#############################################################################
+
+my $q = CGI->new();
+print $q->header();
+
+# this just loads the default site settings
+my $tt = Template->new(
+    { INCLUDE_PATH => [ $localtemplatepath, $htmltemplatepath ] } );
+
+# print the stock header (banner and title)
+$tt->process(
+    'inventory_header.tt',
+    {
+        pagetitle    => $PAGETITLE,
+        sectiontitle => $SECTIONTITLE,
+        baseurl     => $BASEURL,
+        groupname   => $CONFIG->{'general'}->{groupname},
+        appname     => $CONFIG->{'general'}->{appname},
+        companyname => $CONFIG->{'general'}->{companyname},
+    }
+);
+
+# invalid users get no further than the next line
+if ( !exists $CONFIG->{general}->{demo} ) {
+    Inventory::acl_checker( $tt, $valid_users );
+}
+
+# Retrieve all the data we need
+my $host_count   = Inventory::Models::count_hosts_permodel($dbh);
+my @hostseolyear = Inventory::Models::hosts_modeleol_thisyear($dbh);
+my @hostseol     = Inventory::Models::hosts_modeleol($dbh);
+
+my @models            = Inventory::Models::get_models_info($dbh);
+my @invoices          = Inventory::Invoices::get_invoices_info($dbh);
+my @hosts             = Inventory::Hosts::get_hosts_info($dbh);
+my @photos            = Inventory::Photos::get_photos_info( $dbh );
+my @sshkeys           = Inventory::Sshkeys::get_sshkeys_info( $dbh );
+my @ups               = Inventory::Ups::get_links_info( $dbh );
+my $hosttointerface   = Inventory::Interfaces::hash_hosttointerface( $dbh );
+my $noprimary         = Inventory::Interfaces::head_hostnoprimary($dbh);
+
+my $hostsperinvoice   = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
+my $hostspermodelname = Inventory::Models::hash_hosts_permodel($dbh, 'name');
+my $hostspermodelid   = Inventory::Models::hash_hosts_permodel($dbh);
+
+# and then present the page
+
+$tt->process(
+    'inventory_data-report.tt',
+    {
+        invoices      => \@invoices,
+        models        => \@models,
+        hosts         => \@hosts,
+        photos        => \@photos,
+        sshkeys       => \@sshkeys,
+        ups           => \@ups,
+        hosttointerface => $hosttointerface,
+        noprimary     => $noprimary,
+
+        hostseolyear  => \@hostseolyear,
+        hostseol      => \@hostseol,
+        
+        message       => \%message,
+        host_counts   => $host_count,
+        baseurl       => $BASEURL,
+        
+        hostspermodelname => $hostspermodelname,
+        hostspermodelid   => $hostspermodelid,
+        hostsperinvoice   => $hostsperinvoice,
+    }
+) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
+
+$tt->process( 'inventory_footer.tt', {} );
+
+__END__
+
+=pod
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+Network Device Inventory - keep a database of devices to feed other systems
+(such as monitoring software). Copyright 2007 University of Oxford
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+The University of Oxford agrees to the release under the GPL of in the program
+`Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
+Oxford University Computer Services.
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
+also agreed to the code release under the GPL.

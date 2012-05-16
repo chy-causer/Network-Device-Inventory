@@ -1,4 +1,4 @@
-[% noinvoice = 0 %]
+[%- noinvoice = 0 -%]
 [%- FOR host IN hosts -%]
    [%- NEXT IF host.status_state != 'ACTIVE' -%]
     [%- IF ! host.invoice_id -%]
@@ -12,11 +12,12 @@
 
 [%- ELSE -%]
 
-<h3><a href="#"><strong>[% noinvoice | html_entity %]</strong> devices are not covered by an invoice.</a></h3>
+<h3><a href="#"><strong>[% noinvoice | html_entity %]</strong> active devices have no purchase invoice recorded.</a></h3>
 
 <div>
 
-<p>Devices in active use that have no valid invoice (showing the first 40)</p>
+[%- limit = 40 -%]
+<p>Active devices that have no valid invoice (first [% limit | html_entity %] results shown)</p>
 
 <script type="text/javascript">
 <!--
@@ -36,11 +37,12 @@ $("#noinvoice").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
   <tfoot><tr><td colspan="4"></td></tr></tfoot>
   
   <tbody>
-  [% limit = 40 %]
   [%- FOR host IN hosts -%]
-    [% NEXT IF limit < 1 %]
-    [% limit = limit - 1 %]
-    [% NEXT IF ( host.invoice_enddate_daysremaining || 0 ) > 0 %]
+    [%- LAST IF limit < 1 -%]
+    
+    [%- NEXT IF host.status_state != 'ACTIVE' -%]
+    [%- NEXT IF host.invoice_id -%]
+    [%- limit = limit - 1 -%]
     
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
@@ -53,4 +55,4 @@ $("#noinvoice").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
 
 </div>
 
-[% END %]
+[%- END -%]

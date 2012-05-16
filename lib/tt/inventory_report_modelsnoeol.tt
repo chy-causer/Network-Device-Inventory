@@ -10,7 +10,7 @@
 
 [%- ELSE -%]
 
-<h3><a href="#">[% total_noeol %] model types need the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> entered if available</a></h3>
+<h3><a href="#"><strong>[% total_noeol %]</strong> model types need the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> entered if available</a></h3>
 
 <div>
 <p>Model types with no the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> entered:</p>
@@ -20,7 +20,7 @@
 [%#
  We break loop.index so have to use a counter
 %]
- [% counter=0 %]
+ [%- counter=0 -%]
  [%- FOR model IN models -%]
     [%- NEXT IF model.dateeol.match('\d+') -%]
     
@@ -32,8 +32,8 @@
 
     [% IF ! counter % 2 %]
        </tr>
-    [% END %]
-    [% counter = counter + 1 %]
+    [%- END -%]
+    [%- counter = counter + 1 -%]
  [%- END -%]
   
 </table>

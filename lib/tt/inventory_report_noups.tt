@@ -1,0 +1,73 @@
+[%- noups = 0 -%]
+[%- FOR host IN hosts -%]
+   [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+    
+    [%- matched=0 -%]
+    [%- FOR device IN ups -%]
+        [%- IF device.host_id == host.id -%]
+            [%- matched=1 -%]
+            [%- LAST -%]
+        [%- END -%]
+    [%- END -%]
+
+    [%- NEXT IF matched > 0 -%]
+
+   [% noups = noups + 1 %]
+[%- END -%]
+
+[%- IF noups < 1 -%]
+
+<!-- No devices have missing noupss -->
+
+[%- ELSE -%]
+
+<h3><a href="#"><strong>[% noups | html_entity %]</strong> devices have no <abbr title="Uninterruptable Power Supply">UPS</abbr> protection recorded.</a></h3>
+
+<div>
+
+[%- limit = 40 -%]
+<p>Active devices that have no <abbr title="Uninterruptable Power Supply">UPS</abbr> protection recorded (first [% limit | html_entity %] results shown)</p>
+
+<script type="text/javascript">
+$("#noups").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
+</script>
+
+<table id="noups" class="warning-report">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Location</th>
+    <th>Model</th>
+  </tr>
+  </thead>
+
+  <tfoot><tr><td colspan="4"></td></tr></tfoot>
+  
+  <tbody>
+  [%- FOR host IN hosts -%]
+    [%- LAST IF limit < 1 -%]
+   
+    [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+    [%- matched=0 -%]
+    [%- FOR device IN ups -%]
+        [%- IF device.host_id == host.id -%]
+            [%- matched=1 -%]
+            [%- LAST -%]
+        [%- END -%]
+    [%- END -%]
+
+    [%- NEXT IF matched > 0 -%]
+    [%- limit = limit - 1 -%]
+    
+    <tr>
+      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td>[% host.location_name | html_entity %]</td>
+      <td>[% host.model_name | html_entity %] ([% host.manufacturer_name | html_entity %])</td>
+    </tr>
+  [%- END -%]
+  </tbody>
+</table>
+
+</div>
+
+[%- END -%]

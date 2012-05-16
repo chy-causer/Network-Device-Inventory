@@ -12,9 +12,9 @@
 
 [%- ELSE -%]
 
-<h3><a href="#">[% totalmodels_eol_thisyear %] model types reach the 
+<h3><a href="#"><strong>[% totalmodels_eol_thisyear %]</strong> model types reach the 
 <abbr title="[% cisco_eol_desc | html_entity %]">
-last date of hardware support</abbr> in the next year, affecting [% hostseolyear.size %] devices</a></h3>
+last date of hardware support</abbr> in the next year, affecting <strong>[% hostseolyear.size %]</strong> devices</a></h3>
 
 <div>
 
@@ -47,14 +47,14 @@ last date of hardware support</abbr> in the next year, affecting [% hostseolyear
 
 </table>
 
-<p>Active devices whose model type is ireaching the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> in the next year (showing the first 40)</p>
+[%- limit = 40 -%]
+<p>Active devices whose model type is reaching the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> in the next year (first [% limit | html_entity %] results shown)</p>
 
 <table class="warning-report">
   <thead>
   <tr>
     <th>Name</th>
     <th>Location</th>
-    <th>Status</th>
     <th>Model</th>
     <th>Last checked</th>
   </tr>
@@ -63,15 +63,15 @@ last date of hardware support</abbr> in the next year, affecting [% hostseolyear
   <tfoot></tfoot>
 
   <tbody>
-  [% limit = 40 %]
   [%- FOR host IN hostseolyear -%]
-    [% NEXT IF limit < 1 %]
-    [% limit = limit - 1 %]
+    [%- LAST IF limit < 1 -%]
     
+    [%- NEXT IF host.status_state != 'ACTIVE' -%]
+    [%- limit = limit - 1 -%]
+
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
       <td>[% host.location_name | html_entity %]</td>
-      <td>[% host.status_state | html_entity %]</td>
       <td>[% host.model_name | html_entity %] ([% host.manufacturer_name | html_entity %])</td>
       <td>[% host.lastchecked | html_entity %]</td>
     </tr>
@@ -82,4 +82,4 @@ last date of hardware support</abbr> in the next year, affecting [% hostseolyear
 
 </div>
 
-[% END %]
+[%- END -%]

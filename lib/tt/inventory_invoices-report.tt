@@ -49,7 +49,6 @@
 
 <div id="middlecolumn">
 
-
 <!-- alerts and potential projects -->
 <div id="accordion" class="warning-accordion">
     [% INCLUDE inventory_report_noinvoice.tt %]

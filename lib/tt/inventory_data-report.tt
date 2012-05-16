@@ -1,0 +1,109 @@
+<div>
+[% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
+
+[%- description = '' -%] 
+[%- INCLUDE inventory_include_hashmessage.tt -%] 
+
+
+[% IF models.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hardware models at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+<div>
+
+<div id="rightcolumn">
+
+</div> <!-- end right column -->
+
+<div id="middlecolumn">
+
+<!-- summary --> 
+
+<p>Checking for missing data in the inventory. This data is optional but completing it will give better reporting.</p>
+
+<!-- end summary -->
+
+<!-- alerts and potential projects -->
+<div id="accordion" class="warning-accordion">
+    [%- INCLUDE inventory_report_modelsnoeol.tt    -%]
+    [%- INCLUDE inventory_report_nocontract.tt     -%]
+    [%- INCLUDE inventory_report_noinvoice.tt      -%]
+    [%- INCLUDE inventory_report_nodescription.tt  -%]
+    [%- INCLUDE inventory_report_noserial.tt       -%]
+    [%- INCLUDE inventory_report_nophoto.tt        -%]
+    [%- INCLUDE inventory_report_nosshkey.tt       -%]
+    [%- INCLUDE inventory_report_noups.tt          -%]
+    [%- INCLUDE inventory_report_nointerfaces.tt   -%]
+    [%- INCLUDE inventory_report_noprimary.tt   -%]
+</div>
+<!-- end alerts -->
+
+</div> <!-- end middle column -->    
+
+</div> <!-- page end -->
+
+<script type="text/javascript">
+<!--
+
+$(document).ready(function(){ 
+        $("#allresults").tablesorter(
+            { 
+            headers: { 
+               4: { 
+                // disable sorting on host status breakdown 
+                sorter: false } 
+               }, 
+
+           textExtraction:"complex",
+        
+        }); 
+    } 
+);
+
+function gethosts(model_name){
+   
+    var ajax_load="Ajax loading...";
+
+    var loadUrl="[% BASEURL %]/models-hosts?model_name=" + model_name;
+    
+    $("#host-list").html(ajax_load);  
+    $.get(  
+        loadUrl, {},  
+        function(responseText){  
+        
+        $("#host-list").html( responseText );  
+       }
+    );
+}
+
+[%- INCLUDE inventory_include_accordion.tt -%]
+
+function ShowId(id) {
+    var mainclass = "bymodel";
+
+    // hide the helptext, which is first show when no selection has been made
+    document.getElementById("hosts-bymodel").style.display = "none";
+    
+    // hide all results
+    var elements = document.getElementsByTagName('*');
+    for (i=0; i<elements.length; i++){
+           if (elements[i].className==mainclass){
+       elements[i].style.display="none"
+       }
+    }
+    
+    // show the selected result
+    document.getElementById("model-" + id ).style.display = "";
+
+}
+
+-->
+</script>

@@ -1,0 +1,61 @@
+[%- nointerface = 0 -%]
+[%- FOR host IN hosts -%]
+   
+   [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+   [% self = host.id %]
+   [%- NEXT IF hosttointerface.$self -%]
+
+   [% nointerface = nointerface + 1 %]
+[%- END -%]
+
+[%- IF nointerface < 1 -%]
+
+<!-- No devices have missing nointerfaces -->
+
+[%- ELSE -%]
+
+<h3><a href="#"><strong>[% nointerface | html_entity %]</strong> devices have no network interface recorded.</a></h3>
+
+<div>
+
+[%- limit = 40 -%]
+<p>Active devices that have no network interface recorded (first [% limit | html_entity %] results shown)</p>
+
+<script type="text/javascript">
+$("#nointerface").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
+</script>
+
+<table id="nointerface" class="warning-report">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Location</th>
+    <th>Model</th>
+  </tr>
+  </thead>
+
+  <tfoot><tr><td colspan="4"></td></tr></tfoot>
+  
+  <tbody>
+  [%- FOR host IN hosts -%]
+    [%- LAST IF limit < 1 -%]
+   
+    [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+    
+    [% self = host.id %]
+    [%- NEXT IF hosttointerface.$self -%]
+    
+    [%- limit = limit - 1 -%]
+    
+    <tr>
+      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td>[% host.location_name | html_entity %]</td>
+      <td>[% host.model_name | html_entity %] ([% host.manufacturer_name | html_entity %])</td>
+    </tr>
+  [%- END -%]
+  </tbody>
+</table>
+
+</div>
+
+[%- END -%]

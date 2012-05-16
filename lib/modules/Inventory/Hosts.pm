@@ -573,7 +573,6 @@ sub get_hosts_info {
           LEFT JOIN contracts
           ON hoststocontracts.contract_id=contracts.id
          
-         
          ORDER BY
            hosts.name
         '

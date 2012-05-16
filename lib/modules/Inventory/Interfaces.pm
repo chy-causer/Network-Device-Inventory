@@ -10,7 +10,7 @@ Inventory::Interfaces
 
 =head1 VERSION
 
-This document describes Inventory::Interfaces version 1.03
+This document describes Inventory::Interfaces version 1.04
 
 =head1 SYNOPSIS
 
@@ -22,13 +22,15 @@ Functions for dealing with the Interfaces table related data
 
 =cut
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_interfaces
   edit_interfaces
+  hash_hosttointerface
   get_interfaces_info
   delete_interfaces
+  head_hostnoprimary
 );
 
 =pod
@@ -250,6 +252,83 @@ sub edit_interfaces {
     }
 
     return { 'SUCCESS' => $MSG_EDIT_OK };
+}
+
+=pod
+
+=head2 hash_hosttointerface
+
+quick hash of
+
+   host_id => interface_id
+
+We need this to be as light as possible for simple fast data checks
+
+=cut
+
+sub hash_hosttointerface {
+    my $dbh               = shift;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare('SELECT host_id,id FROM interfaces');
+    
+    return if !$sth->execute();
+
+    my %return;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        $return{$ref->{'host_id'}} = $ref->{'id'};
+    }
+
+    return \%return;
+}
+
+=pod
+
+=head2 head_hostnoprimary
+
+Active hosts with interfaces but none marked as primary
+
+quick hash for integrity checks
+
+=cut
+
+
+sub head_hostnoprimary {
+    my $dbh = shift;
+
+    return if !defined $dbh;
+
+    my $sth = $dbh->prepare('
+                SELECT 
+                  tab1.host_id
+                FROM
+                  interfaces AS tab1
+                LEFT JOIN hosts
+                  ON hosts.id = tab1.host_id
+                LEFT JOIN status
+                  ON status.id = hosts.status_id
+
+                WHERE tab1.isprimary=?
+
+                AND 1 > 
+                  (select COUNT(*) 
+                     FROM interfaces AS tab2 
+                     WHERE tab2.host_id=tab1.host_id 
+                     AND tab2.isprimary=?)
+
+                AND status.state = ?
+                
+                ');
+    
+    return if !$sth->execute('f','t','ACTIVE');
+
+    my %return;
+    while ( my $ref = $sth->fetchrow_hashref ) {
+        $return{$ref->{'host_id'}} = $ref->{'host_id'};
+    }
+
+    return \%return;
 }
 
 =pod

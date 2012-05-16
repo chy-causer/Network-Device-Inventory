@@ -1,0 +1,55 @@
+[%- nodescription = 0 -%]
+[%- FOR host IN hosts -%]
+    [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+    [%- NEXT IF ( host.description.length || 0 ) > 1 -%]
+    [%- nodescription = nodescription + 1 -%]
+[%- END -%]
+
+[%- IF nodescription < 1 -%]
+
+<!-- No devices have missing nodescriptions -->
+
+[%- ELSE -%]
+
+<h3><a href="#"><strong>[% nodescription | html_entity %]</strong> devices have no description entered.</a></h3>
+
+<div>
+
+[% limit = 40 %]
+<p>Active devices that have no description entered (first [% limit | html_entity %] results shown)</p>
+
+<script type="text/javascript">
+$("#nodescription").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
+</script>
+
+<table id="nodescription" class="warning-report">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Location</th>
+    <th>Model</th>
+  </tr>
+  </thead>
+
+  <tfoot><tr><td colspan="4"></td></tr></tfoot>
+  
+  <tbody>
+  [%- FOR host IN hosts -%]
+    [%- LAST IF limit < 1 -%]
+    
+    [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
+    [%- NEXT IF ( host.description.length || 0 ) > 1 -%]
+    [%- limit = limit - 1 -%]
+    
+    <tr>
+      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td>[% host.location_name | html_entity %]</td>
+      <td>[% host.model_name | html_entity %] ([% host.manufacturer_name | html_entity %])</td>
+    </tr>
+  [%- END -%]
+  </tbody>
+</table>
+
+</div>
+
+[%- END -%]

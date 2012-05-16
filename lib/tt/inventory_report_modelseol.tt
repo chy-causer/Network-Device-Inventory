@@ -1,4 +1,4 @@
-  [% countexpired = 0 %]
+[%- countexpired = 0 -%]
   
   [%- FOR host IN hostseol -%]
      [%- NEXT IF ! host.model_dateeol -%]
@@ -11,21 +11,21 @@
                               manufacturer_name => host.manufacturer_name,
                               dateeol           => host.model_dateeol,
                             }
-                              %]
-     [% countexpired = countexpired +1 %]
-  [% END %]
+                              -%]
+     [%- countexpired = countexpired +1 -%]
+  [%- END -%]
 
-[% IF ( countexpired || 0 ) < 1 %]
+[%- IF ( countexpired || 0 ) < 1 -%]
 
 <!-- No active model types are End of Life  -->
 
 [%- ELSE -%]
 
-<h3><a href="#">[% ( expired.keys.size || 0 ) %] model types in active use
+<h3><a href="#"><strong>[% ( expired.keys.size || 0 ) %]</strong> model types in active use
 have reached the 
 
 <abbr title="[% cisco_eol_desc | html_entity %]">
-last date of hardware support</abbr>, affecting [% countexpired %] devices</a></h3>
+last date of hardware support</abbr>, affecting <strong>[% countexpired | html_entity %]</strong> devices</a></h3>
 
 <div>
 
@@ -55,8 +55,9 @@ last date of hardware support</abbr></p>
   </tbody>
 </table>
 
+[%- limit = 40 -%]
 <p>Active devices whose model type has reached the 
-<abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> (showing the first 40)</p>
+<abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> (first [% limit | html_entity %] results shown)</p>
 
 <table class="warning-report">
   <thead>
@@ -70,10 +71,9 @@ last date of hardware support</abbr></p>
   <tfoot><tr><td colspan="5"></td></tr></tfoot>
   
   <tbody>
-  [% limit = 40 %]
   [%- FOR host IN hostseol -%]
-    [% NEXT IF limit < 1 %]
-    [% limit = limit - 1 %]
+    [%- LAST IF limit < 1  -%]
+    [%- limit = limit - 1  -%]
     
     <tr>
       <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
@@ -86,4 +86,4 @@ last date of hardware support</abbr></p>
 
 </div>
 
-[% END %]
+[%- END -%]
