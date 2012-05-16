@@ -288,19 +288,19 @@ sub host_info_wrapper {
     }
 
     if ( $fieldname eq 'shortname' ) {
+        my $like = "%$value%";
+    
         my $sth = $dbh->prepare('SELECT id FROM hosts WHERE name ILIKE ?');
 
-        if ( !$sth->execute($value) ) {
+        if ( !$sth->execute($like) ) {
             $results{'ERROR'} = $MSG_PROG_ERR;
             return \%results;
         }
 
-        while ( my $reference = $sth->fetchrow_hashref ) {
-            my %data = %{$reference};
-
+        while ( my $data = $sth->fetchrow_hashref ) {
             # an array with a single hashref in it
-            my @info = Inventory::Hosts::get_hosts_info( $dbh, $data{'id'} );
-            $results{ $data{'id'} } = \%{ $info[0] };
+            my @info = Inventory::Hosts::get_hosts_info( $dbh, $data->{'id'} );
+            $results{ $data->{'id'} } = \%{ $info[0] };
         }
         return \%results;
     }
