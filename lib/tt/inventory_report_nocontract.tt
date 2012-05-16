@@ -15,7 +15,7 @@
 
 <div>
 
-[%- limit = 40 -%]
+[%- limit = (limit || 80) -%]
 <p>Active devices that have no valid support contract (first [% limit | html_entity %] results shown)</p>
 
 <script type="text/javascript">

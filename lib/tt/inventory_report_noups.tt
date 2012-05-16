@@ -8,6 +8,10 @@
             [%- matched=1 -%]
             [%- LAST -%]
         [%- END -%]
+        [%- IF device.ups_id == host.id -%]
+            [%- matched=1 -%]
+            [%- LAST -%]
+        [%- END -%]
     [%- END -%]
 
     [%- NEXT IF matched > 0 -%]
@@ -21,12 +25,12 @@
 
 [%- ELSE -%]
 
-<h3><a href="#"><strong>[% noups | html_entity %]</strong> devices have no <abbr title="Uninterruptable Power Supply">UPS</abbr> protection recorded.</a></h3>
+<h3><a href="#"><strong>[% noups | html_entity %]</strong> have no <abbr title="Uninterruptable Power Supply">UPS</abbr> protection recorded and are not a UPS themselves.</a></h3>
 
 <div>
 
-[%- limit = 40 -%]
-<p>Active devices that have no <abbr title="Uninterruptable Power Supply">UPS</abbr> protection recorded (first [% limit | html_entity %] results shown)</p>
+[%- limit = (limit || 80) -%]
+<p>Active devices that have no <abbr title="Uninterruptable Power Supply">UPS</abbr> protection recorded and are not a UPS themselves (first [% limit | html_entity %] results shown)</p>
 
 <script type="text/javascript">
 $("#noups").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
@@ -51,6 +55,10 @@ $("#noups").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
     [%- matched=0 -%]
     [%- FOR device IN ups -%]
         [%- IF device.host_id == host.id -%]
+            [%- matched=1 -%]
+            [%- LAST -%]
+        [%- END -%]
+        [%- IF device.ups_id == host.id -%]
             [%- matched=1 -%]
             [%- LAST -%]
         [%- END -%]

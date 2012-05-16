@@ -163,6 +163,7 @@ $tt->process(
         lastyear  => $lastyear,
         ups       => \@ups,
         invoices  => \@invoices,
+        host_id   => $gets{'host_id'},
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

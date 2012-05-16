@@ -98,6 +98,7 @@ my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 my %message;    # communicate success or failure
 Readonly my $PAGETITLE    => 'Data Consistency';
 Readonly my $SECTIONTITLE => 'reports';
+Readonly my $RECORDS_PER_REPORT => '70';
 
 #############################################################################
 #                                     main                                  #
@@ -163,6 +164,7 @@ $tt->process(
         hostseolyear  => \@hostseolyear,
         hostseol      => \@hostseol,
         
+        limit         => $RECORDS_PER_REPORT,
         message       => \%message,
         host_counts   => $host_count,
         baseurl       => $BASEURL,

@@ -2,7 +2,10 @@
 [%- description = '' -%] 
 [%- INCLUDE inventory_include_hashmessage.tt -%] 
 
-[% IF edit %]
+
+
+
+[%- IF edit -%]
 <form action="hosts" method="post">
   <fieldset><legend>Edit an existing entry</legend>
   <table>
@@ -110,6 +113,10 @@
   </table>
   </fieldset>
 </form>
+   [%- IF host_id -%]
+      <!-- we want to edit details for one specific host, show as little as possible so the page is fast -->
+      [%- STOP -%]
+   [%- END -%]
 
 [% ELSIF delete %]
 

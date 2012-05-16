@@ -2,6 +2,7 @@
 [%- FOR host IN hosts -%]
    [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
     [%- matched=0 -%]
+    
     [%- FOR sshkey IN sshkeys -%]
         [%- IF sshkey.host_id == host.id -%]
             [%- matched=1 -%]
@@ -9,7 +10,25 @@
         [%- END -%]
     [%- END -%]
     [%- NEXT IF matched > 0 -%]
-   [%- nosshkey = nosshkey + 1 -%]
+
+    [%- IF !ups_cando_ssh -%]
+      [%- FOR device IN ups -%]
+        [%- IF device.ups_id == host.id -%]
+            [%- matched=1 -%]
+            [%- LAST -%]
+        [%- END -%]
+      [%- END -%]
+    [%- END -%]
+    [%- NEXT IF matched > 0 -%]
+        
+    [%- IF !ups_cando_ssh -%]
+      [%- IF host.name.match('-ups$') -%]
+          [%- matched=1 -%]
+      [%- END -%]
+    [%- END -%]
+    [%- NEXT IF matched > 0 -%]
+
+    [%- nosshkey = nosshkey + 1 -%]
 [%- END -%]
 
 [%- IF nosshkey < 1 -%]
@@ -22,7 +41,7 @@
 
 <div>
 
-[%- limit = 40 -%]
+[%- limit = (limit || 80) -%]
 <p>Active devices that have no sshkey entered (first [% limit | html_entity %] results shown)</p>
 
 <script type="text/javascript">
@@ -43,22 +62,39 @@ $("#nosshkey").tablesorter({ textExtraction:"complex",  widgets: ['zebra'], });
   <tbody>
   [%- FOR host IN hosts -%]
     [%- LAST IF limit < 1 -%]
-    
     [%- NEXT IF ( host.status_state ) != 'ACTIVE' -%]
     
     [%- matched=0 -%]
+    
     [%- FOR sshkey IN sshkeys -%]
         [%- IF sshkey.host_id == host.id -%]
             [%- matched=1 -%]
             [%- LAST -%]
         [%- END -%]
     [%- END -%]
-
     [%- NEXT IF matched > 0 -%]
+      
+    [%- IF !ups_cando_ssh -%]
+      [%- FOR device IN ups -%]
+        [%- IF device.ups_id == host.id -%]
+            [%- matched=1 -%]
+            [%- LAST -%]
+        [%- END -%]
+      [%- END -%]
+    [%- END -%]
+    [%- NEXT IF matched > 0 -%]
+    
+    [%- IF !ups_cando_ssh -%]
+      [%- IF host.name.match('-ups$') -%]
+          [%- matched=1 -%]
+      [%- END -%]
+    [%- END -%]
+    [%- NEXT IF matched > 0 -%]
+
     [%- limit = limit - 1 -%]
     
     <tr>
-      <td><a href="hosts?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
+      <td><a href="sshkeys?host_id=[% host.id | html_entity %]">[% host.name | html_entity %]</a></td>
       <td>[% host.location_name | html_entity %]</td>
       <td>[% host.model_name | html_entity %] ([% host.manufacturer_name | html_entity %])</td>
     </tr>

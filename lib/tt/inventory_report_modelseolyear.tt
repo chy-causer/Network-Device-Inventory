@@ -47,7 +47,7 @@ last date of hardware support</abbr> in the next year, affecting <strong>[% host
 
 </table>
 
-[%- limit = 40 -%]
+[%- limit = (limit || 80) -%]
 <p>Active devices whose model type is reaching the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> in the next year (first [% limit | html_entity %] results shown)</p>
 
 <table class="warning-report">

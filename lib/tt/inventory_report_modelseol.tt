@@ -55,7 +55,7 @@ last date of hardware support</abbr></p>
   </tbody>
 </table>
 
-[%- limit = 40 -%]
+[%- limit = (limit || 80) -%]
 <p>Active devices whose model type has reached the 
 <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> (first [% limit | html_entity %] results shown)</p>
 

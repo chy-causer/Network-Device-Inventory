@@ -31,6 +31,34 @@ function validatesshkey(formname) {
 
 </script>
 
+[%- IF host_id -%]
+<!-- we want to enter an sshkey for one specific host, show as little as possible so the page is fast -->
+
+[%- FOR host IN hosts -%]
+   [%- IF host.id == host_id -%]
+      [%- host_name = host.name -%]
+      [%- LAST -%]
+   [%- END -%]
+[%- END -%]
+   
+[%- IF ! host_name -%]
+    <p>Sorry, that host doesn't appear to exist</p>
+    [%- STOP -%]
+[%- END -%]
+
+<form action="sshkeys" method="post" name="newkey">
+  <fieldset><legend>Enter a new SSH key</legend>
+       <p>SSH Key fingerprint for [%  host.name | html_entity %]
+       <input type="text" maxlength="48" name="sshkey_fingerprint" onchange="return validatesshkey('newkey')" />
+       <input type="hidden" name="host_id" value="[% host_id %]">
+       <input type="hidden" name="action" value="create" />
+       <input type="submit" value="Create Entry" /></p>
+   </fieldset>
+</form>
+  [%- STOP -%]
+[%- END -%]
+
+
 
 [% IF edit %]
 <form action="sshkeys" method="post" name="editkey">
