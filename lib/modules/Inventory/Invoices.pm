@@ -10,7 +10,7 @@ Inventory::Invoices
 
 =head1 VERSION
 
-This document describes Inventory::Invoices version 1.04
+This document describes Inventory::Invoices version 1.05
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Module for manipulating the interface to interface role information
 
 =cut
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_invoices
@@ -31,6 +31,7 @@ our @EXPORT_OK = qw(
   delete_invoices
   get_hosts_byinvoice
   cost_per_month
+  count_hosts_perinvoice
 );
 
 =pod
@@ -464,6 +465,46 @@ sub cost_per_month {
     
     return @data;
 }
+
+=pod
+
+=head2 count_hosts_perinvoice
+
+Return total numers of hosts per invoice.
+
+ count_hosts_perinvoice($dbh)
+
+Returns a slightly complex has that includes state.
+
+  %return{$invoice_id}
+               {$state}{$number_of_hosts}
+               {invoice_name}{$invoice_name}
+
+=cut
+
+sub count_hosts_perinvoice {
+    my $dbh = shift;
+    my %return_hash;
+
+    if ( !defined $dbh ) { return { 'ERROR' => $MSG_DBH_ERR }; }
+
+    my @raw_hosts = Inventory::Hosts::get_hosts_info($dbh);
+
+    foreach (@raw_hosts) {
+        my %dbdata = %{$_};
+
+        my $invoice_desc = $dbdata{'invoice_description'};
+        my $invoice_id   = $dbdata{'invoice_id'};
+        my $state        = lc $dbdata{'status_state'};
+
+        $return_hash{$invoice_id}{$state}++;
+        $return_hash{$invoice_id}{'invoice_description'} = $invoice_desc;
+
+    }   
+
+    return \%return_hash;
+}
+
 
 1;
 

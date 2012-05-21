@@ -35,7 +35,7 @@ Readonly
 Template
 
 Inventory 1.0
-Inventory::Invoices 1.04
+Inventory::Invoices 1.05
 Inventory::Suppliers 1.0
 Inventory::Contacts 1.0
 Inventory::Hosts 1.02
@@ -131,6 +131,7 @@ my @contacts       = Inventory::Contacts::get_contacts_info( $dbh );
 my @suppliers      = Inventory::Suppliers::get_suppliers_info( $dbh );
 my $hostsperinvoice = Inventory::Invoices::hash_hosts_perinvoice( $dbh );
 my @costpermonth   = Inventory::Invoices::cost_per_month( $dbh );
+my $host_counts    = Inventory::Invoices::count_hosts_perinvoice($dbh);
 
 $tt->process(
     'inventory_invoices-report.tt',
@@ -142,6 +143,7 @@ $tt->process(
         hostsperinvoice => $hostsperinvoice,
         message        => \%message,
         costpermonth   => \@costpermonth,
+        hostcounts     => $host_counts,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 
@@ -150,16 +152,6 @@ $tt->process( 'inventory_footer.tt', {} );
 __END__
 
 =pod
-
-=head1 USAGE
-
-=head1 REQUIRED ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 INCOMPATIBILITIES
-
-none known
 
 =head1 BUGS AND LIMITATIONS
 
