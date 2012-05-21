@@ -17,6 +17,19 @@
 [% STOP %]
 [% END %]
 
+[% IF hostspermodelid.keys.size < 1 %]
+ <div class="ui-widget">
+   <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+      <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+           I know of no hosts at this time. It&#39;s likely none have been entered into the database yet.
+      </p>
+   </div>
+ </div>
+</div>
+[% STOP %]
+[% END %]
+
+
 [%- cisco_eol_desc='The last date to receive service and support for the product. After this date, all support services for the product are unavailable, and the product becomes obsolete.' -%]
 
 <div>
@@ -94,7 +107,6 @@
     <tr><td colspan="5">There were [% models.size | html_entity %] models returned by the database</td></tr>
   </tfoot>
 
-  [% previous_rows_manufacturerid='none' %]
   [%- FOR model IN models -%]
        [%- id = model.id -%]
        [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
