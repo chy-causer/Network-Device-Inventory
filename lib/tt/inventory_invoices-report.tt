@@ -85,6 +85,11 @@
 
   <tbody>
   [% FOR invoice IN invoices %]
+
+  [%- id = invoice.id -%]
+  [%- count_sum = ( host_counts.$id.active || 0 ) + ( host_counts.$id.inactive || 0 ) + ( host_counts.$id.instock || 0 ) -%]
+  [%- NEXT IF ( host_counts.$id.active || 0 ) < 1 %] 
+      
     <tr>
       <td>[% invoice.description    | html_entity %]</td>
       <td>[% invoice.supplier_name  | html_entity %]</td>
