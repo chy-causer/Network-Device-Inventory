@@ -59,6 +59,8 @@
 
 [%- IF !invoices || invoices.size < 1 -%]
    <p>There are no invoices to display.</p>
+[%- ELSIF !host_counts -%]
+   <p>There are no active hosts to display</p>
 [%- ELSE -%]
 
 [%- INCLUDE inventory_include_tablesort.tt -%]
