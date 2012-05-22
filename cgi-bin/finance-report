@@ -35,7 +35,7 @@ Readonly
 Template
 
 Inventory 1.0
-Inventory::Invoices 1.04
+Inventory::Invoices 1.06
 Inventory::Hosts 1.02
 
 =cut
@@ -51,7 +51,7 @@ use Template;
 
 use Inventory 1.0;
 use Inventory::Hosts 1.02;
-use Inventory::Invoices 1.04;
+use Inventory::Invoices 1.06;
 
 my $HOSTNAME = CGI::url( -base => 1 );
 my $BASEURL = $HOSTNAME;
@@ -126,6 +126,7 @@ if ( !exists $CONFIG->{general}->{demo} ) {
 my @invoices     = Inventory::Invoices::get_invoices_info($dbh);
 my @costpermonth = Inventory::Invoices::cost_per_month( $dbh );
 my @hosts        = Inventory::Hosts::get_hosts_info($dbh);
+my $money_spent  = Inventory::Invoices::money_spent($dbh);
     
 $tt->process(
     'inventory_finances-report.tt',
@@ -134,6 +135,7 @@ $tt->process(
         invoices     => \@invoices,
         hosts          => \@hosts,
         message      => \%message,
+        money_spent  => $money_spent,
     }
 ) || Carp::croak "Error: can't load the page due to " . $tt->error() . "\n";
 

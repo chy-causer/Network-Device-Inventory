@@ -10,7 +10,7 @@ Inventory::Invoices
 
 =head1 VERSION
 
-This document describes Inventory::Invoices version 1.05
+This document describes Inventory::Invoices version 1.06
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Module for manipulating the interface to interface role information
 
 =cut
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_invoices
@@ -32,6 +32,7 @@ our @EXPORT_OK = qw(
   get_hosts_byinvoice
   cost_per_month
   count_hosts_perinvoice
+  money_spent
 );
 
 =pod
@@ -505,6 +506,41 @@ sub count_hosts_perinvoice {
     return \%return_hash;
 }
 
+=pod
+
+=head2 money_spent
+
+How much money was spent in the last year
+    money_spent($dbh)
+
+Or if a number of days is supplied, use that as the time period instead
+    money_spent($dbh, 31);
+    
+=cut
+
+sub money_spent {
+    my ($dbh,$days) = @_;
+    my $DAYS_IN_YEAR='365';
+
+    return if not defined $dbh;
+    
+    if (not defined $days or $days !~ m/^\d$/ ){
+        $days = $DAYS_IN_YEAR;
+    }
+
+    my $sth = $dbh->prepare("
+                  SELECT SUM(totalcost) 
+                  FROM invoices 
+                  WHERE date > (CURRENT_TIMESTAMP - CAST( ? AS INTERVAL) )
+        ");
+
+    my $interval = "$days days";
+    return if not $sth->execute($interval);
+
+    my $ref = $sth->fetchrow_hashref;
+    
+    return $ref->{sum};
+}
 
 1;
 

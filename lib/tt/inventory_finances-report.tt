@@ -19,18 +19,15 @@
 [%- INCLUDE inventory_graph_costs.tt -%]
 
 <h4>Print Options</h4>
-<p>[WIP] <a href="">Print all invoices from this financial year</a></p>
-<p>[WIP] <a href="">Print all invoices from the past 365 days</a></p>
-<p>[WIP] <a href="">Print all hosts indexed by invoice</a></p>
-<p>[WIP] <a href="">Print all hosts without an invoice</a></p>
+<p><a href="invoices-print?selection=all">Print all hosts indexed by invoice</a></p>
+<p><a href="invoices-print?selection=missing">Print all hosts without an associated invoice</a></p>
+<p><a href="invoices-print?selection=active">Print active hosts indexed by invoice</a></p>
 <p><a href="#" onclick="window.print();return false;">Print this report</a></p>
-
 </div> <!-- end right column -->
 
 <div id="middlecolumn">
 
-<p><strong>FIXME</strong> has been spent in the past 365 days</p>
-<p><strong>FIXME</strong> has been spent since the start of the financial year (<strong>FIXME</strong>)</p>
+<p><strong>[% (money_spent || 0)  | html_entity %]</strong> has been spent in the past 365 days</p>
 
 <script type="text/javascript">
 <!--
