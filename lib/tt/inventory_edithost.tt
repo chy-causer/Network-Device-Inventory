@@ -1,8 +1,6 @@
 <div>
 [%- INCLUDE inventory_include_arraymessage.tt -%]
 
-[%- INCLUDE inventory_hostsearch.tt IF edithost -%]
-
 [%- IF hosts.keys.size == 1 -%]
 [%- SET host = hosts.values.first -%]
 [%- END -%]
