@@ -253,13 +253,14 @@ while ( my ( $key, $value ) = each %searchterms ) {
     }
 }
 
-my @locations    = Inventory::Locations::get_locations_info($dbh);
-my @models       = Inventory::Models::get_models_info($dbh);
-my @frodo_models = Inventory::Models::get_frodo_models($dbh);
-my @status       = Inventory::Status::get_status_info($dbh);
-my @ups          = Inventory::Ups::get_ups_info($dbh);
-my @hostgroups   = Inventory::Introles::get_hostgroups_info($dbh);
-my @invoices     = Inventory::Invoices::get_invoices_info($dbh);
+my @locations     = Inventory::Locations::get_locations_info($dbh);
+my @models        = Inventory::Models::get_models_info($dbh);
+my @frodo_models  = Inventory::Models::get_frodo_models($dbh);
+my @voipgw_models = Inventory::Models::get_voipgw_models($dbh);
+my @status        = Inventory::Status::get_status_info($dbh);
+my @ups           = Inventory::Ups::get_ups_info($dbh);
+my @hostgroups    = Inventory::Introles::get_hostgroups_info($dbh);
+my @invoices      = Inventory::Invoices::get_invoices_info($dbh);
 
 # dont attempt a lookup on a simple non query page load
 if ( defined $lookup && length $lookup > 0 ) {
@@ -291,6 +292,7 @@ $tt->process(
         hostgroups   => \@hostgroups,
         models       => \@models,
         frodo_models => \@frodo_models,
+        voipgw_models => \@voipgw_models,
         status       => \@status,
 
         baseurl   => $BASEURL,

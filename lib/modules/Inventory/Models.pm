@@ -10,7 +10,7 @@ Inventory::Models
 
 =head1 VERSION
 
-This document describes Inventory::Models version 1.02
+This document describes Inventory::Models version 1.03
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ Functions for dealing with the Model related data and analysis of it.
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 use base qw( Exporter);
 our @EXPORT_OK = qw(
   create_models
@@ -37,6 +37,7 @@ our @EXPORT_OK = qw(
   hash_hosts_permodel
   hosts_modeleol_thisyear
   hosts_modeleol
+  get_voipgw_models
 );
 
 =pod
@@ -347,6 +348,10 @@ sub get_frodo_models {
                 OR models.name LIKE \'%224%\'
                 OR models.name LIKE \'%2960%\'
                 OR models.name LIKE \'%4948%\'
+                OR models.name LIKE \'%C1861SRST%\'
+                OR models.name LIKE \'%C2811SRST%\'
+                OR models.name LIKE \'%C2911%\'
+                OR models.name LIKE \'%C3825%\'
             )
            ) OR (
             manufacturers.name =?
@@ -364,6 +369,61 @@ sub get_frodo_models {
 
     return @return_array;
 }
+
+=pod
+
+=head2 get_voipgw_models
+
+Return all model types associated with the VOIP Gateway project
+
+https://github.com/guyed/Network-Device-Inventory/issues/33
+FIXME: 'Cisco', '3750' and similar values should be in a config file or
+database table, not hardcoded. 
+
+=cut
+
+sub get_voipgw_models {
+    my $dbh = shift;
+    my $sth;
+
+    return if !defined $dbh;
+
+    $sth = $dbh->prepare(
+        'SELECT 
+           models.id,
+           models.name,
+           models.manufacturer_id,
+           models.dateeol,
+           date_part(?, date_trunc(?, (models.dateeol -now()))) AS dateeol_daysremaining,
+           manufacturers.name AS manufacturer_name
+        FROM models
+        LEFT JOIN manufacturers 
+        ON
+           models.manufacturer_id = manufacturers.id
+        WHERE
+           (
+            manufacturers.name =?
+             AND (
+                models.name LIKE \'%C1861SRST%\'
+                OR models.name LIKE \'%C2811SRST%\'
+                OR models.name LIKE \'%C2911%\'
+                OR models.name LIKE \'%C3825%\'
+             )
+            )
+        ORDER BY 
+           models.name
+        '
+    );
+    return if !$sth->execute( $TIMEUNIT, $TIMEUNIT, 'Cisco' );
+
+    my @return_array;
+    while ( my $reference = $sth->fetchrow_hashref ) {
+        push @return_array, $reference;
+    }
+
+    return @return_array;
+}
+
 
 =pod
 
