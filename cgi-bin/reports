@@ -8,6 +8,7 @@ use Carp;
 use CGI;
 use Config::Tiny;
 use Log::Log4perl;
+use Readonly;
 use Template;
 
 use Inventory 1.0;
@@ -51,8 +52,8 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => $pagetitle,
-        pagename    => $pagename,
+        pagetitle   => $PAGETITLE,
+        pagename    => $PAGENAME,
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},
