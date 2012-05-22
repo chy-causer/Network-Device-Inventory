@@ -6,19 +6,25 @@ feed a network monitoring system.
 
 It was approved for release as open source code on the 10th February 2012
 
-At the time of public release the code is in the process of being
-'publicified' so may make references to private/in house systems and terms or
-be in a non working state where parts have been removed. 
+The application is in the process of being made less site specific, so
+currently may make references to projects and terms that don't make much sense.
 
 =head2 Any demo site?
 
-A working demonstration site is currently online but I've further work to do
-to finish the reporting improvements. It's planned to have an acceptable
-demonstration online by 19th May 2012.
+As of 19th May 2012 I've put a basic demonstration site online at
+http://inventory.donder.co.uk
 
-I'll update this page with a link at that time.
+It's currently lacking
 
-=head2 What it is
+* pages to explain the readonly status
+* example data
+* a better default style
+
+These issues should be solved by 25th May 2012
+
+I'll update this page at that time.
+
+=head2 Tell me more about what it is
 
 If you're deploying Nagios or similar and are thinking you'll have to write a
 database to hold all the information, plus write scripts to feed the nagios
@@ -80,6 +86,7 @@ Digest,
 File,
 Net::DNS,
 NetAddr,
+Readonly,
 Regexp,
 Template,
 URI

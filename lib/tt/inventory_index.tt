@@ -5,19 +5,20 @@ what devices and servers are on a network. It was originally written to feed
 information to various in-house monitoring systems at a university in the
 central networks team.</p>
 
-<p>It was very basic when written in 2007 and there was little development
-internally after completion but in 2012 the author, who was leaving the company,
-was granted permission to open-source the application. The open source release
-meant that the author could develop it as a portfolio example of a reasonably
-large project in active industry use and as a result the university benefitted
-from any new features introduced without cost.</p>
+<p>It was basic when written in 2007 and there was little development
+internally after it was complete enough to feed the monitoring system but in
+2012 the author, who was leaving the company, was granted permission to
+open-source the application. The open source release meant that the author
+could develop it as a portfolio example of a reasonably large project in
+active industry use and as a result the university benefitted from any new
+features introduced without cost.</p>
 
-<h4>It seems a little... unfinished?</h4>
+<h4>It seems a little... odd?</h4>
 
 <p>Because it was a internal private system, the current code on github is
 currently having the site-specific parts worked around, made optional and
-replaced. In short it's a little in-flux but should improve soon. It should be
-usable by ~July 2012</p>
+replaced. In short it's a little site specific still but should improve over
+time.</p>
 
 <h4>What can it currently do?</h4>
 
@@ -38,19 +39,7 @@ to side step an issue with the separate IPAM in use locally and is not likely
 to stay - the inventory depends upon DNS as a source of information rather
 than generating records for it.</p>
 
-<h4>What are you writing right now? (April 2012)</h4>
-
-<ul>
-   <li>Javascript input validation (but the forms work fine without)</li>
-   <li>Some helpful ajax on form input</li> 
-   <li>Separation of reporting and changing operations</li>
-   <li>Improved reporting information</li>
-   <li>Removing bugs or defects</li>
-   <li>Making it less site specific whilst still being able to work for the
-   original purpose</li>
-   <li>User activity logging (edits, deletes)</li>
-</ul>
-
 <h4>What is on the way?</h4>
 
-<p>For the full current roadmap see the <a href="http://github.com/guyed/Network-Device-Inventory/blob/master/todo">todo</a> file on github</p>
+<p>For the current milestones and open issues see the <a href="https://github.com/guyed/Network-Device-Inventory/issues">issues</a>
+list on github</p>
