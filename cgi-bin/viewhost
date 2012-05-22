@@ -10,6 +10,7 @@ use Config::Tiny;
 use DBD::Pg;
 use DBI;
 use NetAddr::IP;
+use Readonly;
 use Template;
 use URI::Escape;
 
@@ -53,6 +54,9 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 my %POSTS;
 
+Readonly my $PAGETITLE => 'View Hosts';
+Readonly my $PAGENAME  => $ENV{'SCRIPT_NAME'};
+
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -68,7 +72,8 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => 'View Hosts',
+        pagetitle   => $PAGETITLE,
+        pagename    => $PAGENAME,
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},

@@ -45,7 +45,8 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
-Readonly my $PAGETITLE => 'Financial Overview';
+Readonly my $PAGETITLE    => 'Financial Overview';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 Readonly my $SECTIONTITLE => 'admin';
 
 #############################################################################
@@ -64,6 +65,7 @@ $tt->process(
     'inventory_header.tt',
     {
         pagetitle    => $PAGETITLE,
+        pagename     => $PAGENAME,
         sectiontitle => $SECTIONTITLE,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
@@ -108,7 +110,7 @@ if ( $gets{'invoice_id'} && $gets{'invoice_id'} =~ m/^[\d]+$/x ) {
         $invoice[0]->{supplier_id} );
 }
 
-my %message;    # communicate success or failure, sink or swim
+my %message;    # communicate success or failure
 
 my @invoices = Inventory::Invoices::get_invoices_info($dbh);
 

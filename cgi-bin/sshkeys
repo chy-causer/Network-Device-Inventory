@@ -44,7 +44,10 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 Readonly my $PAGETITLE => 'SSH Key Fingerprints';
+Readonly my $PAGENAME  => $ENV{'SCRIPT_NAME'};
 Readonly my $SECTIONTITLE => 'admin';
+
+my %message;    # communicate success or failure
 
 #############################################################################
 #                                     main                                  #
@@ -62,6 +65,7 @@ $tt->process(
     'inventory_header.tt',
     {
         pagetitle    => $PAGETITLE,
+        pagename     => $PAGENAME,
         sectiontitle => $SECTIONTITLE,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
@@ -99,7 +103,6 @@ if ( $gets{'sshkey_id'} && $gets{'sshkey_id'} =~ m/^[\d]+$/x ) {
     }
 }
 
-my %message;    # communicate success or failure, sink or swim
 
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {

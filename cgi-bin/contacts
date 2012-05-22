@@ -43,8 +43,9 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
-Readonly my $PAGETITLE => 'Contacts';
+Readonly my $PAGETITLE    => 'Contacts';
 Readonly my $SECTIONTITLE => 'admin';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 
 #############################################################################
 #                                     main                                  #
@@ -63,6 +64,7 @@ $tt->process(
     {
         pagetitle    => $PAGETITLE,
         sectiontitle => $SECTIONTITLE,
+        pagename     => $PAGENAME,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
         appname      => $CONFIG->{'general'}->{appname},
@@ -101,7 +103,7 @@ if ( $gets{'contact_id'} && $gets{'contact_id'} =~ m/^[\d]+$/x ) {
     }
 }
 
-my %message;    # communicate success or failure, sink or swim
+my %message;    # communicate success or failure
 
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {

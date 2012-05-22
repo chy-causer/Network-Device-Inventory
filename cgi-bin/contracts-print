@@ -87,7 +87,7 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
-Readonly my $PAGETITLE => 'Contract Report';
+Readonly my $PAGETITLE    => 'Contract Report';
 Readonly my $SECTIONTITLE => 'reports';
 
 #############################################################################

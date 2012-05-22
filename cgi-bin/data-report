@@ -98,6 +98,7 @@ my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 my %message;    # communicate success or failure
 Readonly my $PAGETITLE    => 'Data Consistency';
 Readonly my $SECTIONTITLE => 'reports';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 Readonly my $RECORDS_PER_REPORT => '70';
 
 #############################################################################
@@ -117,6 +118,7 @@ $tt->process(
     {
         pagetitle    => $PAGETITLE,
         sectiontitle => $SECTIONTITLE,
+        pagename     => $PAGENAME,
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},

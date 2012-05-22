@@ -33,6 +33,9 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
+Readonly my $PAGETITLE => 'Report Options';
+Readonly my $PAGENAME  => $ENV{'SCRIPT_NAME'};
+
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -48,7 +51,8 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => 'Report Options',
+        pagetitle   => $pagetitle,
+        pagename    => $pagename,
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},

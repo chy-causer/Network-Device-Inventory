@@ -45,6 +45,7 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 Readonly my $PAGETITLE => 'Map Hosts to Contracts';
+Readonly my $PAGENAME  => $ENV{'SCRIPT_NAME'};
 Readonly my $SECTIONTITLE => 'admin';
 
 #############################################################################
@@ -63,6 +64,7 @@ $tt->process(
     'inventory_header.tt',
     {
         pagetitle    => $PAGETITLE,
+        pagename     => $PAGENAME,
         sectiontitle => $SECTIONTITLE,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
@@ -102,7 +104,7 @@ if ( $gets{'hosttocontract_id'} && $gets{'hosttocontract_id'} =~ m/^[\d]+$/x ) {
     }
 }
 
-my %message;    # communicate success or failure, sink or swim
+my %message;    # communicate success or failure
 
 # are we creating/editing or deleting?
 if ( $POSTS{'hosttocontract_id'} ) {

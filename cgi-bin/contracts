@@ -43,8 +43,10 @@ my $logconfigfile     = $CONFIG->{'locations'}->{log_conf};
 
 Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
+
 Readonly my $PAGETITLE => 'Contracts';
 Readonly my $SECTIONTITLE => 'admin';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 
 #############################################################################
 #                                     main                                  #
@@ -63,6 +65,7 @@ $tt->process(
     {
         pagetitle    => $PAGETITLE,
         sectiontitle => $SECTIONTITLE,
+        pagename     => $PAGENAME,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
         appname      => $CONFIG->{'general'}->{appname},
@@ -101,7 +104,7 @@ if ( $gets{'contract_id'} && $gets{'contract_id'} =~ m/^[\d]+$/x ) {
     }
 }
 
-my %message;    # communicate success or failure, sink or swim
+my %message;    # communicate success or failure
 
 # are we creating/editing or deleting?
 if ( $POSTS{'contract_id'} ) {

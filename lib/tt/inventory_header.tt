@@ -55,7 +55,7 @@
         &gt; <a href="[% sectiontitle | html_entity %]">[% sectiontitle FILTER ucfirst | html_entity %]</a>
     [%- END -%]
     [%- IF pagetitle && pagetitle != Index -%]
-        &gt; [%- pagetitle FILTER ucfirst | html_entity -%]
+        &gt; <a href="[% pagename | html_entity %]">[%- pagetitle FILTER ucfirst | html_entity -%]</a>
     [%- END -%]
     </h2>
     <p>Search for <input type="text" name="searchterm" /> <input type="submit" value="go" />(DNS, shortname, IP or serial)</p>

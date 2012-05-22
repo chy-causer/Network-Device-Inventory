@@ -48,6 +48,7 @@ Log::Log4perl->init($logconfigfile);
 my $logger = Log::Log4perl->get_logger();
 
 Readonly my $PAGETITLE => 'Photos of Hosts';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 Readonly my $SECTIONTITLE => 'admin';
 
 #############################################################################
@@ -66,6 +67,7 @@ $tt->process(
     'inventory_header.tt',
     {
         pagetitle    => $PAGETITLE,
+        pagename     => $PAGENAME,
         sectiontitle => $SECTIONTITLE,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
@@ -103,7 +105,7 @@ if ( $gets{'photo_id'} && $gets{'photo_id'} !~ m/\D/x ) {
     }
 }
 
-my %message;    # communicate success or failure, sink or swim
+my %message;    # communicate success or failure
 
 # are we editing/deleting an existing entry?
 if ( exists $POSTS{'action'} ) {

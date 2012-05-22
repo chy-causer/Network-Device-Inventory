@@ -38,7 +38,8 @@ my $valid_users = $CONFIG->{'general'}->{allowed_users};
 my $htmltemplatepath  = $CONFIG->{'locations'}->{tt_dir};
 my $localtemplatepath = $CONFIG->{'locations'}->{local_tt_dir};
 
-Readonly my $PAGETITLE => 'Manufacturers';
+Readonly my $PAGETITLE    => 'Manufacturers';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 Readonly my $SECTIONTITLE => 'reports';
 
 my %message;    # communicate success or failure
@@ -58,6 +59,7 @@ $tt->process(
     'inventory_header.tt',
     {
         pagetitle    => $PAGETITLE,
+        pagename     => $PAGENAME,
         sectiontitle => $SECTIONTITLE,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},

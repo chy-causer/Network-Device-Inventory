@@ -13,6 +13,7 @@ use Digest::SHA;
 use File::Slurp;
 use Log::Log4perl;
 use LWP::UserAgent;
+use Readonly;
 use Template;
 
 use Inventory 1.00;
@@ -41,6 +42,9 @@ my $logger = Log::Log4perl->get_logger();
 
 my $message;
 
+Readonly my $PAGETITLE => 'About';
+Readonly my $PAGENAME  => $ENV{'SCRIPT_NAME'};
+
 #############################################################################
 #                                     main                                  #
 #############################################################################
@@ -56,7 +60,8 @@ my $tt = Template->new(
 $tt->process(
     'inventory_header.tt',
     {
-        pagetitle   => 'About',
+        pagetitle   => $PAGETITLE,
+        pagename    => $PAGENAME,
         baseurl     => $BASEURL,
         groupname   => $CONFIG->{'general'}->{groupname},
         appname     => $CONFIG->{'general'}->{appname},

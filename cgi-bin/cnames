@@ -45,6 +45,7 @@ my $logger = Log::Log4perl->get_logger();
 
 Readonly my $PAGETITLE => 'DNS records';
 Readonly my $SECTIONTITLE => 'admin';
+Readonly my $PAGENAME  => $ENV{'SCRIPT_NAME'};
 
 #############################################################################
 #                                     main                                  #
@@ -63,6 +64,7 @@ $tt->process(
     {
         pagetitle    => $PAGETITLE,
         sectiontitle => $SECTIONTITLE,
+        pagename     => $PAGENAME,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
         appname      => $CONFIG->{'general'}->{appname},
@@ -105,7 +107,7 @@ if ( $gets{'cname_id'} && $gets{'cname_id'} =~ m/^[\d]+$/x ) {
     }
 }
 
-my @message_store;    # communicate success or failure, sink or swim
+my @message_store;    # communicate success or failure
 
 # are we taking action?
 if ( exists $POSTS{'action'} ) {

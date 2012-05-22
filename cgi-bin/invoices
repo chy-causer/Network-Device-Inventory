@@ -46,7 +46,8 @@ my $logger = Log::Log4perl->get_logger();
 
 my %message;    # communicate success or failure
 
-Readonly my $PAGETITLE => 'Invoices';
+Readonly my $PAGETITLE    => 'Invoices';
+Readonly my $PAGENAME     => $ENV{'SCRIPT_NAME'};
 Readonly my $SECTIONTITLE => 'admin';
 
 #############################################################################
@@ -65,6 +66,7 @@ $tt->process(
     'inventory_header.tt',
     {
         pagetitle    => $PAGETITLE,
+        pagename     => $PAGENAME,
         sectiontitle => $SECTIONTITLE,
         baseurl      => $BASEURL,
         groupname    => $CONFIG->{'general'}->{groupname},
