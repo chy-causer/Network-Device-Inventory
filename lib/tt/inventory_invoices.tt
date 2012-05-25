@@ -141,6 +141,7 @@
   <tbody>
   [% counter=0 %]
   [% FOR invoice IN invoices %]
+    <tr>
       <td><input type="radio" name="invoice_id" value="[% invoice.id  | html_entity %]" /></td>
       <td>[% invoice.description    | html_entity %]</td>
       <td>[% invoice.supplier_name  | html_entity %]</td>
@@ -155,9 +156,10 @@
    </tr>
   
   [% END %]
-  </tbody>
-</fieldset>
-</table>
+   </tbody>
+  </table>
+ </fieldset>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">

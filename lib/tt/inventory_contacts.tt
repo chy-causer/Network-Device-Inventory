@@ -75,9 +75,21 @@ function showHide(shID) {
   <p class="block-warning">No suppliers exist yet, please create some first on the <a href="suppliers">suppliers</a> page</p>
 
 [%- ELSE -%]
+  
+[%- othercorp=0 -%]
+[%- mycorp=0 -%]
+
+[%- FOR contact IN contacts -%]
+  [%- IF contact.supplier_name == 'OUCS' -%]
+    [%- mycorp = mycorp + 1 -%]
+  [%- ELSE -%]
+    [%- othercorp = othercorp+1 -%]
+  [%- END -%]
+[%- END -%]
+
   <p><a href="#" [% IF edit %] [% ELSE %]style="display:none;" [% END %] id="new-show" onclick="showHide('new');return false;">+ Show the new entry form</a></p>
 
-  <form id="new" [% IF edit %] style="display:none;" [% ELSE %][% END %] action="" method="post">
+  <form id="new" [% IF edit %] style="display:none;" [% ELSE %][% END %] action="contacts" method="post">
     <fieldset><legend>Enter a new contact <a href="#" id="new-hide" onclick="showHide('new');return false;">( - Hide the addition form)</a></legend>
       
       <table>
@@ -94,8 +106,10 @@ function showHide(shID) {
        <tr><th>Telephone </th> <td><input type="text" maxlength="35" name="contact_telephone" /></td></tr>
        <tr><th>Address   </th> <td><input type="text" maxlength="255" name="contact_address" /></td></tr>
        <tr><th>Notes     </th> <td><input type="text" maxlength="255" name="contact_notes" /></td></tr>
+       <tr><td colspan="2">
        <input type="hidden" name="action" value="create" />
-       <tr><td colspan="2"><input type="submit" value="Create Entry" /></td></tr>
+       <input type="submit" value="Create Entry" />
+       </td></tr>
        </table>
 
      </fieldset>
@@ -108,29 +122,22 @@ function showHide(shID) {
 
 [% INCLUDE inventory_include_tablesort.tt %]
 
-<form action="" method="get">
+<form action="contacts" method="get">
 
 <fieldset><legend>External Contacts</legend>
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 <table id="allresults">
   <thead> <tr> <th></th> <th>Name</th> <th>Company</th> <th>Contact</th> <th>Notes</th> </tr> </thead>
   
-  [%- counter=0 -%]
-  [%- FOR contact IN contacts -%]
-      [%- NEXT IF contact.supplier_name == 'OUCS' -%]
-      [%- counter=counter+1 -%]
-  [%- END -%]
-
-  <tfoot> <tr><td colspan="8">[% counter %] results were obtained</td></tr> </tfoot>
+  <tfoot> <tr><td colspan="8">[% othercorp %] results were obtained</td></tr> </tfoot>
 
   <tbody>
-  [%- counter=0 -%]
   [%- FOR contact IN contacts -%]
       [%- NEXT IF contact.supplier_name == 'OUCS' -%]
       
    <tr>
       <td><input type="radio" name="contact_id" value="[% contact.id  | html_entity %]" /></td>
-      <td>[% contact.name          | html_entity %] [% IF contact.role.length > 1 %] <br /><span class="role">([% contact.role | html_entity %])</a>[% END %]</td>
+      <td><a href="contacts?contact_id=[% contact.id | html_entity %]">[% contact.name | html_entity %]</a> [% IF contact.role.length > 1 %] <br /><span class="role">([% contact.role | html_entity %])</span>[% END %]</td>
       <td>[% contact.supplier_name | html_entity %]</td>
       <td>
           [% IF contact.email.length >1 %] <a href="mailto:[% contact.email | html_entity %]">[% contact.email | html_entity %]</a><br /> [% END %]
@@ -140,34 +147,29 @@ function showHide(shID) {
       <td>[% contact.notes         | html_entity %]</td>
    </tr>
   
-      [%- counter=counter+1 -%]
   [%- END -%]
   </tbody>
 </table>
 </fieldset>
 
-<fieldset><legend>OUCS Contacts</legend>
+
+[% IF mycorp > 0 %]
+
+<fieldset><legend>My Company</legend>
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>
 
 <table id="oucsresults">
   <thead> <tr> <th></th> <th>Name</th> <th>Contact</th> <th>Notes</th> </tr> </thead>
   
-  [%- counter=0 -%]
-  [%- FOR contact IN contacts -%]
-      [%- NEXT IF contact.supplier_name != 'OUCS' -%]
-      [%- counter=counter+1 -%]
-  [%- END -%]
-
-  <tfoot> <tr><td colspan="8">[% counter | html_entity %] results were obtained</td></tr> </tfoot>
+  <tfoot> <tr><td colspan="8">[% mycorp | html_entity %] results were obtained</td></tr> </tfoot>
 
   <tbody>
-  [%- counter=0 -%]
   [%- FOR contact IN contacts -%]
       [%- NEXT IF contact.supplier_name != 'OUCS' -%]
     
     <tr>
       <td><input type="radio" name="contact_id" value="[% contact.id  | html_entity %]" /></td>
-      <td>[% contact.name          | html_entity %] [% IF contact.role.length > 1 %] <br /><span class="role">([% contact.role | html_entity %])</a>[% END %]</td>
+      <td><a href="contacts?id=[% contact.id  | html_entity %]">[% contact.name | html_entity %]</a> [% IF contact.role.length > 1 %] <br /><span class="role">([% contact.role | html_entity %])[% END %]</td>
       <td>
           [% IF contact.email.length >1 %]     <a href="mailto:[% contact.email | html_entity %]">[% contact.email | html_entity %]</a> [% END %]
           [% IF contact.telephone.length >1 %] [% contact.telephone     | html_entity %]<br /> [% END %]
@@ -175,11 +177,12 @@ function showHide(shID) {
       </td>
       <td>[% contact.notes         | html_entity %]</td>
    </tr>
-      [%- counter=counter+1 -%]
   [%- END -%]
   </tbody>
 </table>
 </fieldset>
+[% END %]
+
 </form>
 
 [%- ELSE -%]

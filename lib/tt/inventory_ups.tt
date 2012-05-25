@@ -57,7 +57,6 @@
 
 [% END -%]
 
-<h3>Enter a new record</h3>
 [% IF hosts.size < 1 %]
     <p class="input-warning">It's not possible to add new ups link records until you've created some hosts (e.g. via the <a href="quickadd"> or <a href="hosts">hosts page</a>).</p>
     
@@ -65,6 +64,7 @@
     <p class="input-warning">It's not possible to add new ups link records until you've created UPSs</p>
 
 [% ELSE %]
+<h3>Enter a new record</h3>
 <form action="ups" method="post">
   <fieldset>
   <p>Link this host
@@ -87,11 +87,11 @@
 </form>
 [% END %]
 
+[% IF links.size > 0 %]
 
 <form method="get" action="ups">
 <fieldset><legend>Known UPS protected devices</legend>
 
-[% IF links.size > 0 %]
 [% INCLUDE inventory_include_tablesort.tt %]
 
 <p><input type="submit" name="action" value="edit" /> <input type="submit" name="action" value="delete" /></p>

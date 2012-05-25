@@ -15,8 +15,8 @@
 [%- END -%]
 
 
-<form id="edithost" method="POST" action="[% IF quickdevice %]quickdevice[% ELSE %]edithost[% END %]" >
-<input type="hidden" name="script_mode" value="[% script_mode | html_entity %]" />
+<form id="edithost" method="post" action="[% IF quickdevice %]quickdevice[% ELSE %]edithost[% END %]" >
+<div><input type="hidden" name="script_mode" value="[% script_mode | html_entity %]" /></div>
 
 <table>
 
@@ -29,32 +29,32 @@
     [%- ELSIF posts.device_type=="frodo" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">FroDo Switch<br />
+                 document.getElementById('ups').style.display=''" />FroDo Switch<br />
     <input type="radio" name="device_type" value="secdist"
     [%- IF posts.exists('device_type') AND posts.device_type=="secdist" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">VOIP Distributor Switch<br />
+                 document.getElementById('ups').style.display=''" />VOIP Distributor Switch<br />
     <input type="radio" name="device_type" value="secpoe"
     [%- IF posts.exists('device_type') AND posts.device_type=="secpoe" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">VOIP PoE Switch<br />
+                 document.getElementById('ups').style.display=''" />VOIP PoE Switch<br />
     <input type="radio" name="device_type" value="secups"
     [%- IF posts.exists('device_type') AND posts.device_type=="secups" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display='none'">VOIP UPS<br />
+                 document.getElementById('ups').style.display='none'" />VOIP UPS<br />
     <input type="radio" name="device_type" value="secvg"
     [%- IF posts.exists('device_type') AND posts.device_type=="secvg" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='none';
-                 document.getElementById('ups').style.display=''">Cisco VG224<br />
+                 document.getElementById('ups').style.display=''" />Cisco VG224<br />
     <input type="radio" name="device_type" value="voipgateway"
     [%- IF posts.exists('device_type') AND posts.device_type=="voipgateway" %] checked="checked" [% END -%]
         onclick="document.getElementById('fn').style.display='none';
                  document.getElementById('mod').style.display='';
-                 document.getElementById('ups').style.display=''">VOIP Gateway<br />
+                 document.getElementById('ups').style.display=''" />VOIP Gateway<br />
     </td>
   </tr>
 
@@ -267,24 +267,24 @@
     <fieldset>
     IP: <input type="text" size="15" name="interface_x_ip" value="" />
     [%- IF edithost -%]
-        <li>is: 
+        <p>is: 
             <select name="interface_x_isprimary">
                 <option value="false" selected="selected">not the primary interface</option>
                 <option value="true">the primary interface</option>
             </select>
-        </li>
+        </p>
     [%- ELSE -%]
         [%- # add and frodo are automatically primary of course -%]
         <input type="hidden" name="interface_x_isprimary" value="true" />
     [%- END -%]
-    <li>role: 
+    <p>role: 
         <select name="interface_x_role">
             <option value="" selected="selected">-- set interface role ? --</option>
             [%- FOR hostgroup IN hostgroups.sort('name') -%]
             <option value="[% hostgroup.id | html_entity %]">[% hostgroup.name | html_entity %]</option>
             [%- END -%]
         </select>
-    </li>
+    </p>
     </fieldset>
     [%- IF host.interfaces.size -%]
         <p>* To delete an Interface, blank out the IP Address field
@@ -317,6 +317,8 @@
 [%- END -%] [%- # if not quickdevice -%]
 
 </table>
+
+<p>
 <input type="hidden" name="host_id" value="[% host.id | html_entity %]" />
 [%- IF edithost -%]
     <input type="submit" id="submit" value="Submit Changes" />
@@ -325,6 +327,8 @@
 [%- ELSIF quickdevice -%]
     <input type="submit" id="submit" value="Create Device" disabled="disabled" />
 [%- END -%]
+</p>
+
 </form>
 
 </div>

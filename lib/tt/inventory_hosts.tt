@@ -254,6 +254,7 @@
       <td>
       <input type="hidden" name="action" value="create" />
       <input type="submit" id="submit" value="Create Entry" />
+      </td>
       <td></td>
     </tr>
   </table>

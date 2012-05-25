@@ -55,7 +55,7 @@ $(document).ready(function(){
      [%- ELSE -%]
      <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
      <td>
-        <form action="" method="POST">
+        <form action="" method="post">
           <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
           <input type="submit" value="download from github" />
         </form>
@@ -91,7 +91,7 @@ $(document).ready(function(){
      [%- ELSE -%]
      <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
      <td>
-        <form action="" method="POST">
+        <form action="" method="post">
           <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
           <input type="submit" value="download from github" />
         </form>
@@ -126,7 +126,7 @@ $(document).ready(function(){
      [%- ELSE -%]
      <td class="block-error"><a href="[% files.$file.github_url | html_entity %]">Differences</a></td>
      <td>
-        <form action="" method="POST">
+        <form action="" method="post">
           <input type="hidden" name="file" value="[% files.$file.name | html_entity %]" />
           <input type="submit" value="download from github" />
         </form>

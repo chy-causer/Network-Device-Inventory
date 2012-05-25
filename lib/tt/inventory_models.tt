@@ -86,7 +86,7 @@
          <th><abbr title="[% cisco_eol_desc | html_entity %]">Last Date of HW Support</abbr></th>
          <td><input type="text" id="dateeol" name="model_dateeol" maxlength="15" />
         (optional, leave blank if not known)
-       </td</tr>
+       </td></tr>
       <tr><td colspan="2">
         <input type="hidden" name="action" value="create" />
         <input type="submit" value="Create Entry" />

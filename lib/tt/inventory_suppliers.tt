@@ -83,7 +83,7 @@
     <tr [% IF supplier.name == 'OUCS' %] class="status-inactive" [% END %]>
       <td><input type="radio" name="supplier_id" value="[% supplier.id  | html_entity %]" /></td>
       <td>[% supplier.name       | html_entity %]</td>
-      <td>[% IF supplier.website.length > 1 %] <a href="[% supplier.website | html_entity %]" target="_blank">[% supplier.website | html_entity %]</a>[% END %]</td>
+      <td>[% IF supplier.website.length > 1 %] <a href="[% supplier.website | html_entity %]">[% supplier.website | html_entity %]</a>[% END %]</td>
       <td>[% supplier.techphone  | html_entity %]</td>
       <td>[% supplier.salesphone | html_entity %]</td>
       <td>[% supplier.address    | html_entity %]</td>
@@ -91,8 +91,9 @@
   
   [% END %]
   </tbody>
+ </table>
 </fieldset>
-</table>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">
