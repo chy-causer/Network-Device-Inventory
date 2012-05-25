@@ -36,7 +36,7 @@
 </div>
 
 <div class="submenu">
-<h5>Frodos DNS</h5>
+<h5>FroDo DNS</h5>
 <ul>
   <li><a href="cnames"><abbr title="[Switch provided to the] Front Door">FroDo</abbr> CNAMEs</a> (full many-many interface)</li>
 </ul>

@@ -98,7 +98,7 @@ CREATE TABLE status (
 
 INSERT INTO status(state,description) VALUES ('ACTIVE', 'Currently live');
 INSERT INTO status(state,description) VALUES ('INACTIVE', 'Currently not live');
-INSERT INTO status(state,description) VALUES ('DECOMMISIONED', 'Thrown away');
+INSERT INTO status(state,description) VALUES ('DECOMMISSIONED', 'Thrown away');
 
 CREATE TABLE hosts (
     id          serial NOT NULL,

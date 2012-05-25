@@ -75,7 +75,7 @@
      [%- livehosts = livehosts + ( location_counts.$id.active || 0 ) %]
 [%- END -%]
 
-<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livelocations %]</strong> seperate location types.</p>
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livelocations %]</strong> separate location types.</p>
 <!-- end summary -->
 
 <!-- alerts and potential projects -->

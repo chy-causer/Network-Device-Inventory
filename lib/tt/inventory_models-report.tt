@@ -78,7 +78,7 @@
      [%- livehosts = livehosts + host_counts.$id.active %]
 [%- END -%]
 
-<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livemodels %]</strong> seperate model types.</p>
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livemodels %]</strong> separate model types.</p>
 <!-- end summary -->
 
 <!-- alerts and potential projects -->
