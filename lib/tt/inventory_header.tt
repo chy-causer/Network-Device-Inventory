@@ -12,20 +12,16 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/inventory.css" />
     <link rel="stylesheet" type="text/css" media="print"  href="/stylesheets/inventory_print.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/inventory_nonstandard.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/jquery-ui-1.8.17.custom.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/jquery.ui.all.css" />
     
-    <script type="text/javascript" src="/javascript/jquery.min.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.custom.min.js"></script>
-    
-    <script type="text/javascript" src="/javascript/jquery.tablesorter.min.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.ui.core.min.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.ui.sortable.min.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.ui.tabs.min.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.ui.widget.js"></script> 
-    
+    <link rel="stylesheet" type="text/css" media="screen" href="/stylesheets/jquery.css" />
+   
+    <script type="text/javascript" src="/javascript/jquery.js"></script> 
     <script type="text/javascript" src="/javascript/jquery.flot.js"></script> 
-    <script type="text/javascript" src="/javascript/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="/javascript/jquery.flot.pie.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.tablesorter.js"></script> 
+    <script type="text/javascript" src="/javascript/jquery.scrollabletable.js"></script> 
+    <script type="text/javascript" src="/javascript/ui.core.js"></script> 
+    <script type="text/javascript" src="/javascript/ui.tabs.js"></script> 
 
 </head>
 

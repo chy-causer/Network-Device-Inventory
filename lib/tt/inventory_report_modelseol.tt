@@ -47,7 +47,7 @@ last date of hardware support</abbr></p>
   <tbody>
   [% FOR model IN expired.keys %]
     <tr>
-      <td><a href="models&model_id=[% expired.$model.id | html_entity %]">([% expired.$model.manufacturer_name | html_entity %]) 
+      <td><a href="models?model_id=[% expired.$model.id | html_entity %]">([% expired.$model.manufacturer_name | html_entity %]) 
            [% expired.$model.name | html_entity %]</a></td>
       <td>[% expired.$model.dateeol | html_entity %]</td>
     </tr>

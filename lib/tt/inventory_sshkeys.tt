@@ -46,7 +46,7 @@ function validatesshkey(formname) {
     [%- STOP -%]
 [%- END -%]
 
-<form action="sshkeys" method="post" name="newkey">
+<form action="sshkeys" method="post" id="newkey">
   <fieldset><legend>Enter a new SSH key</legend>
        <p>SSH Key fingerprint for [%  host.name | html_entity %]
        <input type="text" maxlength="48" name="sshkey_fingerprint" onchange="return validatesshkey('newkey')" />
@@ -107,7 +107,7 @@ function validatesshkey(formname) {
     <p class="input-warning">It's not possible to add a new sshkey until you've created some hosts on the <a href="hosts">hosts input page</a>.</p>
 [% ELSE %]
 
-<form action="sshkeys" method="post" name="newkey">
+<form action="sshkeys" method="post" id="newkey">
   <fieldset><legend>Enter a new record</legend>
        <p>SSH Key fingerprint
        <input type="text" maxlength="48" name="sshkey_fingerprint" onchange="return validatesshkey('newkey')" />

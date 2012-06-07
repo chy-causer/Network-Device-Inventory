@@ -1,4 +1,3 @@
-<div>
 [% IF pagetitle %]<h3>[% pagetitle | html_entity %]</h3>[% END %]
 
 [%- description = '' -%] 
@@ -76,7 +75,7 @@
      [%- livehosts = livehosts + ( location_counts.$id.active || 0 ) %]
 [%- END -%]
 
-<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livelocations %]</strong> seperate location types.</p>
+<p><strong>[% livehosts %]</strong> active devices, comprised of <strong>[% livelocations %]</strong> separate location types.</p>
 <!-- end summary -->
 
 <!-- alerts and potential projects -->
@@ -124,7 +123,7 @@
 </div> <!-- page end -->
 
 <script type="text/javascript">
-
+<!--
 $(document).ready(function(){
       $("#allresults").tablesorter({
           sortList:[[0,0], [1,0]],
@@ -174,5 +173,5 @@ function ShowId(id) {
     document.getElementById("location-" + id ).style.display = "";
 
 }
-
+-->
 </script>

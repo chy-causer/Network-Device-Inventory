@@ -34,7 +34,7 @@ $(document).ready(function(){
 
   <p>The team ran ~70 servers but information in multiple locations such as wiki pages and spreadsheets.</p>
 
-  <p>The inventory was created to centralise that information and to feed it into the configuration of a seperate service/network monitoring system</p>
+  <p>The inventory was created to centralise that information and to feed it into the configuration of a separate service/network monitoring system</p>
 
   <p>In February 2012, after request from the author, the software was approved for release under the GPL</p>
 </div> <!-- end history -->

@@ -1,7 +1,7 @@
 <div>
 [%- INCLUDE inventory_include_arraymessage.tt -%]
 
-<p>It's intended that this feature will be removed by a dedicated and seperate DNS management tool in the future.</p>
+<p>It's intended that this feature will be removed by a dedicated and separate DNS management tool in the future.</p>
 
 [% IF edit %]
 <form action="quickcnames" method="post">
@@ -105,7 +105,7 @@ $(document).ready(function() {
   </thead>
   
   <tfoot>
-  <tr><td colspan="4">See the <a href="frodo">frodo</a> page for a per frodo overview</td></tr>
+  <tr><td colspan="4">See the <a href="frodo">FroDo</a> page for a per FroDo overview</td></tr>
   </tfoot>
 
   <tbody>
@@ -127,7 +127,9 @@ $(document).ready(function() {
   [% END %]
   </tbody>
 
-</table>
+  </table>
+ </fieldset>
+</form>
 
 [% ELSE %]
 <div class="ui-widget">
@@ -138,7 +140,5 @@ $(document).ready(function() {
    </div>
 </div>
 [% END %]
-</fieldset>
-</form>
 
 </div>

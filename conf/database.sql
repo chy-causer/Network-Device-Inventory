@@ -23,6 +23,7 @@ CREATE TABLE contacts (
     telephone     character varying,
     role          character varying,
     notes         character varying,
+    email         character varying,
     PRIMARY KEY(id)
 );
 ALTER TABLE ONLY contacts ADD CONSTRAINT contacts_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES suppliers(id);
@@ -97,7 +98,7 @@ CREATE TABLE status (
 
 INSERT INTO status(state,description) VALUES ('ACTIVE', 'Currently live');
 INSERT INTO status(state,description) VALUES ('INACTIVE', 'Currently not live');
-INSERT INTO status(state,description) VALUES ('DECOMMISIONED', 'Thrown away');
+INSERT INTO status(state,description) VALUES ('DECOMMISSIONED', 'Thrown away');
 
 CREATE TABLE hosts (
     id          serial NOT NULL,
@@ -205,16 +206,29 @@ CREATE TABLE sshkeys (
 ALTER TABLE ONLY sshkeys ADD CONSTRAINT sshkeys_host_id_fkey FOREIGN KEY (host_id) REFERENCES hosts(id);
 ALTER TABLE sshkeys ADD CONSTRAINT dedupe_sshkey_perhost UNIQUE (host_id,fingerprint);
 
-CREATE TABLE interfaces_to_services (
-    id             serial NOT NULL,
-    service_id     integer NOT NULL,
-    interface_id   integer NOT NULL,
-    port           integer NOT NULL,
-    protocol_id    integer NOT NULL,
+CREATE TABLE introles (
+    id           serial NOT NULL,
+    name         character varying UNIQUE NOT NULL,
+    description  character varying,
+    bash         character varying,
+    nagios       character varying UNIQUE,
     PRIMARY KEY(id)
 );
-ALTER TABLE ONLY interfaces_to_services ADD CONSTRAINT interfaces_to_services_service_id_fkey FOREIGN KEY (service_id) REFERENCES services(id);
-ALTER TABLE ONLY interfaces_to_services ADD CONSTRAINT interfaces_to_services_protocol_id_fkey FOREIGN KEY (protocol_id) REFERENCES protocols(id);
+
+ALTER TABLE ONLY introles ADD CONSTRAINT "bash" CHECK (char_length(bash::text) < 25);
+ALTER TABLE ONLY introles ADD CONSTRAINT "description" CHECK (char_length(description::text) < 150);
+ALTER TABLE ONLY introles ADD CONSTRAINT "nagios" CHECK (char_length(nagios::text) < 25);
+ALTER TABLE ONLY introles ADD CONSTRAINT "name" CHECK (char_length(name::text) < 25);
+
+CREATE TABLE interfaces_to_introles (
+    id           serial NOT NULL,
+    introle_id   integer NOT NULL,
+    interface_id integer NOT NULL,
+    PRIMARY KEY(id)
+);
+
+ALTER TABLE ONLY interfaces_to_introles ADD CONSTRAINT interfaces_to_introles_interface_id_fkey FOREIGN KEY (interface_id) REFERENCES interfaces(id) ON DELETE CASCADE;
+ALTER TABLE ONLY interfaces_to_introles ADD CONSTRAINT interfaces_to_introles_introle_id_fkey FOREIGN KEY (introle_id) REFERENCES introles(id) ON DELETE CASCADE;
 
 CREATE TABLE voipbackends (
     id     serial NOT NULL,
@@ -273,11 +287,9 @@ ALTER TABLE ONLY hoststocontracts ADD CONSTRAINT hoststocontracts_contract_id_fk
 
 
 GRANT select ON hostgroups TO demouser;
-GRANT select ON interfaces_to_services TO demouser;
 GRANT select ON hosts TO demouser;
 GRANT select ON interfaces TO demouser;
 GRANT select ON hosts_to_hostgroups TO demouser;
-GRANT select ON services TO demouser;
 GRANT select ON locations TO demouser;
 GRANT select ON sshkeys TO demouser;
 GRANT select ON photos TO demouser;
@@ -293,18 +305,17 @@ GRANT select ON protocols TO demouser;
 GRANT select ON hosts_to_upshost TO demouser;
 GRANT select ON suppliers TO demouser;
 GRANT select ON servicelevels TO demouser;
-
+GRANT select ON introles TO demouser;
+GRANT select ON interfaces_to_introles TO demouser;
 GRANT select ON contacts TO demouser;
 GRANT select ON invoices TO demouser;
 GRANT select ON contracts TO demouser;
 GRANT SELECT ON hoststocontracts TO demouser;
 
 GRANT select ON hostgroups_id_seq TO demouser;
-GRANT select ON interfaces_to_services_id_seq TO demouser;
 GRANT select ON hosts_id_seq TO demouser;
 GRANT select ON interfaces_id_seq TO demouser;
 GRANT select ON hosts_to_hostgroups_id_seq TO demouser;
-GRANT select ON services_id_seq TO demouser;
 GRANT select ON locations_id_seq TO demouser;
 GRANT select ON sshkeys_id_seq TO demouser;
 GRANT select ON photos_id_seq TO demouser;
@@ -320,19 +331,19 @@ GRANT select ON protocols_id_seq TO demouser;
 GRANT select ON hosts_to_upshost_id_seq TO demouser;
 GRANT select ON suppliers_id_seq TO demouser;
 GRANT select ON servicelevels_id_seq TO demouser;
-
 GRANT select ON contacts_id_seq TO demouser;
 GRANT select ON invoices_id_seq TO demouser;
 GRANT select ON contracts_id_seq TO demouser;
 GRANT select ON hoststocontracts_id_seq TO demouser;
+GRANT select ON introles_id_seq TO demouser;
+GRANT select ON interfaces_to_introles_id_seq TO demouser;
+
 
 
 GRANT select,insert,update,delete ON hostgroups TO writeuser;
-GRANT select,insert,update,delete ON interfaces_to_services TO writeuser;
 GRANT select,insert,update,delete ON hosts TO writeuser;
 GRANT select,insert,update,delete ON interfaces TO writeuser;
 GRANT select,insert,update,delete ON hosts_to_hostgroups TO writeuser;
-GRANT select,insert,update,delete ON services TO writeuser;
 GRANT select,insert,update,delete ON locations TO writeuser;
 GRANT select,insert,update,delete ON sshkeys TO writeuser;
 GRANT select,insert,update,delete ON photos TO writeuser;
@@ -348,18 +359,17 @@ GRANT select,insert,update,delete ON protocols TO writeuser;
 GRANT select,insert,update,delete ON hosts_to_upshost TO writeuser;
 GRANT select,insert,update,delete ON suppliers TO writeuser;
 GRANT select,insert,update,delete ON servicelevels TO writeuser;
-
 GRANT select,insert,update,delete ON contacts TO writeuser;
 GRANT select,insert,update,delete ON invoices TO writeuser;
 GRANT select,insert,update,delete ON contracts TO writeuser;
 GRANT select,insert,update,delete ON hoststocontracts TO writeuser;
+GRANT select,insert,update,delete ON introles TO writeuser;
+GRANT select,insert,update,delete ON interfaces_to_introles TO writeuser;
 
 GRANT all ON hostgroups_id_seq TO writeuser;
-GRANT all ON interfaces_to_services_id_seq TO writeuser;
 GRANT all ON hosts_id_seq TO writeuser;
 GRANT all ON interfaces_id_seq TO writeuser;
 GRANT all ON hosts_to_hostgroups_id_seq TO writeuser;
-GRANT all ON services_id_seq TO writeuser;
 GRANT all ON locations_id_seq TO writeuser;
 GRANT all ON sshkeys_id_seq TO writeuser;
 GRANT all ON photos_id_seq TO writeuser;
@@ -375,8 +385,9 @@ GRANT all ON protocols_id_seq TO writeuser;
 GRANT all ON hosts_to_upshost_id_seq TO writeuser;
 GRANT all ON suppliers_id_seq TO writeuser;
 GRANT all ON servicelevels_id_seq TO writeuser;
-
 GRANT all ON contacts_id_seq TO writeuser;
 GRANT all ON invoices_id_seq TO writeuser;
 GRANT all ON contracts_id_seq TO writeuser;
 GRANT all ON hoststocontracts_id_seq TO writeuser;
+GRANT all ON introles_id_seq TO writeuser;
+GRANT all ON interfaces_to_introles_id_seq TO writeuser;

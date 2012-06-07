@@ -99,8 +99,8 @@
   </tfoot>
 
   <tbody>
-  [%- counter=0 -%]
   [%- FOR servicelevel IN servicelevels -%]
+   <tr>
       <td><input type="radio" name="servicelevel_id" value="[% servicelevel.id  | html_entity %]" /></td>
       <td>[% servicelevel.name          | html_entity %]</td>
       <td>[% servicelevel.supplier_name | html_entity %]</td>
@@ -108,9 +108,10 @@
    </tr>
   
   [%- END -%]
-  </tbody>
-</fieldset>
-</table>
+   </tbody>
+  </table>
+ </fieldset>
+</form>
 
 [%- ELSE -%]
 
@@ -123,4 +124,3 @@
 </div>
 
 [%- END -%]
-</div>

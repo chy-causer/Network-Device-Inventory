@@ -16,26 +16,16 @@
 <p>Model types with no the <abbr title="[% cisco_eol_desc | html_entity %]">last date of hardware support</abbr> entered:</p>
 
 <table class="warning-report">
-
-[%#
- We break loop.index so have to use a counter
-%]
  [%- counter=0 -%]
  [%- FOR model IN models -%]
     [%- NEXT IF model.dateeol.match('\d+') -%]
-    
-    [% IF counter % 2 %]
-       <tr>
-    [% END %]
 
+    [% IF (counter - 1 ) % 2 -%]  <tr>  [%- END %]
     <td><a href="models?model_id=[% model.id | html_entity %]">([% model.manufacturer_name | html_entity %]) [% model.name | html_entity %]</a></td>
-
-    [% IF ! counter % 2 %]
-       </tr>
-    [%- END -%]
+    [% IF counter % 2 -%]  </tr>  [%- END %]
     [%- counter = counter + 1 -%]
  [%- END -%]
-  
+    [% IF counter % 2 -%]  </tr>  [%- END %]
 </table>
 
 </div>

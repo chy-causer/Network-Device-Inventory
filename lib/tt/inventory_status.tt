@@ -48,8 +48,8 @@
   </thead>
   
   <tfoot>
-     <td colspan="3">[% status.size | html_entity %] results were returned</td>
-  <tfoot>
+     <tr><td colspan="3">[% status.size | html_entity %] results were returned</td></tr>
+  </tfoot>
 
   <tbody>
   [% counter=0 %]
