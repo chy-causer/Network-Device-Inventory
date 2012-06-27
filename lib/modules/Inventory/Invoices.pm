@@ -498,6 +498,12 @@ sub count_hosts_perinvoice {
         my $invoice_id   = $dbdata{'invoice_id'};
         my $state        = lc $dbdata{'status_state'};
 
+        if(! defined $return_hash{$invoice_id} ){
+            # just checking 'defined' on the key instead of 'exists' should
+            # be enough to create it.
+            $return_hash{$invoice_id}{$state}=0;
+        }
+
         $return_hash{$invoice_id}{$state}++;
         $return_hash{$invoice_id}{'invoice_description'} = $invoice_desc;
 
