@@ -158,14 +158,20 @@ elsif ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
             my ( $oct3, $oct4 ) = ( $4, $5 );
 
             if ( $POSTS{'arec_x'} ) {
-
-                # for frodos the host_name in inventory is same as arec
-                $POSTS{'host_name'} = $POSTS{'arec_x'};
-                $POSTS{'cname_x'}   = "frodo-${oct3}${oct4}"
-                  if $oct4 < 100;
+                # use the supplied name as the DNS (alias) name
+                #
+                if ($oct3 > 0 ){
+                   $POSTS{'shortname'} = "frodo-$oct3$oct4";
+                   $POSTS{'host_name'} = "frodo-$oct3$oct4";
+                }
+                else {
+                   $POSTS{'shortname'} = "frodo-$oct4";
+                   $POSTS{'host_name'} = "frodo-$oct4";
+                }
+                # the target of the cname is the 'friendly' name they typed in
+                $POSTS{'dnsname'}   = $POSTS{'arec_x'};
             }
             else {
-
                 # but for others we can compute it
                 $POSTS{'host_name'} =
                   sprintf( $hostname_mapping{ $POSTS{'device_type'} },

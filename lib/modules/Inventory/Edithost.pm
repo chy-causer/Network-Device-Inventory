@@ -71,7 +71,7 @@ Readonly my $TABLEID_VOIPUPS2 => '28';
 Readonly my $ENTRY            => 'host';
 
 Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
-Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_INPUT_ERR  => "Please check your $ENTRY data input";
 Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
 Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
 Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
@@ -439,14 +439,21 @@ sub _update_interfaces {
                 next;
             }
 
+            my %cedit;
+            $cedit{host_id}   = $POSTS->{'host_id'};
+            $cedit{dnsname}   = lc $POSTS->{$field};
+            $cedit{shortname} = lc $POSTS->{"cname_${cname_id}"};
+            $cedit{cname_id}  = $cname_id;
+            
             push @{$messages},
+
               Inventory::Cnames::edit_cnames(
                 $dbh,
                 {
-                    host_id   => $POSTS->{'host_id'},
-                    dnsname   => lc $POSTS->{$field},
-                    shortname => lc $POSTS->{"cname_${cname_id}"},
-                    cname_id  => $cname_id,
+                    host_id   => $cedit{'host_id'},
+                    dnsname   => $cedit{'dnsname'},
+                    shortname => $cedit{'shortname'},
+                    cname_id  => $cedit{'cname_id'},
                 }
               );
         }
@@ -526,7 +533,12 @@ sub _add_interface {
 
     # the template will show arec and cname fields appropriate to whether
     # existing records are in place or there is/is not a primary interface
-
+    
+    # frodos need a tweak.
+    if( not $POSTS->{'cname_x'} and $POSTS->{'host_name'} ){
+        $POSTS->{'cname_x'} = $POSTS->{'host_name'};
+    }
+    
     if (   ( $POSTS->{'arec_x'} and not $POSTS->{'cname_x'} )
         or ( not $POSTS->{'arec_x'} and $POSTS->{'cname_x'} ) )
     {
