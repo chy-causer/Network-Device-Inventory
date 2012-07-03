@@ -188,8 +188,8 @@
             <input type="hidden" name="ups_x" value="MAGIC_FRODO_UPS_NAME_COOKIE" />
         [%- END -%]
         <br />
-        with description: <input type="text" size="25" name="ups_x_description" value="[% IF posts.exists('ups_x_description') %][% posts.ups_x_description | html_entity %][% END %]" />
-        and IP: <input type="text" size="25" maxlength="53" name="ups_x_ip" value="[% IF posts.exists('ups_x_ip') %][% posts.ups_x_ip | html_entity %][% END %]" />
+        optional description: <input type="text" size="25" name="ups_x_description" value="[% IF posts.exists('ups_x_description') %][% posts.ups_x_description | html_entity %][% END %]" />
+        <br />IP Address: <input type="text" size="25" maxlength="53" name="ups_x_ip" value="[% IF posts.exists('ups_x_ip') %][% posts.ups_x_ip | html_entity %][% END %]" />
         </div>
        [%- END -%]
      </td>

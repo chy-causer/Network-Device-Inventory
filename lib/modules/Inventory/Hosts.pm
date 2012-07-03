@@ -129,6 +129,10 @@ sub create_hosts {
     {
         $posts->{'host_description'} =~ s/[^\w\s\-]//gx;
     }
+    else {
+        $posts->{'host_description'} = undef;
+    }
+
     $posts->{'host_name'} = lc $posts->{'host_name'};
 
     if (   not exists $posts->{'invoice_id'}
@@ -215,6 +219,10 @@ sub edit_hosts {
     {
         $posts->{'host_description'} =~ s/[^\w\s\-]//gx;
     }
+    else {
+        $posts->{'host_description'} = undef;
+    }
+
     $posts->{'host_name'} = lc $posts->{'host_name'};
 
     my $sth = $dbh->prepare(
