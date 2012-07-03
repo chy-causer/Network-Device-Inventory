@@ -66,7 +66,7 @@ Readonly my $ENTRY           => 'interface role';
 Readonly my $MAX_NAME_LENGTH => '30';
 
 Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
-Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_INPUT_ERR  => "Please check your $ENTRY data input";
 Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
 Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
 Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";

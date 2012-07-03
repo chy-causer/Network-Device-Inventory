@@ -75,7 +75,7 @@ Readonly my $CISCO_MAC_LENGTH => '14';
 Readonly my $BARE_MAC_LENGTH  => '12';
 
 Readonly my $MSG_DBH_ERR    => 'Internal Error: Lost the database connection';
-Readonly my $MSG_INPUT_ERR  => 'Input Error: Please check your input';
+Readonly my $MSG_INPUT_ERR  => "Please check your $ENTRY data input";
 Readonly my $MSG_CREATE_OK  => "The $ENTRY creation was successful";
 Readonly my $MSG_CREATE_ERR => "The $ENTRY creation was unsuccessful";
 Readonly my $MSG_EDIT_OK    => "The $ENTRY edit was successful";
