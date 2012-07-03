@@ -96,12 +96,12 @@ if ( exists $gets{'host_id'} ) {
 if ( $gets{'cname_id'} && $gets{'cname_id'} =~ m/^[\d]+$/x ) {
     if ( exists $gets{'action'} and $gets{'action'} eq 'edit' ) {
         $logger->debug(
-            "$ENV{REMOTE_USER} takes first step to edit ID $gets{'sshkey_id'}");
+            "$ENV{REMOTE_USER} takes first step to edit ID $gets{'cname_id'}");
         $edit = $gets{'cname_id'};
     }
     elsif ( exists $gets{'action'} and $gets{'action'} eq 'delete' ) {
         $logger->debug(
-            "$ENV{REMOTE_USER} takes first step to delete ID $gets{'sshkey_id'}"
+            "$ENV{REMOTE_USER} takes first step to delete ID $gets{'cname_id'}"
         );
         $delete = $gets{'cname_id'};
     }
