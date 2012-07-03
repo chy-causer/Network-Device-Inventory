@@ -177,7 +177,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
   
   [% primaryexists=0 %]
   [% FOREACH interface IN hosts.$host.interfaces %]
-    [% IF interface.isprimary == '1' %]
+    [% IF (interface.isprimary || 0 )  == '1' %]
        [% primaryexists=1 %]
        [% LAST %]
     [% END %]
@@ -209,7 +209,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
        - secondary 
     [%- END -%]
      <ul>
-      [%- IF interface.hostgroups.size < 1 -%]
+      [%- IF (interface.hostgroups.size || 0 ) < 1 -%]
         <li class="input-warning">This interface is a member of no hostgroups</li>
       [% ELSE %]
         [%- FOREACH thisrole IN interface.hostgroups -%]
