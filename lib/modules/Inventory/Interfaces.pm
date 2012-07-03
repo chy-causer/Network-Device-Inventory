@@ -164,7 +164,7 @@ sub create_interfaces {
         return { 'ERROR' => $MSG_CREATE_ERR };
     }
 
-    return { 'ERROR' => $MSG_CREATE_OK };
+    return { 'SUCCESS' => $MSG_CREATE_OK };
 }
 
 =pod
