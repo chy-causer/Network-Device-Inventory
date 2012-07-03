@@ -52,7 +52,7 @@ onload=document.forms.selectbox.[% IF quickview.size && quickview.size < 1 -%]ip
     <th>Name</th>
       <td>
         [% hosts.$host.name | html_entity -%]
-        (<a href="edithost?shortname=[% hosts.$host.name | uri %]" style="color:red">Quick Edit</a>)
+        (<a href="edithost?host_id=[% hosts.$host.id | uri %]" style="color:red">Quick Edit</a>)
       </td>   
   </tr>
   
