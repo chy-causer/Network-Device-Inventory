@@ -285,6 +285,13 @@ CREATE TABLE hoststocontracts (
 ALTER TABLE ONLY hoststocontracts ADD CONSTRAINT hoststocontracts_host_id_fkey FOREIGN KEY (host_id) REFERENCES hosts(id);
 ALTER TABLE ONLY hoststocontracts ADD CONSTRAINT hoststocontracts_contract_id_fkey FOREIGN KEY (contract_id) REFERENCES contracts(id);
 
+CREATE TABLE cnames (
+    id             serial UNIQUE NOT NULL,
+    host_id        integer NOT NULL,
+    shortname      character varying NOT NULL,
+    dnsname        character varying NOT NULL,
+);
+ALTER TABLE ONLY cnames ADD CONSTRAINT cnames_host_id_fkey FOREIGN KEY (host_id) REFERENCES hosts(id) ON DELETE CASCADE;
 
 GRANT select ON hostgroups TO demouser;
 GRANT select ON hosts TO demouser;
@@ -310,6 +317,7 @@ GRANT select ON interfaces_to_introles TO demouser;
 GRANT select ON contacts TO demouser;
 GRANT select ON invoices TO demouser;
 GRANT select ON contracts TO demouser;
+GRANT select ON cnames TO demouser;
 GRANT SELECT ON hoststocontracts TO demouser;
 
 GRANT select ON hostgroups_id_seq TO demouser;
@@ -336,12 +344,12 @@ GRANT select ON invoices_id_seq TO demouser;
 GRANT select ON contracts_id_seq TO demouser;
 GRANT select ON hoststocontracts_id_seq TO demouser;
 GRANT select ON introles_id_seq TO demouser;
+GRANT select ON cnames_id_seq TO demouser;
 GRANT select ON interfaces_to_introles_id_seq TO demouser;
-
-
 
 GRANT select,insert,update,delete ON hostgroups TO writeuser;
 GRANT select,insert,update,delete ON hosts TO writeuser;
+GRANT select,insert,update,delete ON cnames TO writeuser;
 GRANT select,insert,update,delete ON interfaces TO writeuser;
 GRANT select,insert,update,delete ON hosts_to_hostgroups TO writeuser;
 GRANT select,insert,update,delete ON locations TO writeuser;
@@ -390,4 +398,5 @@ GRANT all ON invoices_id_seq TO writeuser;
 GRANT all ON contracts_id_seq TO writeuser;
 GRANT all ON hoststocontracts_id_seq TO writeuser;
 GRANT all ON introles_id_seq TO writeuser;
+GRANT all ON cnames_id_seq TO writeuser;
 GRANT all ON interfaces_to_introles_id_seq TO writeuser;
