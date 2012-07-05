@@ -249,18 +249,19 @@ sub _add_ups {
         return;
     }
 
-    # or create and link a new ups on the fly
-    return if not( $POSTS->{'ups_x'} and $POSTS->{'ups_x_ip'} );
-
-    # sanity clause check for name and ip
-    if (   ( $POSTS->{'ups_x'} and not $POSTS->{'ups_x_ip'} )
-        or ( $POSTS->{'ups_x_ip'} and not $POSTS->{'ups_x'} ) )
-    {
-
-        push @{$messages}, { ERROR => $MSG_PROG_ERR };
+    if ( not exists $POSTS->{'ups_x'} || not defined $POSTS->{'ups_x'} ){
+        # return if this isn't set
         return;
-    }
-
+    };
+    if ( not exists $POSTS->{'ups_x_ip'} || not defined $POSTS->{'ups_x_ip'} ){
+        # return if this isn't set
+        return;
+    };
+    if ( $POSTS->{'ups_x_ip'} eq '' ){
+        # just an empty form field, it's defined but has no data
+        return;
+    };
+    
     # we can generate the ups name for network devices
     if ( $POSTS->{'ups_x'} eq 'MAGIC_FRODO_UPS_NAME_COOKIE' ) {
         if ( $POSTS->{'device_type'} eq 'frodo' ) {
@@ -535,6 +536,9 @@ sub _add_interface {
     # existing records are in place or there is/is not a primary interface
     
     # frodos need a tweak.
+
+    if ( $POSTS->{'device_type'} and $POSTS->{'device_type'} eq 'frodo' ) {
+
     if( not $POSTS->{'cname_x'} and $POSTS->{'host_name'} ){
         $POSTS->{'cname_x'} = $POSTS->{'host_name'};
     }
@@ -556,6 +560,8 @@ sub _add_interface {
             }
           );
     }
+    }
+
     return;
 }
 

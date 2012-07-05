@@ -127,7 +127,7 @@ my %hostname_mapping = (
 
 # form submission triggers a whole update of all data
 
-if (    ( $POSTS{'device_type'} eq 'frodo')
+if (    ( exists $POSTS{'device_type'} and $POSTS{'device_type'} eq 'frodo')
     and ( not defined $POSTS{'arec_x'} or length $POSTS{'arec_x'} < 1 ) )
 {
     my %message;
