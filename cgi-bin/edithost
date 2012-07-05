@@ -127,7 +127,7 @@ my %hostname_mapping = (
 
 # form submission triggers a whole update of all data
 
-if (    ( $POSTS{'device_type'} )
+if (    ( $POSTS{'device_type'} eq 'frodo')
     and ( not defined $POSTS{'arec_x'} or length $POSTS{'arec_x'} < 1 ) )
 {
     my %message;
@@ -157,7 +157,7 @@ elsif ( $POSTS{'host_name'} or $POSTS{'device_type'} ) {
             $aobj->addr =~ m/^$RE{net}{IPv4}{-keep}$/;
             my ( $oct3, $oct4 ) = ( $4, $5 );
 
-            if ( $POSTS{'arec_x'} ) {
+            if ( $POSTS{'arec_x'} and $POSTS{'device_type'} eq 'frodo') {
                 # use the supplied name as the DNS (alias) name
                 #
                 if ($oct3 > 0 ){

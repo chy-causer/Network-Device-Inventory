@@ -93,8 +93,14 @@ function highlightdropdown(fieldname){
 function submitcheck (){
      // disable the submit button or not?
 
-     if( nameexists() || !validatename() || !validateip() ){
-        document.getElementById('submit').disabled = 1;
+     if ( document.forms["edithost"]["device_type"].value == 'frodo' ){ 
+         if( nameexists() || !validatename() || !validateip() ){
+             document.getElementById('submit').disabled = 1;
+         }
+         else {
+             // everything is fine
+             document.getElementById('submit').disabled = 0;
+         }
      }
      else {
         // everything is fine
