@@ -1,0 +1,170 @@
+#!/usr/bin/perl
+
+=pod
+
+=head1 NAME
+
+update_cached_dns
+
+=head1 DESCRIPTION
+
+update cached dns lookups in the inventory for active hosts
+
+We cache the lookups as otherwise the web interface might have to perform
+hundreds of lookups per page visit which would be bad for performance.
+
+=cut
+
+use strict;
+use warnings;
+
+=pod
+
+=head1 DEPENDENCIES
+
+Carp
+Config::Tiny
+DBD::Pg
+DBI
+Getopt::Long
+Net::DNS
+Inventory 1.0
+
+=cut
+
+use Carp;
+use Config::Tiny;
+use DBD::Pg;
+use DBI;
+use Getopt::Long;
+use Net::DNS;
+use Inventory 1.0;
+
+=pod
+
+=head1 CONFIGURATION
+
+Configuration is currently via
+
+/srv/www/overlord/lib/inventory.ini
+
+=cut
+
+my $HOSTNAME = 'overlord';
+
+my $CONFIG      = Config::Tiny->new();
+my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
+$CONFIG = Config::Tiny->read("$CONFIG_FILE")
+  or die "Can't read $CONFIG_FILE due to $!\n";
+
+my $dbhost = $CONFIG->{'database'}->{db_host};
+my $dbname = $CONFIG->{'database'}->{db_name};
+my $dbuser = $CONFIG->{'database'}->{db_user};
+my $dbpass = $CONFIG->{'database'}->{db_pass};
+my $dbh    = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
+Carp::croak if !defined $dbh;
+
+=pod
+
+=head1 OPTIONS
+
+ --verbose Will supply warnings when DNS lookups fail. This is off by default
+ as we're expecting the dns lookups to fial on some interfaces (RFC1918 etc)
+
+ --dryrun Do all the dns lookups but don't commit any changes to the database
+
+=cut
+
+my $verbose = 0;    # option variable with default value (false)
+my $dryrun  = 0;    # option variable with default value (false)
+GetOptions( 'verbose' => \$verbose, 'dryrun' => \$dryrun );
+
+my $sth = $dbh->prepare(
+    "SELECT interfaces.id,interfaces.address,interfaces.lastresolvedfqdn 
+           FROM interfaces,hosts,status 
+           WHERE interfaces.host_id = hosts.id 
+           AND hosts.status_id = status.id 
+           AND status.state='ACTIVE';"
+);
+
+Carp::croak if !$sth->execute();
+
+my $update =
+  $dbh->prepare('UPDATE interfaces SET lastresolvedfqdn = ? WHERE id = ?');
+my $res = Net::DNS::Resolver->new;
+
+my $fixed = 0;
+
+while ( my $ref = $sth->fetchrow_hashref ) {
+    my $current = $ref->{lastresolvedfqdn};
+    my $query = $res->search( $ref->{address}, 'PTR' );
+    my $new;
+
+    if ($query) {
+        foreach my $rr ( $query->answer ) {
+            next unless $rr->type eq 'PTR';
+            $new = $rr->ptrdname;
+        }
+    }
+    else {
+        next if not $verbose;
+        Carp::carp 'Lookup failed for '
+          . $ref->{address}
+          . ' due to '
+          . $res->errorstring . '\n';
+        next;
+    }
+
+    # record hasn't changed
+    next if $current eq $new;
+
+    print "\tUPDATE: $current, \(interfaces.id "
+      . $ref->{'id'}
+      . "\) to $new\n";
+
+    if ( not $dryrun ) {
+        $update->execute( $new, $ref->{id} )
+          or die "Database update failed due to: $!\n";
+    }
+
+    $fixed++;
+}
+
+if ( $fixed > 0 ) {
+    print "$fixed records were updated\n";
+}
+
+=pod
+
+=head1 BUGS AND LIMITATIONS
+
+Report any found to <guyjohnedwards@gmail.com>
+
+=head1 AUTHOR
+
+Guy Edwards, maintained by <guyjohnedwards@gmail.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+Network Device Inventory - keep a database of devices to feed other systems
+(such as monitoring software). Copyright 2007 University of Oxford
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+The University of Oxford agrees to the release under the GPL of in the program
+`Inventory' written by Guy Edwards as agreed by Dr. Stuart Lee, Director of
+Oxford University Computer Services.
+
+Oliver Gorwits, who in 2008 contributed sections of the hostgroups programming
+also agreed to the code release under the GPL.
