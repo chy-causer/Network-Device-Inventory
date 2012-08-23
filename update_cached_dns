@@ -8,10 +8,13 @@ update_cached_dns
 
 =head1 DESCRIPTION
 
-update cached dns lookups in the inventory for active hosts
+Intended to be run as a nightly cron job to update cached dns lookups in the
+inventory for interfaces belonging to active hosts
 
 We cache the lookups as otherwise the web interface might have to perform
 hundreds of lookups per page visit which would be bad for performance.
+
+https://github.com/guyed/Network-Device-Inventory/blob/master/update_cached_dns
 
 =cut
 
@@ -46,11 +49,11 @@ use Inventory 1.0;
 
 Configuration is currently via
 
-/srv/www/overlord/lib/inventory.ini
+/srv/www/comms/lib/inventory.ini
 
 =cut
 
-my $HOSTNAME = 'overlord';
+my $HOSTNAME = 'comms';
 
 my $CONFIG      = Config::Tiny->new();
 my $CONFIG_FILE = "/srv/www/$HOSTNAME/lib/inventory.ini";
