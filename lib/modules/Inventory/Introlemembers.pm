@@ -559,7 +559,7 @@ sub fqdns_bybashgroup {
             LEFT JOIN interfaces AS int2 ON int1.host_id = int2.host_id
         WHERE
             introles.bash = ?
-            AND status.state IN ('ACTIVE','INACTIVE')
+            AND status.state IN ('ACTIVE')
             AND int2.isprimary = true;
        }
         );
