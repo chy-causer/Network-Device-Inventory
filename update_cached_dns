@@ -41,6 +41,7 @@ use DBD::Pg;
 use DBI;
 use Getopt::Long;
 use Net::DNS;
+use Tim::HiRes;
 use Inventory 1.0;
 
 =pod
@@ -66,6 +67,7 @@ my $dbuser = $CONFIG->{'database'}->{db_user};
 my $dbpass = $CONFIG->{'database'}->{db_pass};
 my $dbh    = Inventory::dbconnect( $dbname, $dbuser, $dbhost, $dbpass );
 Carp::croak if !defined $dbh;
+my $SLEEP = '0.2'; # seconds
 
 =pod
 
@@ -93,7 +95,7 @@ my $sth = $dbh->prepare(
 Carp::croak if !$sth->execute();
 
 my $update =
-  $dbh->prepare('UPDATE interfaces SET lastresolvedfqdn = ? WHERE id = ?');
+  $dbh->prepare('UPDATE interfaces SET lastresolvedfqdn = ?, lastresolveddate=now() WHERE id = ?');
 my $res = Net::DNS::Resolver->new;
 
 my $fixed = 0;
@@ -102,6 +104,8 @@ while ( my $ref = $sth->fetchrow_hashref ) {
     my $current = $ref->{lastresolvedfqdn};
     my $query = $res->search( $ref->{address}, 'PTR' );
     my $new;
+
+    sleep $DELAY; # Just be a little careful of DOSing the DNS
 
     if ($query) {
         foreach my $rr ( $query->answer ) {
