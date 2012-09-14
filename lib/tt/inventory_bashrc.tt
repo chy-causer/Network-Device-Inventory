@@ -1,40 +1,19 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <title>[% appname | html_entity %] - [% pagetitle | html_entity %] - [% groupname | html_entity %]</title>
-</head>
-<body>
-
-<pre>
 # .bashrc compatible output for hostgroups
 # that have been given a bash name
 
-# This is the copy and paste version
-# You dont want to wget this page
-# as it'll have pre tags in it
-</pre>
-
 [%- IF fqdns_bybashgroups.keys.size > 0 -%]
 
- [%- FOR bashname IN fqdns_bybashgroups.keys.sort -%]
+[%- FOR bashname IN fqdns_bybashgroups.keys.sort -%]
     [%- NEXT IF fqdns_bybashgroups.$bashname.size < 1 -%]
     [%- counter = fqdns_bybashgroups.$bashname.size -%] 
-<pre>
-    [% bashname | html_entity -%]="[% FOR fqdn IN fqdns_bybashgroups.$bashname %][% counter = counter - 1 -%][% IF fqdn != 'UNRESOLVED' -%][% fqdn | html_entity -%] [% END -%][% END -%]"
-</pre>
+[% bashname | html_entity -%]="[% FOR fqdn IN fqdns_bybashgroups.$bashname %][% counter = counter - 1 -%][% IF fqdn != 'UNRESOLVED' -%][% fqdn | html_entity -%] [% END -%][% END -%]"
 
 [%- END -%]
 
 [%- ELSE -%]
-<pre>
 # Sorry, I couldn't find any valid hostgroups
 # where the hosts had an interface up
 #
 # Either the database needs populating or
 # there's a programming error
-</pre>
 [%- END -%]
-
-</body>
-</html>

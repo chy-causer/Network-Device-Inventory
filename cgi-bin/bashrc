@@ -45,7 +45,7 @@ my $logger = Log::Log4perl->get_logger();
 #############################################################################
 
 my $q = CGI->new();
-print $q->header();
+print $q->header( -type => 'text/plain' );
 
 # this just loads the default site settings
 my $tt = Template->new(
